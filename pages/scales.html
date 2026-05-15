@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gammes — Piano Trainer</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <style>
+    .scales-grid-section { margin-top: 36px; }
+    .scales-grid-section h2 { margin-bottom: 4px; }
+    .scales-grid-section p  { color: var(--color-muted); font-size: .875rem; }
+  </style>
+</head>
+<body>
+
+  <header class="nav">
+    <div class="nav__container">
+      <a href="../index.html" class="nav__brand">&#127929; Piano Trainer</a>
+      <nav class="nav__links">
+        <a href="scales.html" class="active">Gammes</a>
+        <a href="circle.html">Cercle des quintes</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <div class="page-header">
+      <h1>Bibliothèque de gammes</h1>
+      <p>Choisissez une tonique et un type de gamme pour la visualiser sur le clavier</p>
+    </div>
+
+    <!-- Controls -->
+    <section class="controls">
+      <div class="controls__group">
+        <span class="controls__label">Tonique</span>
+        <div class="pill-group" id="tonic-selector"></div>
+      </div>
+      <div class="controls__group">
+        <span class="controls__label">Catégorie</span>
+        <div class="pill-group" id="category-filter"></div>
+      </div>
+    </section>
+
+    <!-- Current scale display -->
+    <section class="scale-display card">
+      <div class="scale-display__header">
+        <div>
+          <h2 class="scale-display__title" id="scale-name">Do Majeur</h2>
+          <p class="scale-display__sub" id="scale-sub"></p>
+        </div>
+      </div>
+
+      <div id="scale-notes" class="scale-notes"></div>
+
+      <div id="scale-piano"></div>
+
+      <p class="scale-description" id="scale-description"></p>
+    </section>
+
+    <!-- All scales grid -->
+    <section class="scales-grid-section">
+      <h2>Toutes les gammes</h2>
+      <p>Cliquez sur une carte pour changer la gamme affichée</p>
+      <div id="scales-grid" class="scales-grid"></div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Piano Trainer &mdash; Théorie musicale interactive</p>
+  </footer>
+
+  <script src="../js/music-data.js"></script>
+  <script src="../js/piano.js"></script>
+  <script src="../js/scales.js"></script>
+</body>
+</html>

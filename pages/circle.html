@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cercle des quintes — Piano Trainer</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <style>
+    .circle-info h2     { font-size: 1.5rem; }
+    .circle-info .text-muted { display: block; margin-top: 4px; }
+
+    .legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--color-border);
+    }
+    .legend__item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .78rem;
+      color: var(--color-muted);
+    }
+    .legend__dot {
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    /* Shrink piano slightly in the info panel */
+    .circle-piano { --wkw: 36px; --bkw: 22px; --wkh: 130px; --bkh: 80px; }
+    @media (max-width: 480px) {
+      .circle-piano { --wkw: 28px; --bkw: 18px; --wkh: 110px; --bkh: 68px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="nav">
+    <div class="nav__container">
+      <a href="../index.html" class="nav__brand">&#127929; Piano Trainer</a>
+      <nav class="nav__links">
+        <a href="scales.html">Gammes</a>
+        <a href="circle.html" class="active">Cercle des quintes</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <div class="page-header">
+      <h1>Cercle des quintes</h1>
+      <p>Cliquez sur une tonalité pour explorer ses notes et sa mineure relative</p>
+    </div>
+
+    <div class="circle-layout">
+
+      <!-- SVG circle -->
+      <div class="circle-wrapper">
+        <svg id="circle-svg"
+             viewBox="0 0 600 600"
+             xmlns="http://www.w3.org/2000/svg"
+             role="img"
+             aria-label="Cercle des quintes interactif">
+        </svg>
+      </div>
+
+      <!-- Info panel -->
+      <aside class="circle-info card">
+        <h2 id="info-major">C Majeur</h2>
+        <span class="text-muted" id="info-minor">Am — relative mineure</span>
+        <span class="info-acc" id="info-acc"></span>
+
+        <div class="info-section">
+          <h3>Notes de la gamme majeure</h3>
+          <div id="info-notes" class="scale-notes"></div>
+        </div>
+
+        <div class="info-section">
+          <h3>Clavier</h3>
+          <div class="circle-piano">
+            <div id="circle-piano"></div>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend__item">
+            <span class="legend__dot" style="background:#7F77DD"></span>
+            Tonalité majeure
+          </div>
+          <div class="legend__item">
+            <span class="legend__dot" style="background:#97C459"></span>
+            Relative mineure
+          </div>
+        </div>
+      </aside>
+
+    </div>
+
+  </main>
+
+  <footer>
+    <p>Piano Trainer &mdash; Théorie musicale interactive</p>
+  </footer>
+
+  <script src="../js/music-data.js"></script>
+  <script src="../js/piano.js"></script>
+  <script src="../js/circle.js"></script>
+</body>
+</html>

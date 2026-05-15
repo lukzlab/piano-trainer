@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Piano Trainer — Apprenez la théorie musicale</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    .demo-wrap {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px 8px;
+      margin: 0 auto 8px;
+      max-width: 760px;
+      overflow: hidden;
+    }
+    .demo-label {
+      text-align: center;
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--color-muted);
+      margin-bottom: 4px;
+    }
+    .demo-scale-name {
+      text-align: center;
+      font-size: .8rem;
+      color: var(--color-primary);
+      font-weight: 600;
+      margin-top: 4px;
+      height: 18px;
+    }
+    .demo-controls {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 12px 0 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="nav">
+    <div class="nav__container">
+      <a href="index.html" class="nav__brand">&#127929; Piano Trainer</a>
+      <nav class="nav__links">
+        <a href="pages/scales.html">Gammes</a>
+        <a href="pages/circle.html">Cercle des quintes</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <div class="container">
+      <section class="hero">
+        <div class="hero__kicker">&#9835; Théorie musicale interactive</div>
+        <h1>Maîtrisez le piano, note par note</h1>
+        <p>Explorez les gammes et le cercle des quintes avec un clavier interactif. Visualisez chaque tonalité, comprenez les relations entre accords.</p>
+        <div class="hero__cta">
+          <a href="pages/scales.html" class="btn btn--primary">&#128218; Bibliothèque de gammes</a>
+          <a href="pages/circle.html" class="btn btn--outline">&#11835; Cercle des quintes</a>
+        </div>
+      </section>
+    </div>
+
+    <!-- Interactive demo -->
+    <div class="container">
+      <p class="demo-label">Démo interactive — choisissez une gamme</p>
+      <div class="demo-wrap">
+        <div id="demo-piano"></div>
+        <p class="demo-scale-name" id="demo-scale-name">Do Majeur</p>
+        <div class="demo-controls" id="demo-controls"></div>
+      </div>
+    </div>
+
+    <!-- Feature cards -->
+    <div class="container">
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-card__icon">&#128218;</div>
+          <h3>Bibliothèque de gammes</h3>
+          <p>Explorez 12 types de gammes — majeures, mineures, modes, pentatoniques, blues — dans toutes les tonalités. Visualisez chaque gamme en temps réel sur le clavier.</p>
+          <a href="pages/scales.html" class="btn btn--outline btn--sm">Explorer les gammes &#8594;</a>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">&#11835;</div>
+          <h3>Cercle des quintes</h3>
+          <p>Naviguez dans le cercle des quintes interactif. Découvrez les relations entre tonalités, les relatives mineures et le nombre d'altérations de chaque armure.</p>
+          <a href="pages/circle.html" class="btn btn--outline btn--sm">Ouvrir le cercle &#8594;</a>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">&#127929;</div>
+          <h3>Clavier interactif</h3>
+          <p>Chaque gamme est affichée sur un clavier de piano visuel avec les degrés annotés. La tonique est mise en valeur pour repérer les intervalles instantanément.</p>
+          <a href="pages/scales.html" class="btn btn--outline btn--sm">Voir le clavier &#8594;</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Piano Trainer &mdash; Théorie musicale interactive</p>
+  </footer>
+
+  <script src="js/music-data.js"></script>
+  <script src="js/piano.js"></script>
+  <script>
+    /* Demo on homepage: cycle through a few preset scales */
+    const DEMO_PRESETS = [
+      { label: 'Do Maj',     root: 'C',  type: 'major'          },
+      { label: 'La min',     root: 'A',  type: 'naturalMinor'   },
+      { label: 'Do Penta',   root: 'C',  type: 'pentatonicMajor'},
+      { label: 'La Blues',   root: 'A',  type: 'blues'          },
+      { label: 'Ré Dorien',  root: 'D',  type: 'dorian'         },
+    ];
+
+    const demoPiano = new PianoKeyboard('demo-piano', {
+      octaves: 2, startOctave: 3
+    });
+    demoPiano.render();
+
+    const controls = document.getElementById('demo-controls');
+    const nameEl   = document.getElementById('demo-scale-name');
+
+    function selectPreset(idx) {
+      const p = DEMO_PRESETS[idx];
+      const notes = MusicData.getScaleNotes(p.root, p.type);
+      demoPiano.highlight(notes, notes[0]);
+      const scale = MusicData.SCALES[p.type];
+      nameEl.textContent = `${p.root} ${scale.name}`;
+      controls.querySelectorAll('.pill').forEach((b, i) =>
+        b.classList.toggle('pill--active', i === idx));
+    }
+
+    DEMO_PRESETS.forEach((p, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'pill';
+      btn.textContent = p.label;
+      btn.addEventListener('click', () => selectPreset(i));
+      controls.appendChild(btn);
+    });
+
+    selectPreset(0);
+  </script>
+</body>
+</html>
