@@ -1166,16 +1166,18 @@ async function importSearch(){
       throw new Error('HTTP '+response.status+' : '+errText.substring(0,100));
     }
     var data=await response.json();
-    /* Gère les deux formats possibles */
+    /* Gère les deux formats : Anthropic et Groq/OpenAI */
     var text='';
     if(data.content&&data.content[0]&&data.content[0].text){
+      /* Format Anthropic */
       text=data.content[0].text;
+    } else if(data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content){
+      /* Format Groq / OpenAI */
+      text=data.choices[0].message.content;
     } else if(data.text){
       text=data.text;
-    } else if(typeof data==='string'){
-      text=data;
     } else {
-      throw new Error('Format inattendu : '+JSON.stringify(data).substring(0,100));
+      throw new Error('Format inattendu : '+JSON.stringify(data).substring(0,120));
     }
     if(!text)throw new Error('Pas de texte dans la réponse');
     /* Nettoie et parse JSON — gère les blocs markdown */
