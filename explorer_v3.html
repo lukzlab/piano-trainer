@@ -884,7 +884,7 @@ function deleteCurrentCustom(){
   var idx=customProg.idx;customProgs.splice(idx,1);customProg.idx=-1;customProg.activeStep=-1;
   st.viewMode='scale';document.querySelectorAll('.mtbtn').forEach(function(b,i){b.classList.toggle('active',i===0);});
   document.getElementById('prog-quick-wrap').style.display='none';
-  buildProgList();updateAll();
+  buildProgList();updateAll();saveToStorage();
 }
 
 function editCurrentCustom(){
@@ -975,7 +975,7 @@ function validateBuild(){
   document.getElementById('cof-hint').classList.remove('build');
   st.viewMode='prog';document.querySelectorAll('.mtbtn').forEach(function(b,i){b.classList.toggle('active',i===1);});
   document.getElementById('prog-quick-wrap').style.display='block';
-  buildProgList();updateAll();
+  buildProgList();updateAll();saveToStorage();
 }
 
 function renderBuildCurrent(){
@@ -1049,6 +1049,7 @@ function deleteProgAt(idx,ev){
   ev.stopPropagation();customProgs.splice(idx,1);
   if(customProg.idx===idx){customProg.idx=-1;customProg.activeStep=-1;st.viewMode='scale';document.querySelectorAll('.mtbtn').forEach(function(b,i){b.classList.toggle('active',i===0);});buildProgList();updateAll();}
   else{if(customProg.idx>idx)customProg.idx--;buildProgList();}
+  saveToStorage();
 }
 
 function randomProg(){stdProg.idx=Math.floor(Math.random()*PROGS.length);stdProg.activeStep=-1;stdProg.enrichPerStep={};customProg.idx=-1;st.viewMode='prog';document.querySelectorAll('.mtbtn').forEach(function(b,i){b.classList.toggle('active',i===1);});document.getElementById('prog-quick-wrap').style.display='block';updateAll();}
@@ -1255,11 +1256,23 @@ function importToExplorer(){
   document.querySelectorAll('.mtbtn').forEach(function(b,i){b.classList.toggle('active',i===1);});
   document.getElementById('prog-quick-wrap').style.display='block';
   closeImportModal();
-  buildProgList();updateAll();
+  buildProgList();updateAll();saveToStorage();
+}
+
+/* ── LOCALSTORAGE ── */
+function saveToStorage(){
+  try{localStorage.setItem('piano_trainer_progs',JSON.stringify(customProgs));}
+  catch(e){console.warn('localStorage indisponible');}
+}
+function loadFromStorage(){
+  try{
+    var saved=localStorage.getItem('piano_trainer_progs');
+    if(saved){customProgs=JSON.parse(saved);}
+  }catch(e){customProgs=[];}
 }
 
 /* ── INIT ── */
-window.addEventListener('load',function(){buildPiano();buildRootBtns();buildScaleBtns();updateAll();});
+window.addEventListener('load',function(){loadFromStorage();buildPiano();buildRootBtns();buildScaleBtns();updateAll();});
 window.addEventListener('resize',function(){buildPiano();paintPiano(null);});
 setTimeout(function(){buildPiano();updateAll();},400);
 </script>
