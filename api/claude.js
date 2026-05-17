@@ -8,27 +8,23 @@ export default async function handler(req, res) {
   try {
     const { prompt } = req.body;
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
+        'Authorization': 'Bearer ' + process.env.GROQ_API_KEY
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 500,
+        model: 'llama3-8b-8192',
+        max_tokens: 400,
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
     const data = await response.json();
-    console.log('Status:', response.status);
-    console.log('Data:', JSON.stringify(data).substring(0, 200));
     res.status(200).json(data);
 
   } catch(err) {
-    console.error('Erreur:', err.message);
     res.status(500).json({ error: err.message });
   }
 }
