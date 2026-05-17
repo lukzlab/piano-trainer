@@ -1159,15 +1159,30 @@ async function importSearch(){
     var response=await fetch('/api/claude',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        prompt:prompt
-      })
+      body:JSON.stringify({prompt:prompt})
     });
+    if(!response.ok){
+      var errText=await response.text();
+      throw new Error('HTTP '+response.status+' : '+errText.substring(0,100));
+    }
     var data=await response.json();
-    var text=data.content&&data.content[0]&&data.content[0].text;
-    if(!text)throw new Error('Pas de réponse');
-    /* Nettoie et parse JSON */
-    var clean=text.replace(/```json|```/g,'').trim();
+    /* Gère les deux formats possibles */
+    var text='';
+    if(data.content&&data.content[0]&&data.content[0].text){
+      text=data.content[0].text;
+    } else if(data.text){
+      text=data.text;
+    } else if(typeof data==='string'){
+      text=data;
+    } else {
+      throw new Error('Format inattendu : '+JSON.stringify(data).substring(0,100));
+    }
+    if(!text)throw new Error('Pas de texte dans la réponse');
+    /* Nettoie et parse JSON — gère les blocs markdown */
+    var clean=text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+    /* Cherche le premier { et le dernier } */
+    var start=clean.indexOf('{');var end=clean.lastIndexOf('}');
+    if(start>=0&&end>start) clean=clean.substring(start,end+1);
     var parsed=JSON.parse(clean);
     /* Parse les accords */
     var chords=parseChordString(parsed.chords||'');
