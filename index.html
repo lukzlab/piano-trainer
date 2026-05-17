@@ -1156,13 +1156,11 @@ async function importSearch(){
   var prompt='Tu es un expert en théorie musicale. Pour le morceau "'+query+'", donne-moi:\n1. Les accords principaux de la progression (couplet ou thème principal)\n2. La tonalité principale\n3. Une note brève sur la structure harmonique\n\nRéponds UNIQUEMENT en JSON valide, sans markdown, sans backticks, exactement dans ce format:\n{\n  "title": "Titre exact du morceau",\n  "artist": "Artiste",\n  "key": "C major",\n  "chords": "Am F C G",\n  "note": "Description courte de la progression"\n}\n\nLes accords dans "chords" doivent être séparés par des espaces, en notation anglaise (C D E F G A B avec # et b). Inclure max 8 accords représentatifs.';
 
   try{
-    var response=await fetch('https://api.anthropic.com/v1/messages',{
+    var response=await fetch('/api/claude',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:400,
-        messages:[{role:'user',content:prompt}]
+        prompt:prompt
       })
     });
     var data=await response.json();
