@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Piano Trainer</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:#fafafa;color:#222;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.25rem;background:#fff;border-bottom:1px solid #e8e6e0;flex-wrap:wrap;gap:8px}
+.logo{font-size:15px;font-weight:600;color:#3C3489}
+.nav-links{display:flex;gap:4px}
+.nl{font-size:12px;padding:4px 12px;border-radius:99px;color:#888;border:1px solid transparent;cursor:pointer}
+.nl.active{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC;font-weight:500}
+.page{display:none}
+.page.active{display:block}
+
+/* PIANO 88 (mode Explorer) */
+.piano88-wrap{width:100%;background:#f0eeed;border-radius:10px;padding:10px 8px 8px;border:1px solid #e0ddd8;position:relative;overflow:hidden}
+.piano88{position:relative;height:90px;width:100%}
+.wk88{position:absolute;top:0;border-radius:0 0 3px 3px;background:#fff;border:1px solid #bbb;box-sizing:border-box;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;font-size:7px;font-weight:600;cursor:default;transition:background .08s,border .08s;z-index:1}
+.bk88{position:absolute;top:0;border-radius:0 0 2px 2px;background:#222;border:1px solid #111;box-sizing:border-box;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;font-size:6px;font-weight:600;cursor:default;transition:background .08s,border .08s;z-index:2}
+
+/* EXPLORER */
+.panel{background:#fff;border:1px solid #e8e6e0;border-radius:10px;padding:.875rem 1rem;margin-bottom:.875rem}
+.ph{display:flex;align-items:center;gap:8px;margin-bottom:.75rem;flex-wrap:wrap}
+.pt{font-size:15px;font-weight:500;color:#3C3489}
+.ps{font-size:12px;color:#aaa}
+.badge{font-size:11px;padding:2px 9px;border-radius:99px;margin-left:auto;display:none}
+.tog{display:none;background:#f0effe;border-radius:99px;padding:3px;gap:2px}
+.tb{font-size:11px;padding:3px 12px;border-radius:99px;border:none;background:transparent;color:#888;cursor:pointer;font-weight:500}
+.tb.active{background:#fff;color:#3C3489;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.btn-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:.625rem}
+.sbtn{font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid #ddd;background:#fff;color:#555;cursor:pointer}
+.sbtn.active{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC;font-weight:500}
+.info{background:#f8f7ff;border:1px solid #e0dff8;border-radius:8px;padding:.625rem .875rem;min-height:40px;display:flex;align-items:center;margin-top:.625rem}
+.pleg{display:flex;gap:10px;flex-wrap:wrap;margin-top:.5rem;justify-content:center;font-size:11px;color:#888}
+.ld{width:10px;height:10px;border-radius:2px;display:inline-block;vertical-align:middle;margin-right:3px}
+.dtt{display:none;position:fixed;background:#3C3489;color:#fff;font-size:11px;padding:3px 9px;border-radius:6px;pointer-events:none;z-index:100;white-space:nowrap}
+.cof-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:.875rem}
+.cof-leg{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:.5rem;font-size:11px;color:#888}
+#page-explorer{padding:1rem}
+
+/* LIVE MIDI */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+#page-midi{display:none;flex-direction:column;height:calc(100vh - 53px);background:#F5F3EE;overflow:hidden}
+#page-midi.active{display:flex}
+.live-dual{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0;border-bottom:1px solid #E8E4DC}
+.live-left{border-right:1px solid #E8E4DC;padding:.875rem 1.25rem;display:flex;flex-direction:column;gap:.5rem;background:#FAFAF7;overflow:hidden}
+.live-right{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.5rem;background:#F5F3EE}
+.lcol-title{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#C0BAA8}
+.live-chord-main{display:flex;align-items:flex-end;gap:.75rem;flex:1;min-height:0}
+.live-chord-big{font-size:40px;font-weight:200;color:#3C3480;font-family:monospace;letter-spacing:-.03em;line-height:1}
+.live-chord-sup{font-size:18px;color:#8A84C0;vertical-align:super;font-weight:300}
+.live-chord-meta{display:flex;flex-direction:column;gap:4px;padding-bottom:4px}
+.live-chord-type{font-size:11px;color:#A8A4C0}
+.live-deg-line{display:flex;align-items:center;gap:5px}
+.live-deg-num{font-size:13px;font-weight:500;color:#3C3480;font-family:monospace}
+.live-deg-of{font-size:10px;color:#C0BAA8}
+.live-ton-chip{font-size:10px;font-weight:500;color:#5C5490;font-family:monospace;background:#F0EFF8;border:1px solid #D8D5EE;padding:1px 8px;border-radius:5px}
+.live-degs{display:flex;gap:3px;flex-wrap:wrap}
+.ld2{font-size:9px;padding:3px 7px;border-radius:4px;font-family:monospace;background:#EEEAE0;color:#C0BAA8;border:1px solid #DDD9D0}
+.ld2.on{background:#3C3480;color:#fff;border-color:#2E2860}
+.ld2.pivot{background:#EAF5EE;color:#3A8A4A;border-color:#B8DDC0}
+.live-ton-row{display:flex;align-items:center;gap:6px;padding:.375rem .625rem;background:#F0EFF8;border:1px solid #D8D5EE;border-radius:6px}
+.live-ton-dot{width:7px;height:7px;border-radius:50%;background:#5C5490;box-shadow:0 0 5px rgba(92,84,144,.3);flex-shrink:0}
+.live-ton-name{font-size:11px;font-weight:500;color:#3C3480;font-family:monospace}
+.live-ton-alt{font-size:8px;color:#A8A4C0;margin-left:auto}
+.live-connect-bar{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.live-status-dot{width:7px;height:7px;border-radius:50%;background:#ddd;flex-shrink:0;transition:background .3s}
+.live-status-dot.connected{background:#5DCAA5;box-shadow:0 0 5px rgba(74,154,106,.5)}
+.live-status-dot.listening{background:#EF9F27;box-shadow:0 0 5px rgba(239,159,39,.5);animation:pulse 1s infinite}
+.live-status-label{font-size:9px;color:#A8A4C0}
+.live-btn{font-size:10px;padding:3px 12px;border-radius:99px;border:1px solid #ddd;background:#fff;color:#555;cursor:pointer}
+.live-btn:hover{background:#f5f5f5}
+.live-waiting{font-size:13px;color:#C0BAA8;font-style:italic;flex:1;display:flex;align-items:center}
+/* Bandeau historique */
+.live-history{flex-shrink:0;height:52px;background:#FAFAF7;border-bottom:1px solid #E8E4DC;display:flex;align-items:center;padding:0 1rem;overflow:hidden}
+.live-hist-label{font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:#C0BAA8;margin-right:.875rem;white-space:nowrap;flex-shrink:0}
+.live-hist-items{display:flex;align-items:center;flex:1;overflow:hidden;gap:0}
+.hi{display:flex;flex-direction:column;align-items:center;padding:0 .4rem;position:relative;flex-shrink:0}
+.hi-chord{font-size:12px;font-weight:400;font-family:monospace;color:#A8A4C0;white-space:nowrap}
+.hi-deg{font-size:8px;padding:1px 5px;border-radius:3px;font-family:monospace;margin-top:2px}
+.hi-deg.muted{background:#EEEAE0;color:#C0BAA8}
+.hi-deg.pivot{background:#EAF5EE;color:#3A8A4A;border:1px solid #B8DDC0}
+.hi-deg.on{background:#3C3480;color:#fff}
+.hi-arr{font-size:10px;color:#DDD9D0;flex-shrink:0;padding:0 1px;margin-bottom:12px}
+.hi.current .hi-chord{font-size:14px;font-weight:500;color:#3C3480}
+.hi.current::after{content:'';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:28px;height:2px;background:#3C3480;border-radius:1px}
+.hi.age1{opacity:.75}.hi.age2{opacity:.55}.hi.age3{opacity:.38}.hi.age4{opacity:.2}
+.loop-badge-inline{font-size:7px;padding:2px 7px;border-radius:3px;background:#FDF3E3;color:#8A6020;border:1px solid #EDD8A8;white-space:nowrap;flex-shrink:0;margin:0 .4rem;align-self:center}
+/* Piano Live */
+.live-piano-wrap{flex-shrink:0;padding:5px 8px 7px;background:#FAFAF7}
+.live-piano-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;padding:0 2px}
+.live-piano-meta{font-size:7px;color:#C0BAA8;letter-spacing:.06em;text-transform:uppercase}
+.live-piano-legend{display:flex;gap:10px}
+.lpl{display:flex;align-items:center;gap:3px;font-size:7px;color:#B0A898}
+.lpl-dot{width:7px;height:7px;border-radius:1px}
+.live-piano88{position:relative;height:72px;width:100%}
+.lwk{position:absolute;top:0;border-radius:0 0 3px 3px;background:#FAFAF5;border:1px solid #D8D4CC;box-sizing:border-box;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;font-size:6px;font-weight:600;color:transparent;transition:background .06s,border .06s;z-index:1}
+.lbk{position:absolute;top:0;border-radius:0 0 2px 2px;background:#3A3830;border:1px solid #2A2820;box-sizing:border-box;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;font-size:5px;font-weight:600;color:transparent;transition:background .06s,border .06s;z-index:2}
+.lwk.active{background:#3C3480;border-color:#2E2860;color:#fff}
+.lbk.active{background:#3C3480;border-color:#2E2860;color:#C8C4F8}
+/* Cercle Live */
+.cof-label2{font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:#C0BAA8;margin-bottom:.25rem;text-align:center}
+</style>
+</head>
+<body>
+<nav>
+  <span class="logo">Piano Trainer</span>
+  <div class="nav-links">
+    <span class="nl active" onclick="showPage('explorer',this)">Explorer</span>
+    <span class="nl" onclick="showPage('midi',this)">Live MIDI</span>
+  </div>
+</nav>
+
+<!-- EXPLORER -->
+<div id="page-explorer" class="page active">
+  <div class="cof-wrap">
+    <div style="font-size:16px;font-weight:500;margin-bottom:.2rem;text-align:center">Cercle des quintes</div>
+    <div style="font-size:12px;color:#888;margin-bottom:.75rem;text-align:center">Clique sur une tonalite pour explorer</div>
+    <svg id="cof" viewBox="0 0 260 260" width="260" height="260"></svg>
+    <div class="cof-leg">
+      <span><span class="ld" style="background:#EEEDFE;border:1px solid #AFA9EC"></span>I Majeure</span>
+      <span><span class="ld" style="background:#EAF3DE;border:1px solid #97C459"></span>VI Mineure rel.</span>
+      <span><span class="ld" style="background:#FAEEDA;border:1px solid #FAC775"></span>VII Diminue</span>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="ph">
+      <div><div class="pt" id="ptitle">Selectionne une tonalite</div><div class="ps" id="psub">Clique sur le cercle</div></div>
+      <span class="badge" id="badge"></span>
+      <div class="tog" id="tog">
+        <button class="tb active" onclick="setMode('scale',this)">Gamme</button>
+        <button class="tb" onclick="setMode('chord',this)">Accord</button>
+      </div>
+    </div>
+    <div id="scale-opts" style="display:none"><div class="btn-row" id="scale-btns"></div></div>
+    <div id="chord-opts" style="display:none"><div class="btn-row" id="var-btns"></div></div>
+    <div class="piano88-wrap"><div class="piano88" id="pw"></div></div>
+    <div class="pleg">
+      <span><span class="ld" style="background:#AFA9EC;border:1px solid #7F77DD"></span>Notes</span>
+      <span><span class="ld" style="background:#EF9F27;border:1px solid #BA7517"></span>Accord actif</span>
+      <span><span class="ld" style="background:#fff;border:1px solid #ccc"></span>Hors selection</span>
+    </div>
+    <div class="info" id="info"><span style="font-size:12px;color:#aaa">Selectionne une tonalite pour commencer</span></div>
+  </div>
+</div>
+
+<!-- LIVE MIDI -->
+<div id="page-midi" class="page">
+
+  <!-- DUAL SCREEN -->
+  <div class="live-dual">
+
+    <!-- GAUCHE : accord detecte -->
+    <div class="live-left">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="lcol-title">Accord detecte</div>
+        <div class="live-connect-bar" style="margin-left:auto">
+          <div class="live-status-dot" id="live-dot"></div>
+          <span class="live-status-label" id="live-label">Non connecte</span>
+          <button class="live-btn" onclick="initMidi()">Connecter</button>
+        </div>
+      </div>
+
+      <div id="live-waiting" class="live-waiting">En attente de notes...</div>
+
+      <div id="live-chord-panel" style="display:none;flex:1;flex-direction:column;gap:.5rem">
+        <div class="live-chord-main">
+          <div class="live-chord-big" id="live-chord-name">Dm<span class="live-chord-sup" id="live-chord-sup">7</span></div>
+          <div class="live-chord-meta">
+            <div class="live-chord-type" id="live-chord-type">Mineur 7eme</div>
+            <div class="live-deg-line">
+              <span class="live-deg-num" id="live-deg-num">II</span>
+              <span class="live-deg-of">de</span>
+              <span class="live-ton-chip" id="live-ton-chip">C Maj</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="lcol-title" style="margin-bottom:4px">Degres dans la gamme</div>
+          <div class="live-degs" id="live-degs-row">
+            <span class="ld2">I</span><span class="ld2">II</span><span class="ld2">III</span>
+            <span class="ld2">IV</span><span class="ld2">V</span><span class="ld2">VI</span><span class="ld2">VII</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="live-ton-row" id="live-ton-row">
+        <div class="live-ton-dot"></div>
+        <div class="live-ton-name" id="live-ton-name">--</div>
+        <div class="live-ton-alt" id="live-ton-alt">0 alteration</div>
+      </div>
+    </div>
+
+    <!-- DROITE : cercle des quintes -->
+    <div class="live-right">
+      <div class="cof-label2">Cercle des quintes</div>
+      <svg id="cof-live" viewBox="0 0 200 200" width="100%" style="max-height:100%;flex:1"></svg>
+    </div>
+
+  </div>
+
+  <!-- BANDEAU HISTORIQUE -->
+  <div class="live-history">
+    <div class="live-hist-label">Progression</div>
+    <div class="live-hist-items" id="live-history-items">
+      <span style="font-size:11px;color:#C0BAA8;font-style:italic">Les accords joues apparaissent ici...</span>
+    </div>
+  </div>
+
+  <!-- PIANO 88 PLEINE LARGEUR -->
+  <div class="live-piano-wrap">
+    <div class="live-piano-header">
+      <span class="live-piano-meta">88 touches &nbsp;·&nbsp; A0 → C8</span>
+      <div class="live-piano-legend">
+        <span class="lpl"><span class="lpl-dot" style="background:#3C3480;border-radius:2px"></span>Notes jouees</span>
+        <span class="lpl"><span class="lpl-dot" style="background:#FAFAF5;border:1px solid #D8D4CC;border-radius:2px"></span>Blanches</span>
+        <span class="lpl"><span class="lpl-dot" style="background:#3A3830;border-radius:2px"></span>Noires</span>
+      </div>
+    </div>
+    <div class="live-piano88" id="lpw"></div>
+  </div>
+
+</div>
+
+<div class="dtt" id="dtt"></div>
+
+<script>
+var EN=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+var BLK=[1,3,6,8,10];
+var FLT=[5,10,3,8,1];
+var MIDI_START=21,MIDI_END=108;
+var OCTAVE_LABELS={36:'C1',48:'C3',60:'C4',72:'C5',84:'C7'};
+var ROMAN=['I','II','III','IV','V','VI','VII'];
+
+function mod(s){return((s%12)+12)%12;}
+function isB(s){return BLK.indexOf(mod(s))>=0;}
+
+/* ── DONNEES ── */
+var COF=[
+  {maj:0,majL:'C',min:9,minL:'Am',dim:11,dimL:'Bdim'},
+  {maj:7,majL:'G',min:4,minL:'Em',dim:6,dimL:'F#dim'},
+  {maj:2,majL:'D',min:11,minL:'Bm',dim:1,dimL:'C#dim'},
+  {maj:9,majL:'A',min:6,minL:'F#m',dim:8,dimL:'G#dim'},
+  {maj:4,majL:'E',min:1,minL:'C#m',dim:3,dimL:'D#dim'},
+  {maj:11,majL:'B',min:8,minL:'G#m',dim:10,dimL:'A#dim'},
+  {maj:6,majL:'F#',min:3,minL:'D#m',dim:5,dimL:'Fdim'},
+  {maj:1,majL:'Db',min:10,minL:'Bbm',dim:0,dimL:'Cdim'},
+  {maj:8,majL:'Ab',min:5,minL:'Fm',dim:7,dimL:'Gdim'},
+  {maj:3,majL:'Eb',min:0,minL:'Cm',dim:2,dimL:'Ddim'},
+  {maj:10,majL:'Bb',min:7,minL:'Gm',dim:9,dimL:'Adim'},
+  {maj:5,majL:'F',min:2,minL:'Dm',dim:4,dimL:'Edim'}
+];
+var SCALE_TYPES=[
+  {id:'major',iv:[0,2,4,5,7,9,11],ch:['maj','min','min','maj','maj','min','dim'],label:'Majeure'},
+  {id:'minor',iv:[0,2,3,5,7,8,10],ch:['min','dim','maj','min','min','maj','maj'],label:'Min. nat.'},
+  {id:'harmonic',iv:[0,2,3,5,7,8,11],ch:['min','dim','aug','min','maj','maj','dim'],label:'Min. harm.'},
+  {id:'dorian',iv:[0,2,3,5,7,9,10],ch:['min','min','maj','maj','min','dim','maj'],label:'Dorien'},
+  {id:'phrygian',iv:[0,1,3,5,7,8,10],ch:['min','maj','maj','min','dim','maj','min'],label:'Phrygien'},
+  {id:'lydian',iv:[0,2,4,6,7,9,11],ch:['maj','maj','min','dim','maj','min','min'],label:'Lydien'},
+  {id:'mixo',iv:[0,2,4,5,7,9,10],ch:['maj','min','dim','maj','min','min','maj'],label:'Mixolydien'},
+  {id:'penta_maj',iv:[0,2,4,7,9],ch:null,label:'Penta maj.'},
+  {id:'penta_min',iv:[0,3,5,7,10],ch:null,label:'Penta min.'},
+  {id:'blues',iv:[0,3,5,6,7,10],ch:null,label:'Blues'}
+];
+var VARS=[
+  {id:'maj',label:'Maj',iv:[0,4,7],desc:'Accord parfait majeur'},
+  {id:'min',label:'Min',iv:[0,3,7],desc:'Accord parfait mineur'},
+  {id:'7',label:'7',iv:[0,4,7,10],desc:'Dominante 7'},
+  {id:'maj7',label:'Maj7',iv:[0,4,7,11],desc:'Majeur 7'},
+  {id:'min7',label:'Min7',iv:[0,3,7,10],desc:'Mineur 7'},
+  {id:'dim',label:'Dim',iv:[0,3,6],desc:'Diminue'},
+  {id:'aug',label:'Aug',iv:[0,4,8],desc:'Augmente'},
+  {id:'sus2',label:'Sus2',iv:[0,2,7],desc:'Sus2'},
+  {id:'sus4',label:'Sus4',iv:[0,5,7],desc:'Sus4'},
+  {id:'9',label:'9',iv:[0,4,7,10,14],desc:'Neuvieme'}
+];
+var CHORD_IV={maj:[0,4,7],min:[0,3,7],dim:[0,3,6],aug:[0,4,8]};
+var CHORD_DICT=[
+  {name:'maj',iv:[0,4,7]},{name:'min',iv:[0,3,7]},{name:'dim',iv:[0,3,6]},{name:'aug',iv:[0,4,8]},
+  {name:'sus2',iv:[0,2,7]},{name:'sus4',iv:[0,5,7]},{name:'7',iv:[0,4,7,10]},{name:'maj7',iv:[0,4,7,11]},
+  {name:'min7',iv:[0,3,7,10]},{name:'dim7',iv:[0,3,6,9]},{name:'m7b5',iv:[0,3,6,10]},
+  {name:'9',iv:[0,4,7,10,14]},{name:'add9',iv:[0,4,7,14]}
+];
+
+var selRoot=null,selVar='maj',selScale='major',mode='scale';
+var midiAccess=null,pressedNotes={},debounceTimer=null;
+var chordHistory=[];
+var liveTonality={root:0,label:'C Maj',alt:'0 alteration'};
+
+/* ── PAGES ── */
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nl').forEach(function(l){l.classList.remove('active');});
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  if(id==='midi'){setTimeout(function(){buildLivePiano();buildCofLive();},60);}
+}
+
+/* ── PIANO EXPLORER ── */
+function getWhiteKeys(){
+  var w=[];
+  for(var m=MIDI_START;m<=MIDI_END;m++) if(!isB(m)) w.push(m);
+  return w;
+}
+function buildPianoInto(pwId,wkClass,bkClass){
+  var pw=document.getElementById(pwId); pw.innerHTML='';
+  var whites=getWhiteKeys(),nw=whites.length;
+  var totalW=pw.offsetWidth||600;
+  var ww=Math.floor((totalW-nw)/nw),wh=88,bw=Math.max(6,Math.floor(ww*0.62)),bh=Math.floor(wh*0.62);
+  if(ww<4)ww=4;
+  for(var i=0;i<whites.length;i++){
+    var midi=whites[i],x=i*(ww+1);
+    var el=document.createElement('div');
+    el.className=wkClass; el.id=pwId+'_K'+midi;
+    el.style.left=x+'px'; el.style.width=ww+'px'; el.style.height=wh+'px'; el.style.color='transparent';
+    if(OCTAVE_LABELS[midi]){
+      var lbl=document.createElement('span');
+      lbl.style.cssText='position:absolute;bottom:3px;font-size:6px;color:#bbb;left:0;right:0;text-align:center;pointer-events:none';
+      lbl.textContent=OCTAVE_LABELS[midi]; el.appendChild(lbl);
+    }
+    pw.appendChild(el);
+    var sm=mod(midi),bsa={0:1,2:3,5:6,7:8,9:10};
+    if(bsa[sm]!==undefined){
+      var bmidi=midi+1;
+      if(bmidi<=MIDI_END&&isB(bmidi)){
+        var bx=x+ww-Math.floor(bw/2);
+        var bel=document.createElement('div');
+        bel.className=bkClass; bel.id=pwId+'_K'+bmidi;
+        bel.style.left=bx+'px'; bel.style.width=bw+'px'; bel.style.height=bh+'px'; bel.style.color='transparent';
+        pw.appendChild(bel);
+      }
+    }
+  }
+}
+function buildPiano(){buildPianoInto('pw','wk88','bk88');}
+function setKeyColor(pwId,midi,bg,border,color,label){
+  var el=document.getElementById(pwId+'_K'+midi); if(!el) return;
+  el.style.background=bg; el.style.border=border;
+  var octLbl=el.querySelector('span'); el.style.color=color;
+  if(label&&!octLbl) el.textContent=label;
+  else if(!label&&!octLbl) el.textContent='';
+}
+function resetAllKeys(pwId){
+  for(var m=MIDI_START;m<=MIDI_END;m++){
+    var blk=isB(m);
+    setKeyColor(pwId,m,blk?'#222':'#fff',blk?'1px solid #111':'1px solid #bbb','transparent','');
+    var el=document.getElementById(pwId+'_K'+m);
+    if(el){el.onclick=null;el.onmouseenter=null;el.onmouseleave=null;el.onmousemove=null;}
+  }
+}
+function paintNoteClass(pwId,noteMod,bg,border,color,showLabel){
+  for(var m=MIDI_START;m<=MIDI_END;m++)
+    if(mod(m)===noteMod) setKeyColor(pwId,m,bg,border,color,showLabel?EN[noteMod]:'');
+}
+function getSC(id){for(var i=0;i<SCALE_TYPES.length;i++)if(SCALE_TYPES[i].id===id)return SCALE_TYPES[i];return SCALE_TYPES[0];}
+function getVR(id){for(var i=0;i<VARS.length;i++)if(VARS[i].id===id)return VARS[i];return VARS[0];}
+function paintScale(root,scId,chordSet){
+  resetAllKeys('pw');
+  var sc=getSC(scId),scSet={};
+  for(var i=0;i<sc.iv.length;i++) scSet[mod(root+sc.iv[i])]=true;
+  for(var n=0;n<12;n++) if(scSet[n]){var blk=isB(n);paintNoteClass('pw',n,'#AFA9EC',blk?'1px solid #534AB7':'1px solid #7F77DD','#3C3489',true);}
+  if(chordSet) for(var n=0;n<12;n++) if(chordSet[n]){paintNoteClass('pw',n,'#EF9F27','2px solid #BA7517','#412402',true);}
+  if(sc.ch){
+    for(var i=0;i<sc.iv.length;i++){
+      (function(di){
+        var noteMod=mod(root+sc.iv[di]);
+        for(var m=MIDI_START;m<=MIDI_END;m++) if(mod(m)===noteMod&&!isB(m)) attachEv('pw',m,di,root,sc);
+      })(i);
+    }
+  }
+  updateBadge(root,sc);
+  var notes=[];
+  for(var i=0;i<sc.iv.length;i++) notes.push(EN[mod(root+sc.iv[i])]);
+  var hint=sc.ch?'<div style="font-size:11px;color:#aaa">Survole une note pour voir son degre - Clique pour voir accord</div>':'';
+  document.getElementById('info').innerHTML='<div style="width:100%"><div style="font-size:12px;font-weight:500;color:#222;margin-bottom:2px">'+EN[mod(root)]+' '+sc.label+' &mdash; <span style="color:#888;font-weight:400">'+notes.join(' - ')+'</span></div>'+hint+'</div>';
+}
+function attachEv(pwId,midi,di,root,sc){
+  var el=document.getElementById(pwId+'_K'+midi); if(!el) return;
+  var ct=sc.ch[di],rn=mod(root+sc.iv[di]),roman=ROMAN[di];
+  var tt=document.getElementById('dtt');
+  el.onmouseenter=function(e){tt.textContent=roman+' - '+EN[rn]+' '+ct;tt.style.display='block';tt.style.left=(e.clientX+12)+'px';tt.style.top=(e.clientY-30)+'px';};
+  el.onmousemove=function(e){tt.style.left=(e.clientX+12)+'px';tt.style.top=(e.clientY-30)+'px';};
+  el.onmouseleave=function(){tt.style.display='none';};
+  el.onclick=function(){
+    var civ=CHORD_IV[ct]||[0,4,7],chSet={};
+    for(var i=0;i<civ.length;i++) chSet[mod(rn+civ[i])]=true;
+    paintScale(root,selScale,chSet); tt.style.display='none';
+  };
+}
+function paintChord(root,varId){
+  resetAllKeys('pw');
+  var vr=getVR(varId);
+  for(var i=0;i<vr.iv.length;i++){var n=mod(root+vr.iv[i]);var blk=isB(n);paintNoteClass('pw',n,'#AFA9EC',blk?'1px solid #534AB7':'1px solid #7F77DD','#3C3489',true);}
+  var notes=[];
+  for(var i=0;i<vr.iv.length;i++) notes.push(EN[mod(root+vr.iv[i])]);
+  document.getElementById('info').innerHTML='<div style="width:100%"><div style="font-size:12px;font-weight:500;color:#222;margin-bottom:2px">'+EN[root]+' '+vr.label+' &mdash; <span style="color:#888;font-weight:400">'+notes.join(' - ')+'</span></div><div style="font-size:11px;color:#aaa">'+vr.desc+'</div></div>';
+}
+function updateBadge(root,sc){
+  var scSet={},sh=[];
+  for(var i=0;i<sc.iv.length;i++) scSet[mod(root+sc.iv[i])]=true;
+  for(var n=0;n<12;n++) if(scSet[n]&&BLK.indexOf(n)>=0) sh.push(n);
+  var useF=FLT.indexOf(mod(root))>=0,bd=document.getElementById('badge');
+  bd.style.display='inline-flex';
+  if(sh.length===0){bd.style.cssText='font-size:11px;padding:2px 9px;border-radius:99px;margin-left:auto;display:inline-flex;background:#EEEDFE;color:#3C3489;border:1px solid #AFA9EC';bd.textContent='0 alteration';}
+  else if(useF){bd.style.cssText='font-size:11px;padding:2px 9px;border-radius:99px;margin-left:auto;display:inline-flex;background:#E1F5EE;color:#0F6E56;border:1px solid #5DCAA5';bd.textContent=sh.length+(sh.length>1?' bemols':' bemol');}
+  else{bd.style.cssText='font-size:11px;padding:2px 9px;border-radius:99px;margin-left:auto;display:inline-flex;background:#FDF3E3;color:#633806;border:1px solid #F0C070';bd.textContent=sh.length+(sh.length>1?' dieses':' diese');}
+}
+function setMode(m,btn){
+  mode=m;
+  document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  document.getElementById('scale-opts').style.display=m==='scale'?'block':'none';
+  document.getElementById('chord-opts').style.display=m==='chord'?'block':'none';
+  if(selRoot===null) return;
+  if(m==='scale') paintScale(selRoot,selScale,null);
+  else paintChord(selRoot,selVar);
+}
+function buildScaleBtns(){
+  var wrap=document.getElementById('scale-btns'); wrap.innerHTML='';
+  for(var i=0;i<SCALE_TYPES.length;i++){(function(st){var btn=document.createElement('button');btn.textContent=st.label;btn.className='sbtn'+(st.id===selScale?' active':'');btn.onclick=function(){selScale=st.id;buildScaleBtns();if(selRoot!==null)paintScale(selRoot,selScale,null);};wrap.appendChild(btn);})(SCALE_TYPES[i]);}
+}
+function buildVarBtns(){
+  var wrap=document.getElementById('var-btns'); wrap.innerHTML='';
+  for(var i=0;i<VARS.length;i++){(function(v){var btn=document.createElement('button');btn.textContent=v.label;btn.className='sbtn'+(v.id===selVar?' active':'');btn.onclick=function(){selVar=v.id;buildVarBtns();if(selRoot!==null)paintChord(selRoot,selVar);};wrap.appendChild(btn);})(VARS[i]);}
+}
+
+/* ── CERCLE EXPLORER ── */
+function resetCofColors(){
+  var paths=document.querySelectorAll('#cof path[data-type]');
+  for(var i=0;i<paths.length;i++){var t=paths[i].getAttribute('data-type');if(t==='maj')paths[i].setAttribute('fill','#EEEDFE');else if(t==='min')paths[i].setAttribute('fill','#EAF3DE');else paths[i].setAttribute('fill','#FAEEDA');}
+}
+function buildCoF(){
+  var svg=document.getElementById('cof'); svg.innerHTML='';
+  var cx=130,cy=130,R3=122,R2=88,R1=55,R0=30;
+  function arc(r0,r1,a0,a1){var x1=cx+r1*Math.cos(a0),y1=cy+r1*Math.sin(a0),x2=cx+r1*Math.cos(a1),y2=cy+r1*Math.sin(a1),x3=cx+r0*Math.cos(a1),y3=cy+r0*Math.sin(a1),x4=cx+r0*Math.cos(a0),y4=cy+r0*Math.sin(a0);return 'M'+x1+','+y1+' A'+r1+','+r1+',0,0,1,'+x2+','+y2+' L'+x3+','+y3+' A'+r0+','+r0+',0,0,0,'+x4+','+y4+' Z';}
+  for(var i=0;i<COF.length;i++){
+    var entry=COF[i],a0=(i*30-90-15)*Math.PI/180,a1=(i*30-90+15)*Math.PI/180,ac=(i*30-90)*Math.PI/180;
+    var rings=[{r0:R2+1,r1:R3,type:'maj',root:entry.maj,label:entry.majL,fill:'#EEEDFE',tc:'#534AB7',fs:10,fw:600},{r0:R1+1,r1:R2,type:'min',root:entry.min,label:entry.minL,fill:'#EAF3DE',tc:'#3B6D11',fs:8.5,fw:400},{r0:R0+1,r1:R1,type:'dim',root:entry.dim,label:entry.dimL,fill:'#FAEEDA',tc:'#7A4B1A',fs:7,fw:400}];
+    for(var j=0;j<rings.length;j++){var rg=rings[j];var seg=document.createElementNS('http://www.w3.org/2000/svg','path');seg.setAttribute('d',arc(rg.r0,rg.r1,a0,a1));seg.setAttribute('fill',rg.fill);seg.setAttribute('stroke','#fff');seg.setAttribute('stroke-width','2');seg.setAttribute('data-type',rg.type);seg.setAttribute('data-root',''+rg.root);seg.setAttribute('data-label',rg.label);seg.style.cursor='pointer';svg.appendChild(seg);var tx=cx+(rg.r0+(rg.r1-rg.r0)/2)*Math.cos(ac),ty=cy+(rg.r0+(rg.r1-rg.r0)/2)*Math.sin(ac);var tl=document.createElementNS('http://www.w3.org/2000/svg','text');tl.setAttribute('x',''+tx);tl.setAttribute('y',''+ty);tl.setAttribute('text-anchor','middle');tl.setAttribute('dominant-baseline','middle');tl.setAttribute('font-size',''+rg.fs);tl.setAttribute('font-weight',''+rg.fw);tl.setAttribute('fill',rg.tc);tl.style.pointerEvents='none';tl.textContent=rg.label;svg.appendChild(tl);}
+  }
+  var c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',''+cx);c.setAttribute('cy',''+cy);c.setAttribute('r',''+R0);c.setAttribute('fill','#f8f7ff');c.setAttribute('stroke','#e0dff8');c.setAttribute('stroke-width','1');svg.appendChild(c);
+  var ct=document.createElementNS('http://www.w3.org/2000/svg','text');ct.setAttribute('x',''+cx);ct.setAttribute('y',''+cy);ct.setAttribute('text-anchor','middle');ct.setAttribute('dominant-baseline','middle');ct.setAttribute('font-size','7.5');ct.setAttribute('fill','#aaa');ct.textContent='Cercle des quintes';svg.appendChild(ct);
+  svg.addEventListener('click',function(e){
+    var seg=e.target; if(!seg.getAttribute||!seg.getAttribute('data-type')) return;
+    var root=parseInt(seg.getAttribute('data-root'),10),label=seg.getAttribute('data-label'),type=seg.getAttribute('data-type');
+    selRoot=root; resetCofColors(); seg.setAttribute('fill',type==='maj'?'#7F77DD':type==='min'?'#97C459':'#EF9F27');
+    document.getElementById('ptitle').textContent=label;
+    document.getElementById('psub').textContent=type==='maj'?'Tonalite majeure':type==='min'?'Relative mineure':'VIIe degre - diminue';
+    document.getElementById('tog').style.display='flex';
+    if(type==='dim'){mode='chord';selVar='dim';var tbs=document.querySelectorAll('.tb');tbs[0].classList.remove('active');tbs[1].classList.add('active');document.getElementById('scale-opts').style.display='none';document.getElementById('chord-opts').style.display='block';buildVarBtns();paintChord(root,'dim');}
+    else{if(mode==='scale'){selScale=type==='min'?'minor':'major';document.getElementById('scale-opts').style.display='block';document.getElementById('chord-opts').style.display='none';buildScaleBtns();paintScale(root,selScale,null);}else{selVar=type==='min'?'min':'maj';buildVarBtns();paintChord(root,selVar);}}
+  });
+}
+
+/* ── CERCLE LIVE ── */
+function buildCofLive(){
+  var svg=document.getElementById('cof-live'); svg.innerHTML='';
+  var cx=100,cy=100,R3=96,R2=70,R1=44,R0=24;
+  function arc(r0,r1,a0,a1){var x1=cx+r1*Math.cos(a0),y1=cy+r1*Math.sin(a0),x2=cx+r1*Math.cos(a1),y2=cy+r1*Math.sin(a1),x3=cx+r0*Math.cos(a1),y3=cy+r0*Math.sin(a1),x4=cx+r0*Math.cos(a0),y4=cy+r0*Math.sin(a0);return 'M'+x1+','+y1+' A'+r1+','+r1+',0,0,1,'+x2+','+y2+' L'+x3+','+y3+' A'+r0+','+r0+',0,0,0,'+x4+','+y4+' Z';}
+  for(var i=0;i<COF.length;i++){
+    var entry=COF[i],a0=(i*30-90-15)*Math.PI/180,a1=(i*30-90+15)*Math.PI/180,ac=(i*30-90)*Math.PI/180;
+    var rings=[
+      {r0:R2+1,r1:R3,type:'maj',root:entry.maj,label:entry.majL,fill:'#EEEAE4',tc:'#6860B8',fs:7.5,fw:600},
+      {r0:R1+1,r1:R2,type:'min',root:entry.min,label:entry.minL,fill:'#EAF0EA',tc:'#3A7A4A',fs:6.5,fw:400},
+      {r0:R0+1,r1:R1,type:'dim',root:entry.dim,label:entry.dimL,fill:'#F0EDE6',tc:'#8A7A5A',fs:5.5,fw:400}
+    ];
+    for(var j=0;j<rings.length;j++){
+      var rg=rings[j];
+      var seg=document.createElementNS('http://www.w3.org/2000/svg','path');
+      seg.setAttribute('d',arc(rg.r0,rg.r1,a0,a1));seg.setAttribute('fill',rg.fill);seg.setAttribute('stroke','#F5F3EE');seg.setAttribute('stroke-width','1.5');
+      seg.setAttribute('data-type',rg.type);seg.setAttribute('data-root',''+rg.root);seg.setAttribute('data-label',rg.label);
+      seg.id='clive_'+rg.type+'_'+rg.root; svg.appendChild(seg);
+      var tx=cx+(rg.r0+(rg.r1-rg.r0)/2)*Math.cos(ac),ty=cy+(rg.r0+(rg.r1-rg.r0)/2)*Math.sin(ac);
+      var tl=document.createElementNS('http://www.w3.org/2000/svg','text');
+      tl.setAttribute('x',''+tx);tl.setAttribute('y',''+ty);tl.setAttribute('text-anchor','middle');tl.setAttribute('dominant-baseline','middle');
+      tl.setAttribute('font-size',''+rg.fs);tl.setAttribute('font-weight',''+rg.fw);tl.setAttribute('fill',rg.tc);
+      tl.style.pointerEvents='none';tl.textContent=rg.label;svg.appendChild(tl);
+    }
+  }
+  var c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',''+cx);c.setAttribute('cy',''+cy);c.setAttribute('r',''+R0);c.setAttribute('fill','#FAFAF7');c.setAttribute('stroke','#DDD9D0');c.setAttribute('stroke-width','1');svg.appendChild(c);
+  var ct=document.createElementNS('http://www.w3.org/2000/svg','text');ct.id='cof-live-center';ct.setAttribute('x',''+cx);ct.setAttribute('y',''+cy);ct.setAttribute('text-anchor','middle');ct.setAttribute('dominant-baseline','middle');ct.setAttribute('font-size','6.5');ct.setAttribute('fill','#A8A4C0');ct.setAttribute('font-family','monospace');ct.textContent='--';svg.appendChild(ct);
+}
+
+function updateCofLive(root,type){
+  document.querySelectorAll('#cof-live path').forEach(function(p){
+    var t=p.getAttribute('data-type');
+    if(t==='maj') p.setAttribute('fill','#EEEAE4');
+    else if(t==='min') p.setAttribute('fill','#EAF0EA');
+    else p.setAttribute('fill','#F0EDE6');
+  });
+  var seg=document.getElementById('clive_'+type+'_'+root);
+  if(seg) seg.setAttribute('fill',type==='maj'?'#B8B4E0':type==='min'?'#B8D8B8':'#F0D8A8');
+  var ct=document.getElementById('cof-live-center');
+  if(ct) ct.textContent=EN[root]+(type==='maj'?' Maj':type==='min'?' min':' dim');
+}
+
+/* ── PIANO LIVE ── */
+function buildLivePiano(){
+  var pw=document.getElementById('lpw'); pw.innerHTML='';
+  var whites=getWhiteKeys(),nw=whites.length;
+  var totalW=pw.offsetWidth||600;
+  var ww=Math.floor((totalW-nw)/nw),wh=70,bw=Math.max(5,Math.floor(ww*0.62)),bh=Math.floor(wh*0.62);
+  if(ww<4) ww=4;
+  for(var i=0;i<whites.length;i++){
+    var midi=whites[i],x=i*(ww+1);
+    var el=document.createElement('div');
+    el.className='lwk'; el.id='lpw_K'+midi;
+    el.style.left=x+'px'; el.style.width=ww+'px'; el.style.height=wh+'px';
+    if(OCTAVE_LABELS[midi]){
+      var lbl=document.createElement('span');
+      lbl.style.cssText='position:absolute;bottom:2px;font-size:5px;color:#C8C4E8;left:0;right:0;text-align:center;pointer-events:none';
+      lbl.textContent=OCTAVE_LABELS[midi]; el.appendChild(lbl);
+    }
+    pw.appendChild(el);
+    var sm=mod(midi),bsa={0:1,2:3,5:6,7:8,9:10};
+    if(bsa[sm]!==undefined){
+      var bmidi=midi+1;
+      if(bmidi<=MIDI_END&&isB(bmidi)){
+        var bx=x+ww-Math.floor(bw/2);
+        var bel=document.createElement('div');
+        bel.className='lbk'; bel.id='lpw_K'+bmidi;
+        bel.style.left=bx+'px'; bel.style.width=bw+'px'; bel.style.height=bh+'px';
+        pw.appendChild(bel);
+      }
+    }
+  }
+}
+
+function setLiveKey(midi,on){
+  var el=document.getElementById('lpw_K'+midi); if(!el) return;
+  if(on){el.classList.add('active');}
+  else{el.classList.remove('active');}
+}
+
+/* ── MIDI ── */
+function initMidi(){
+  if(!navigator.requestMIDIAccess){alert('Web MIDI non supporte. Utilisez Chrome ou Edge.');return;}
+  navigator.requestMIDIAccess().then(function(access){
+    midiAccess=access;
+    updateLiveStatus('connected','Connecte');
+    access.inputs.forEach(function(input){input.onmidimessage=onMidiMsg;});
+    access.onstatechange=function(){
+      access.inputs.forEach(function(input){input.onmidimessage=onMidiMsg;});
+      var count=0; access.inputs.forEach(function(){count++;});
+      updateLiveStatus('connected',count+' appareil(s)');
+    };
+  },function(){updateLiveStatus('','Non connecte');alert('Acces MIDI refuse.');});
+}
+
+function updateLiveStatus(cls,txt){
+  var dot=document.getElementById('live-dot'),lbl=document.getElementById('live-label');
+  dot.className='live-status-dot'+(cls?' '+cls:'');
+  lbl.textContent=txt;
+}
+
+function onMidiMsg(event){
+  var cmd=event.data[0]&0xf0,note=event.data[1],vel=event.data.length>2?event.data[2]:0;
+  if(cmd===0x90&&vel>0){
+    pressedNotes[note]=true;
+    setLiveKey(note,true);
+    updateLiveStatus('listening','Ecoute...');
+    if(debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer=setTimeout(function(){
+      analyzeAndShow();
+      updateLiveStatus('connected','Connecte');
+    },800);
+  } else if(cmd===0x80||(cmd===0x90&&vel===0)){
+    delete pressedNotes[note];
+    setLiveKey(note,false);
+  }
+}
+
+function analyzeAndShow(){
+  var notes=[],seen={};
+  for(var n in pressedNotes){var sm=mod(parseInt(n,10));if(!seen[sm]){seen[sm]=true;notes.push(sm);}}
+  if(notes.length<2){
+    document.getElementById('live-waiting').style.display='flex';
+    document.getElementById('live-chord-panel').style.display='none';
+    return;
+  }
+  var result=detectChord(notes);
+  if(result) displayLiveChord(result);
+}
+
+function detectChord(notesMod){
+  var best=null;
+  for(var r=0;r<12;r++){
+    for(var d=0;d<CHORD_DICT.length;d++){
+      var cd=CHORD_DICT[d],chSet={};
+      for(var i=0;i<cd.iv.length;i++) chSet[mod(r+cd.iv[i])]=true;
+      var match=true;
+      for(var k=0;k<notesMod.length;k++) if(!chSet[notesMod[k]]){match=false;break;}
+      var essential=[mod(r),mod(r+cd.iv[1])],hasEssential=true;
+      for(var e=0;e<essential.length;e++) if(notesMod.indexOf(essential[e])<0){hasEssential=false;break;}
+      if(match&&hasEssential){
+        var score=0;
+        for(var i=0;i<cd.iv.length;i++) if(notesMod.indexOf(mod(r+cd.iv[i]))>=0) score++;
+        if(!best||score>best.score||(score===best.score&&cd.iv.length<=best.ivlen))
+          best={root:r,name:cd.name,iv:cd.iv,score:score,ivlen:cd.iv.length};
+      }
+    }
+  }
+  return best;
+}
+
+function findTonality(root,chordName){
+  for(var si=0;si<SCALE_TYPES.length;si++){
+    var sc=SCALE_TYPES[si]; if(!sc.ch) continue;
+    for(var r=0;r<12;r++){
+      for(var k=0;k<sc.iv.length;k++){
+        if(mod(r+sc.iv[k])===root&&sc.ch[k]===chordName){
+          return {scaleRoot:r,scaleLabel:sc.label,deg:k,sc:sc};
+        }
+      }
+    }
+  }
+  return null;
+}
+
+var CHORD_DESC={maj:'Accord majeur',min:'Accord mineur','7':'Dominante 7',maj7:'Majeur 7',min7:'Mineur 7',dim:'Diminue',aug:'Augmente',sus2:'Sus2',sus4:'Sus4','9':'Neuvieme',dim7:'Dim 7',m7b5:'Semi-dim',add9:'Add9'};
+
+function displayLiveChord(result){
+  var root=result.root,name=result.name;
+  var ton=findTonality(root,name);
+  document.getElementById('live-waiting').style.display='none';
+  document.getElementById('live-chord-panel').style.display='flex';
+  var sup=name.replace(/^[a-z]+/,'').replace(/^maj/i,'');
+  var base=name.replace(sup,'');
+  document.getElementById('live-chord-name').childNodes[0].nodeValue=EN[root]+base;
+  document.getElementById('live-chord-sup').textContent=sup;
+  document.getElementById('live-chord-type').textContent=CHORD_DESC[name]||name;
+  var useF=FLT.indexOf(root)>=0;
+  var sh=[]; var scSet={};
+  if(ton){
+    var sc=ton.sc;
+    for(var i=0;i<sc.iv.length;i++) scSet[mod(ton.scaleRoot+sc.iv[i])]=true;
+    for(var n=0;n<12;n++) if(scSet[n]&&BLK.indexOf(n)>=0) sh.push(n);
+    document.getElementById('live-deg-num').textContent=ROMAN[ton.deg];
+    document.getElementById('live-ton-chip').textContent=EN[ton.scaleRoot]+' '+sc.label;
+    document.getElementById('live-ton-name').textContent=EN[ton.scaleRoot]+' '+sc.label;
+    document.getElementById('live-ton-alt').textContent=sh.length===0?'0 alteration':(sh.length+(useF?' bemol(s)':' diese(s)'));
+    updateCofLive(ton.scaleRoot,'maj');
+    var degsRow=document.getElementById('live-degs-row');
+    degsRow.innerHTML='';
+    for(var i=0;i<ROMAN.length;i++){
+      var s=document.createElement('span');
+      s.className='ld2'+(i===ton.deg?' on':(i===3||i===4)?' pivot':'');
+      s.textContent=ROMAN[i];
+      degsRow.appendChild(s);
+    }
+  } else {
+    document.getElementById('live-deg-num').textContent='?';
+    document.getElementById('live-ton-chip').textContent='--';
+    document.getElementById('live-ton-name').textContent='--';
+    document.getElementById('live-ton-alt').textContent='--';
+  }
+  addToHistory(EN[root]+name, ton?ROMAN[ton.deg]:null, ton&&(ton.deg===3||ton.deg===4));
+}
+
+/* ── HISTORIQUE ── */
+function addToHistory(chordStr,deg,isPivot){
+  chordHistory.push({chord:chordStr,deg:deg,pivot:isPivot});
+  if(chordHistory.length>12) chordHistory.shift();
+  renderHistory();
+}
+
+function detectLoop(){
+  if(chordHistory.length<8) return false;
+  var half=Math.floor(chordHistory.length/2);
+  var a=chordHistory.slice(0,half).map(function(x){return x.chord;}).join(',');
+  var b=chordHistory.slice(half).map(function(x){return x.chord;}).join(',');
+  return b.indexOf(a)>=0||a===b.substring(0,a.length);
+}
+
+function renderHistory(){
+  var wrap=document.getElementById('live-history-items');
+  wrap.innerHTML='';
+  var len=chordHistory.length;
+  var showLoop=detectLoop()&&len>=6;
+  var loopPos=showLoop?Math.floor(len/2):null;
+  for(var i=0;i<len;i++){
+    var entry=chordHistory[i];
+    var age=len-1-i;
+    var isCurrent=(i===len-1);
+    if(showLoop&&i===loopPos){
+      var lb=document.createElement('span');
+      lb.className='loop-badge-inline';
+      lb.textContent='\u21BB boucle';
+      wrap.appendChild(lb);
+    }
+    var hi=document.createElement('div');
+    hi.className='hi'+(isCurrent?' current':age>=4?' age4':age>=3?' age3':age>=2?' age2':age>=1?' age1':'');
+    var degCls=isCurrent?'on':entry.pivot?'pivot':'muted';
+    hi.innerHTML='<span class="hi-chord">'+entry.chord+'</span>'+(entry.deg?'<span class="hi-deg '+degCls+'">'+entry.deg+'</span>':'<span class="hi-deg muted">?</span>');
+    wrap.appendChild(hi);
+    if(!isCurrent){
+      var arr=document.createElement('span');
+      arr.className='hi-arr';arr.textContent='›';
+      if(age>=4) arr.style.opacity='.2';
+      else if(age>=3) arr.style.opacity='.38';
+      else if(age>=2) arr.style.opacity='.55';
+      wrap.appendChild(arr);
+    }
+  }
+}
+
+/* ── INIT ── */
+window.addEventListener('load',function(){buildPiano();buildCoF();buildScaleBtns();buildVarBtns();});
+setTimeout(function(){buildPiano();buildCoF();buildScaleBtns();buildVarBtns();},400);
+</script>
+</body>
+</html>
