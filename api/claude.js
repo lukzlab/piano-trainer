@@ -7,7 +7,6 @@ export default async function handler(req, res) {
 
   try {
     const { prompt } = req.body;
-    console.log('Prompt recu:', prompt?.substring(0, 50));
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -17,19 +16,19 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 400,
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 500,
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
     const data = await response.json();
-    console.log('Status Anthropic:', response.status);
-    console.log('Data keys:', Object.keys(data));
+    console.log('Status:', response.status);
+    console.log('Data:', JSON.stringify(data).substring(0, 200));
     res.status(200).json(data);
 
   } catch(err) {
-    console.error('Erreur proxy:', err.message);
+    console.error('Erreur:', err.message);
     res.status(500).json({ error: err.message });
   }
 }
