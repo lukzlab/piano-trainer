@@ -646,10 +646,9 @@ function drawCOF(){
         var notes2=sc2?sc2.iv.map(function(iv){return mod(st.root+iv);}):[];
         var inA=notes.indexOf(semi)>=0,inB=notes2.indexOf(semi)>=0;
         if(isTonic){fill='var(--tonic)';stroke='var(--tonic-light)';sw='1.8';tc='#fff';fw='700';}
-        else if(inA&&inB){fill='#D0EED8';stroke='#2A7A3A';sw='1.2';tc='#1A5A2A';fw='600';}
-        else if(inA&&!inB){fill='var(--purple-bg)';stroke='var(--purple)';sw='1.2';tc='var(--purple)';fw='600';}
-        else if(!inA&&inB){fill='var(--tonic-bg)';stroke='var(--tonic)';sw='1.2';tc='var(--tonic)';fw='600';}
-        else{fill=ring.type==='maj'?'var(--cof-bg)':'var(--bg2)';stroke='var(--cof-border)';sw='0.7';tc='var(--text3)';fw='400';}
+        else if(inA&&inB){fill='#E8F5E8';stroke='#4A9A4A';sw='1.8';tc='#2A6A2A';fw='700';}
+        else if(inA||inB){fill=ring.type==='maj'?'var(--cof-bg)':'var(--bg2)';stroke='var(--border)';sw='0.5';tc='var(--text3)';fw='400';}
+        else{fill=ring.type==='maj'?'var(--cof-bg)':'var(--bg2)';stroke='var(--cof-border)';sw='0.5';tc='var(--text3)';fw='300';}
       } else {
         if(isTonic&&role===ring.type){fill='var(--tonic)';stroke='var(--tonic-light)';sw='1.8';tc='#fff';fw='700';}
         else if(isInRing&&!isTonic){fill=ring.type==='maj'?'var(--tonic-bg)':'var(--scale-bg)';stroke='var(--tonic-light)';sw=ring.type==='maj'?'1.2':'1';tc='var(--tonic)';fw='500';}
@@ -797,9 +796,9 @@ function paintPiano(chordMidiSet){
         var sc2cmp=SCALES.filter(function(s){return s.id===compareScale;})[0];
         var notes2cmp=sc2cmp?sc2cmp.iv.map(function(iv){return mod(st.root+iv);}):[];
         var inA=notes.indexOf(sm)>=0,inB=notes2cmp.indexOf(sm)>=0;
-        if(inA&&inB){el.style.background='#2A7A3A';el.style.borderColor='#1A5A2A';el.style.fontSize=blk?'6px':'7px';if(!octLbl)el.textContent=EN[sm];}
-        else if(inA){el.style.background='var(--purple)';el.style.borderColor='var(--purple-border)';el.style.fontSize=blk?'6px':'7px';if(!octLbl)el.textContent=EN[sm];}
-        else if(inB){el.style.background='var(--tonic)';el.style.borderColor='var(--tonic-light)';el.style.fontSize=blk?'6px':'7px';if(!octLbl)el.textContent=EN[sm];}
+        if(inA&&inB){
+          el.classList.add('scn');el.style.fontSize=blk?'6px':'7px';if(!octLbl)el.textContent=EN[sm];
+        }
       }
     }
   }
@@ -861,9 +860,7 @@ function renderScalePanel(header,body){
   if(compareScale){
     var sc2=SCALES.filter(function(s){return s.id===compareScale;})[0];
     var cleg=document.createElement('div');cleg.className='compare-legend';
-    cleg.innerHTML='<span class="cleg"><span class="cleg-dot" style="background:#5A4A8A"></span>'+sc.label+' uniquement</span>'
-      +'<span class="cleg"><span class="cleg-dot" style="background:#C0392B"></span>'+sc2.label+' uniquement</span>'
-      +'<span class="cleg"><span class="cleg-dot" style="background:#2A7A3A"></span>Communes</span>';
+    cleg.innerHTML='<span class="cleg"><span class="cleg-dot" style="background:#4A9A4A"></span>Notes communes aux deux gammes</span>';
     body.appendChild(cleg);
   }
   var nw=document.createElement('div');nw.className='si-notes';
