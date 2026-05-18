@@ -256,7 +256,6 @@ body.light .modal-title{font-family:'Instrument Serif',serif;font-style:italic;f
 .modal-ex:hover{background:var(--accent-bg);color:var(--accent);border-color:var(--accent2)}
 
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
 </head>
 <body class="light">
 
@@ -1284,18 +1283,17 @@ var _sampler=null,_samplerReady=false;
 
 function _initSampler(){
   if(_sampler)return;
-  /* Salamander Grand Piano — samples libres hébergés sur GitHub */
   _sampler=new Tone.Sampler({
- urls:{
-  'A0':'A0.mp3','C1':'C1.mp3','D#1':'Ds1.mp3','F#1':'Fs1.mp3',
-  'A1':'A1.mp3','C2':'C2.mp3','D#2':'Ds2.mp3','F#2':'Fs2.mp3',
-  'A2':'A2.mp3','C3':'C3.mp3','D#3':'Ds3.mp3','F#3':'Fs3.mp3',
-  'A3':'A3.mp3','C4':'C4.mp3','D#4':'Ds4.mp3','F#4':'Fs4.mp3',
-  'A4':'A4.mp3','C5':'C5.mp3','D#5':'Ds5.mp3','F#5':'Fs5.mp3',
-  'A5':'A5.mp3','C6':'C6.mp3','D#6':'Ds6.mp3','F#6':'Fs6.mp3',
-  'A6':'A6.mp3','C7':'C7.mp3','D#7':'Ds7.mp3','F#7':'Fs7.mp3',
-  'A7':'A7.mp3','C8':'C8.mp3'
-},
+    urls:{
+      'A0':'A0.mp3','C1':'C1.mp3','D#1':'Ds1.mp3','F#1':'Fs1.mp3',
+      'A1':'A1.mp3','C2':'C2.mp3','D#2':'Ds2.mp3','F#2':'Fs2.mp3',
+      'A2':'A2.mp3','C3':'C3.mp3','D#3':'Ds3.mp3','F#3':'Fs3.mp3',
+      'A3':'A3.mp3','C4':'C4.mp3','D#4':'Ds4.mp3','F#4':'Fs4.mp3',
+      'A4':'A4.mp3','C5':'C5.mp3','D#5':'Ds5.mp3','F#5':'Fs5.mp3',
+      'A5':'A5.mp3','C6':'C6.mp3','D#6':'Ds6.mp3','F#6':'Fs6.mp3',
+      'A6':'A6.mp3','C7':'C7.mp3','D#7':'Ds7.mp3','F#7':'Fs7.mp3',
+      'A7':'A7.mp3','C8':'C8.mp3'
+    },
     baseUrl:'https://tonejs.github.io/audio/salamander/',
     onload:function(){
       _samplerReady=true;
@@ -1303,7 +1301,6 @@ function _initSampler(){
       if(lbl&&lbl.textContent==='Chargement...')audioUpdateLabel();
     }
   }).toDestination();
-  /* Reverb léger */
   var reverb=new Tone.Reverb({decay:1.8,wet:0.18}).toDestination();
   _sampler.disconnect();
   _sampler.connect(reverb);
@@ -1333,7 +1330,6 @@ function _playChord(midis,startTime,arpeggiate){
 
 function audioToggle(){
   if(_audioPlaying){audioStop();return;}
-  /* Init sampler au premier clic (nécessite interaction utilisateur) */
   if(!_sampler){
     _initSampler();
     var lbl=document.getElementById('audio-mode-label');
@@ -1341,7 +1337,6 @@ function audioToggle(){
   }
   Tone.start();
   if(!_samplerReady){
-    /* Attendre que le sampler soit prêt */
     var check=setInterval(function(){
       if(_samplerReady){clearInterval(check);_doPlay();}
     },100);
@@ -1428,120 +1423,6 @@ function _playProgression(){
   if(steps.length===0){audioStop();return;}
   steps.forEach(function(midis,i){_playChord(midis,now+i*beatDur*2,true);});
   setTimeout(audioStop,(steps.length*beatDur*2+0.8)*1000);
-}
-
-function audioUpdateLabel(){
-  var lbl=document.getElementById('audio-mode-label');
-  if(!lbl)return;
-  if(st.viewMode==='scale')lbl.textContent='Gamme';
-  else if(customProg.idx>=0)lbl.textContent='Progression';
-  else lbl.textContent=PROGS[stdProg.idx]?PROGS[stdProg.idx].name:'Progression';
-}
-
-function _getAudioCtx(){
-  return Tone.getContext().rawContext;
-}
-
-function _playNote(midi,startTime,duration){
-  if(!_samplerReady)return;
-  var note=_midiToNote(midi);
-  var now=Tone.now();
-  var t=(startTime-Tone.getContext().rawContext.currentTime)+now;
-  _sampler.triggerAttackRelease(note,duration,Math.max(t,now));
-}
-
-function _playChord(midis,startTime,arpeggiate){
-  var beatDur=60/_audioBpm;
-  midis.forEach(function(m,i){
-    _playNote(m,startTime+(arpeggiate?i*beatDur*0.12:0),beatDur*1.6);
-  });
-}
-
-function audioToggle(){
-  if(_audioPlaying){audioStop();return;}
-  var ctx=_getAudioCtx();
-  if(ctx.state==='suspended')ctx.resume();
-  _audioPlaying=true;
-  var btn=document.getElementById('audio-play-btn');
-  btn.innerHTML='&#9646;&#9646;';
-  btn.classList.add('playing');
-  /* Mode accord actif : joue l'accord sélectionné */
-  if(st.viewMode==='scale'&&scaleState.activeDeg>=0){
-    var sc=getSC();var d=scaleState.activeDeg;
-    var rn=mod(st.root+sc.iv[d]);
-    var enrichId=scaleState.activeEnrich||sc.ch[d];
-    var iv=ENRICH_IV[enrichId]||[0,4,7];
-    var base=48;for(var m=48;m<=60;m++){if(mod(m)===rn){base=m;break;}}
-    var midis=iv.map(function(x){return base+x;});
-    _playChord(midis,ctx.currentTime+0.05,true);
-    setTimeout(audioStop,2500);
-  } else if(st.viewMode==='scale'){
-    _playScale();
-  } else {
-    _playProgression();
-  }
-}
-
-function audioStop(){
-  _audioPlaying=false;
-  var btn=document.getElementById('audio-play-btn');
-  if(btn){btn.innerHTML='&#9654;';btn.classList.remove('playing');}
-}
-
-function audioUpdateBpm(val){
-  _audioBpm=parseInt(val);
-  document.getElementById('audio-bpm-label').textContent=val;
-}
-
-function _playScale(){
-  var notes=getNotes();
-  var tonic=mod(st.root);
-  var startMidi=48;
-  for(var m=48;m<=60;m++){if(mod(m)===tonic){startMidi=m;break;}}
-  var beatDur=60/_audioBpm;
-  var ctx=_getAudioCtx();
-  var now=ctx.currentTime+0.05;
-  var seq=[];
-  notes.forEach(function(semi){
-    var midi=startMidi;
-    for(var m=startMidi;m<=startMidi+12;m++){if(mod(m)===semi){midi=m;break;}}
-    seq.push(midi);
-  });
-  /* Résolution : tonique octave supérieure */
-  seq.push(startMidi+12);
-  seq.forEach(function(midi,i){_playNote(midi,now+i*beatDur,beatDur*0.85);});
-  setTimeout(audioStop,(seq.length*beatDur+0.3)*1000);
-}
-
-function _playProgression(){
-  var beatDur=60/_audioBpm;
-  var ctx=_getAudioCtx();
-  var now=ctx.currentTime+0.05;
-  var steps=[];
-  if(st.viewMode==='prog'){
-    if(customProg.idx>=0){
-      customProgs[customProg.idx].sequence.forEach(function(s){
-        var iv=ENRICH_IV[s.enrich]||[0,4,7];
-        var base=48;for(var m=48;m<=60;m++){if(mod(m)===s.semi){base=m;break;}}
-        steps.push(iv.map(function(x){return base+x;}));
-      });
-    } else {
-      var sc=getSC();var prog=PROGS[stdProg.idx];
-      if(sc.ch){
-        prog.degs.forEach(function(d,i){
-          if(d>=sc.iv.length)return;
-          var enrichId=stdProg.enrichPerStep[i]||'';
-          var rn=mod(st.root+sc.iv[d]);var baseType=sc.ch[d];
-          var iv=ENRICH_IV[enrichId]||ENRICH_IV[baseType]||[0,4,7];
-          var base=48;for(var m=48;m<=60;m++){if(mod(m)===rn){base=m;break;}}
-          steps.push(iv.map(function(x){return base+x;}));
-        });
-      }
-    }
-  }
-  if(steps.length===0){audioStop();return;}
-  steps.forEach(function(midis,i){_playChord(midis,now+i*beatDur*2,true);});
-  setTimeout(audioStop,(steps.length*beatDur*2+0.5)*1000);
 }
 
 function audioUpdateLabel(){
