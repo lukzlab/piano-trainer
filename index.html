@@ -261,6 +261,23 @@ body.light .modal-title{font-family:'Instrument Serif',serif;font-style:italic;f
 .inv-btn{width:22px;height:22px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .1s;line-height:1}
 .inv-btn:hover{background:var(--purple-bg);color:var(--purple);border-color:var(--purple-border)}
 .inv-label{font-size:9px;font-family:'DM Mono',monospace;color:var(--purple);background:var(--purple-bg);padding:2px 7px;border-radius:4px;flex:1;text-align:center}
+
+/* ── FICHES HARMONIQUES ── */
+.harmony-card{font-size:10px;color:var(--text2);line-height:1.6;padding:.5rem .625rem;background:var(--bg2);border-radius:6px;border-left:3px solid var(--accent2);margin-bottom:.5rem}
+.harmony-card strong{color:var(--accent);font-weight:600}
+.deg-hint{font-size:9px;color:var(--text3);font-style:italic;padding:2px 6px 2px 22px;line-height:1.4;display:block}
+
+/* ── COMPARAISON GAMMES ── */
+.compare-bar{display:flex;align-items:center;gap:6px;margin-top:.375rem;flex-wrap:wrap}
+.compare-label{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);flex-shrink:0}
+.compare-close{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;flex-shrink:0}
+.compare-close:hover{background:var(--tonic-bg);color:var(--tonic);border-color:var(--tonic-light)}
+.cmp-only-a{fill:#5A4A8A !important}
+.cmp-only-b{fill:#C0392B !important}
+.cmp-shared{fill:#2A7A3A !important}
+.compare-legend{display:flex;gap:8px;font-size:9px;color:var(--text2);flex-wrap:wrap;margin-top:.25rem}
+.cleg{display:flex;align-items:center;gap:4px}
+.cleg-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
 </style>
 </head>
 <body class="light">
@@ -482,6 +499,7 @@ var customProg={idx:-1,activeStep:-1,transpMode:'root'};
 var buildMode=false;
 var bld={currentNote:null,currentEnrich:'',sequence:[]};
 var scaleState={activeDeg:-1,activeEnrich:'',activeInv:0};
+var compareScale=null; /* id of scale to compare, null = off */
 
 function getSC(){for(var i=0;i<SCALES.length;i++)if(SCALES[i].id===st.scale)return SCALES[i];return SCALES[0];}
 function getNotes(){var sc=getSC();return sc.iv.map(function(iv){return mod(st.root+iv);});}
@@ -530,6 +548,45 @@ function inversionLabel(semi,enrichId,baseType,invIdx){
   var chordName=EN[semi]+(ENRICH_SUF[enrichId]||'');
   return chordName+'/'+EN[bassSemi];
 }
+
+
+/* ── CONTENU PÉDAGOGIQUE ── */
+var SCALE_HARMONY={
+  major:"La gamme majeure est le socle de la musique occidentale. Elle crée une atmosphère lumineuse et stable. Le <strong>I</strong> est le repos, le <strong>V</strong> crée la tension maximale qui veut résoudre, le <strong>IV</strong> apporte douceur et couleur modale.",
+  minor:"La gamme mineure naturelle sonne sombre et mélancolique. Le <strong>V</strong> est ici mineur, ce qui affaiblit la résolution — essaie la Min. harmonique pour retrouver un V majeur plus tendu.",
+  harmonic:"Le VII rehaussé crée un <strong>V majeur</strong> qui tire puissamment vers le I. La gamme des cadences dramatiques — flamenco, classique, metal. L'intervalle de seconde augmentée entre VI et VII lui donne son caractère exotique.",
+  melodic:"La gamme mineure mélodique lisse l'intervalle augmenté de la harmonique en montant. Très utilisée en jazz pour improviser sur les accords mineurs.",
+  dorian:"Le Dorien est un mineur avec le <strong>VI majeur</strong> — sa note caractéristique. Ce VI apporte luminosité sans quitter l'ambiance mineure. La gamme de So What de Miles Davis, du blues, du rock celtique.",
+  phrygian:"Le Phrygien commence par un <strong>demi-ton</strong> — son IIb est sa signature. Couleur espagnole, flamenca, métal. Le IIb majeur est la résolution alternative au I, appelée cadence phrygienne.",
+  lydian:"Le Lydien est un majeur avec un <strong>IV rehaussé</strong> (#4). Ce triton entre I et IV crée une couleur rêveuse, flottante. John Williams, film scores, prog rock. La gamme la plus lumineuse de tous les modes.",
+  mixo:"Le Mixolydien est un majeur avec un <strong>VIIb</strong>. La gamme du blues-rock, du funk, des dominantes jazz. Le V est ici diminué — la résolution vers le I est moins forte, ce qui lui donne son ambiance relâchée.",
+  penta_maj:"5 notes soigneusement choisies pour <strong>éliminer toute dissonance</strong>. Le IV et le VII sont absents. Utilisée dans le monde entier — folk, rock, blues. Idéale pour commencer l'improvisation.",
+  penta_min:"La pentatonique mineure est la base du <strong>blues et du rock</strong>. Ses 5 notes sonnent bien sur presque tout. Ajoute la blue note (b5) pour obtenir la gamme blues complète.",
+  blues:"La gamme blues ajoute la <strong>blue note (b5)</strong> à la pentatonique mineure. Cette note crée la tension caractéristique du blues. Elle se passe entre le IV et le V, instable, cherchant à résoudre."
+};
+
+var DEG_HINTS={
+  I:"Le repos — point de départ et arrivée de toute harmonie.",
+  II:"Prépare le V — souvent utilisé comme pré-dominante (II-V-I).",
+  III:"Couleur neutre, entre I et V. Rare dans les progressions simples.",
+  IV:"Sous-dominante — éloignement doux du I. Le IV majeur sonne gospel.",
+  V:"La tension maximale — veut résoudre sur le I. La dominante.",
+  VI:"Le relatif mineur du I. Crée émotion et ambiguïté (VI-IV-I-V).",
+  VII:"Le degré le plus instable — mène naturellement au I par demi-ton."
+};
+
+var PROG_HARMONY={
+  "I-V-VI-IV":"La progression pop universelle. Le V crée la tension, le VI apporte l'émotion, le IV adoucit. Entendue dans des milliers de tubes depuis les années 60.",
+  "I-IV-V":"La progression de base du blues et du rock. Simple, directe, efficace. Le I-IV établit le territoire, le V ramène à la maison.",
+  "VI-IV-I-V":"Même progression que I-V-VI-IV mais qui commence sur le relatif mineur. Sonne plus mélancolique, introspective.",
+  "I-VI-IV-V":"La progression des années 50-60, doo-wop. Le VI mineur apporte nostalgie, le retour IV-V est prévisible et rassurant.",
+  "II-V-I":"Le mouvement cadentiel du jazz. Le II prépare, le V tend, le I résout. Toute la harmonie jazz tourne autour de ce mouvement.",
+  "I-VI-II-V":"Le rythme de rhythm changes jazz. Enchaîne deux II-V-I imbriqués. Base de centaines de standards.",
+  "I-IV-I-V":"Le schéma du blues 12 mesures condensé. Répétition du I qui ancre la tonalité, IV et V qui créent le mouvement.",
+  "I-III-IV-V":"Progression rock classique — la montée par degrés crée une tension qui se libère sur le V. Très utilisée dans les refrains.",
+  "II-IV-I":"Mouvement soul/gospel. Le II mineur apporte mélancolie, le IV est l'appel, le I la résolution. Très utilisé en neo-soul.",
+  "I-IV-VI-V":"Variante gospel avec le VI mineur en troisième position. La surprise du VI après le IV crée une émotion particulière."
+};
 
 function customProgChordStr(cp){
   return cp.sequence.map(function(s){return s.label;}).join(' - ');
@@ -583,6 +640,16 @@ function drawCOF(){
         fw=seq?'700':'400';
       } else if(buildMode){
         fill='var(--cof-bg)';stroke='var(--cof-border)';sw='0.8';tc='var(--text2)';fw='400';
+      } else if(compareScale){
+        /* Compare mode */
+        var sc2=SCALES.filter(function(s){return s.id===compareScale;})[0];
+        var notes2=sc2?sc2.iv.map(function(iv){return mod(st.root+iv);}):[];
+        var inA=notes.indexOf(semi)>=0,inB=notes2.indexOf(semi)>=0;
+        if(isTonic){fill='var(--tonic)';stroke='var(--tonic-light)';sw='1.8';tc='#fff';fw='700';}
+        else if(inA&&inB){fill='#D0EED8';stroke='#2A7A3A';sw='1.2';tc='#1A5A2A';fw='600';}
+        else if(inA&&!inB){fill='var(--purple-bg)';stroke='var(--purple)';sw='1.2';tc='var(--purple)';fw='600';}
+        else if(!inA&&inB){fill='var(--tonic-bg)';stroke='var(--tonic)';sw='1.2';tc='var(--tonic)';fw='600';}
+        else{fill=ring.type==='maj'?'var(--cof-bg)':'var(--bg2)';stroke='var(--cof-border)';sw='0.7';tc='var(--text3)';fw='400';}
       } else {
         if(isTonic&&role===ring.type){fill='var(--tonic)';stroke='var(--tonic-light)';sw='1.8';tc='#fff';fw='700';}
         else if(isInRing&&!isTonic){fill=ring.type==='maj'?'var(--tonic-bg)':'var(--scale-bg)';stroke='var(--tonic-light)';sw=ring.type==='maj'?'1.2':'1';tc='var(--tonic)';fw='500';}
@@ -725,7 +792,15 @@ function paintPiano(chordMidiSet){
     } else {
       var inCenter=(m>=cS&&m<cE),inScale=notes.indexOf(sm)>=0,isTonic=(sm===tonic);
       if(inCenter&&isTonic){el.classList.add('tonic');el.style.fontSize=blk?'6px':'7px';if(!octLbl)el.textContent=EN[sm];}
-      else if(inCenter&&inScale){el.classList.add('scn');el.style.fontSize=blk?'6px':'7px';if(!octLbl)el.textContent=EN[sm];}
+      else if(inCenter&&inScale&&!compareScale){el.classList.add('scn');el.style.fontSize=blk?'6px':'7px';if(!octLbl)el.textContent=EN[sm];}
+      else if(inCenter&&compareScale){
+        var sc2cmp=SCALES.filter(function(s){return s.id===compareScale;})[0];
+        var notes2cmp=sc2cmp?sc2cmp.iv.map(function(iv){return mod(st.root+iv);}):[];
+        var inA=notes.indexOf(sm)>=0,inB=notes2cmp.indexOf(sm)>=0;
+        if(inA&&inB){el.style.background='#2A7A3A';el.style.borderColor='#1A5A2A';el.style.fontSize=blk?'6px':'7px';if(!octLbl)el.textContent=EN[sm];}
+        else if(inA){el.style.background='var(--purple)';el.style.borderColor='var(--purple-border)';el.style.fontSize=blk?'6px':'7px';if(!octLbl)el.textContent=EN[sm];}
+        else if(inB){el.style.background='var(--tonic)';el.style.borderColor='var(--tonic-light)';el.style.fontSize=blk?'6px':'7px';if(!octLbl)el.textContent=EN[sm];}
+      }
     }
   }
 }
@@ -776,8 +851,21 @@ function renderMainPanel(){
 /* ── PANNEAU GAMME ── */
 function renderScalePanel(header,body){
   var sc=getSC();var notes=getNotes();var tonic=mod(st.root);
-  var t=document.createElement('div');t.className='panel-title';t.textContent=EN[st.root]+' '+sc.label;header.appendChild(t);
+  var t=document.createElement('div');t.className='panel-title';t.textContent=EN[st.root]+' '+sc.label+(compareScale?' vs '+SCALES.filter(function(s){return s.id===compareScale;})[0].label:'');header.appendChild(t);
   document.getElementById('piano-title').textContent=EN[st.root]+' '+sc.label;
+  /* Fiche harmonique gamme */
+  if(SCALE_HARMONY[sc.id]){
+    var hc=document.createElement('div');hc.className='harmony-card';hc.innerHTML=SCALE_HARMONY[sc.id];body.appendChild(hc);
+  }
+  /* Légende comparaison */
+  if(compareScale){
+    var sc2=SCALES.filter(function(s){return s.id===compareScale;})[0];
+    var cleg=document.createElement('div');cleg.className='compare-legend';
+    cleg.innerHTML='<span class="cleg"><span class="cleg-dot" style="background:#5A4A8A"></span>'+sc.label+' uniquement</span>'
+      +'<span class="cleg"><span class="cleg-dot" style="background:#C0392B"></span>'+sc2.label+' uniquement</span>'
+      +'<span class="cleg"><span class="cleg-dot" style="background:#2A7A3A"></span>Communes</span>';
+    body.appendChild(cleg);
+  }
   var nw=document.createElement('div');nw.className='si-notes';
   notes.forEach(function(n){var s=document.createElement('span');s.className='note-chip '+(n===tonic?'nc-tonic':'nc-note');s.textContent=EN[n];nw.appendChild(s);});
   body.appendChild(nw);
@@ -788,9 +876,11 @@ function renderScalePanel(header,body){
       var t=sc.ch[i];var isPivot=(sc.id==='major'&&(i===3||i===4));
       var row=document.createElement('div');row.className='deg-row'+(i===scaleState.activeDeg?' selected':'');
       var cn=chordNameDeg(i,i===scaleState.activeDeg?scaleState.activeEnrich:'');
+      var hint=DEG_HINTS[r]||'';
       row.innerHTML='<span class="dr-idx">'+r+'</span><span class="dr-chord">'+cn+'</span>'
         +'<span class="dr-type dt-'+t+'">'+(t==='min'?'min':t==='dim'?'dim':t==='aug'?'aug':'maj')+'</span>'
         +(isPivot?'<span class="dr-pivot">porte</span>':'');
+      if(hint&&i!==scaleState.activeDeg){var hspan=document.createElement('span');hspan.className='deg-hint';hspan.textContent=hint;row.appendChild(hspan);}
       if(i===scaleState.activeDeg){
         var grp=enrichGroup(t,st.scale,i);var enrList=ENRICHMENTS[grp]||[];
         if(enrList.length){
@@ -853,6 +943,9 @@ function renderStdProgPanel(header,body,prog){
   var back=document.createElement('button');back.className='panel-back';back.textContent='← Gamme';back.onclick=function(){st.viewMode='scale';document.querySelectorAll('.mtbtn').forEach(function(b,i){b.classList.toggle('active',i===0);});document.getElementById('prog-quick-wrap').style.display='none';stdProg.activeStep=-1;updateAll();};header.appendChild(back);
   document.getElementById('piano-title').textContent=prog.name;
   var sc=getSC();
+  if(PROG_HARMONY[prog.name]){
+    var hc=document.createElement('div');hc.className='harmony-card';hc.innerHTML=PROG_HARMONY[prog.name];body.appendChild(hc);
+  }
   var lbl=document.createElement('div');lbl.className='ctrl-label';lbl.style.marginBottom='4px';lbl.textContent='Accords — clique pour enrichir';body.appendChild(lbl);
   var dg=document.createElement('div');dg.className='deg-grid';
   prog.degs.forEach(function(d,i){
@@ -1163,7 +1256,41 @@ function setViewMode(m,btn){st.viewMode=m;document.querySelectorAll('.mtbtn').fo
 function buildRootBtns(){}
 function buildScaleBtns(){
   var w=document.getElementById('scale-btns');w.innerHTML='';
-  SCALES.forEach(function(sc){var b=document.createElement('button');b.className='scbtn'+(sc.id===st.scale?' active':'');b.textContent=sc.label;b.onclick=(function(sid){return function(){st.scale=sid;scaleState.activeDeg=-1;scaleState.activeEnrich='';buildScaleBtns();updateAll();};})(sc.id);w.appendChild(b);});
+  SCALES.forEach(function(sc){var b=document.createElement('button');b.className='scbtn'+(sc.id===st.scale?' active':'');b.textContent=sc.label;b.onclick=(function(sid){return function(){st.scale=sid;scaleState.activeDeg=-1;scaleState.activeEnrich='';scaleState.activeInv=0;compareScale=null;buildScaleBtns();updateAll();};})(sc.id);w.appendChild(b);});
+  /* Séparateur + bouton Comparer */
+  var sep=document.createElement('span');sep.style.cssText='width:1px;height:16px;background:var(--border);display:inline-block;margin:0 4px;vertical-align:middle';w.appendChild(sep);
+  if(compareScale){
+    var sc2=SCALES.filter(function(s){return s.id===compareScale;})[0];
+    var cb=document.createElement('button');
+    cb.className='scbtn';cb.style.cssText='border-color:var(--tonic-light);color:var(--tonic);background:var(--tonic-bg)';
+    cb.textContent='✕ '+sc2.label;
+    cb.onclick=function(){compareScale=null;buildScaleBtns();updateAll();};
+    w.appendChild(cb);
+  } else {
+    var cb=document.createElement('button');cb.className='scbtn';cb.textContent='⊕ Comparer';
+    cb.style.cssText='border-color:var(--purple-border);color:var(--purple);background:var(--purple-bg)';
+    cb.onclick=function(){openCompareModal();};w.appendChild(cb);
+  }
+}
+
+function openCompareModal(){
+  /* Modale légère inline sous les gammes */
+  var existing=document.getElementById('compare-modal');
+  if(existing){existing.remove();return;}
+  var modal=document.createElement('div');modal.id='compare-modal';
+  modal.style.cssText='position:absolute;z-index:100;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.625rem;display:flex;flex-wrap:wrap;gap:4px;box-shadow:0 4px 20px rgba(0,0,0,.15);margin-top:4px';
+  var lbl=document.createElement('div');lbl.style.cssText='width:100%;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px';lbl.textContent='Comparer avec :';modal.appendChild(lbl);
+  SCALES.forEach(function(sc){
+    if(sc.id===st.scale)return;
+    var b=document.createElement('button');b.className='scbtn';b.textContent=sc.label;
+    b.onclick=function(){compareScale=sc.id;modal.remove();buildScaleBtns();updateAll();};
+    modal.appendChild(b);
+  });
+  var close=document.createElement('button');close.className='compare-close';close.style.marginTop='4px';close.textContent='Annuler';
+  close.onclick=function(){modal.remove();};modal.appendChild(close);
+  var anchor=document.getElementById('scale-btns');
+  anchor.style.position='relative';
+  anchor.appendChild(modal);
 }
 
 function updateAll(){
