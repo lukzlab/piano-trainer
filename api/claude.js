@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -16,15 +16,17 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
-        max_tokens: 400,
+        max_tokens: 500,
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
     const data = await response.json();
+    console.log('Status:', response.status);
     res.status(200).json(data);
 
   } catch(err) {
+    console.error('Erreur:', err.message);
     res.status(500).json({ error: err.message });
   }
 }
