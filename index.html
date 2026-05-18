@@ -1443,30 +1443,11 @@ function _getAudioCtx(){
 }
 
 function _playNote(midi,startTime,duration){
-  var ctx=_getAudioCtx();
-  var freq=261.63*Math.pow(2,(midi-60)/12);
-  /* Oscillateur principal */
-  var osc=ctx.createOscillator();
-  osc.type='triangle';
-  osc.frequency.setValueAtTime(freq,startTime);
-  /* Harmonique douce +1 octave à -18dB */
-  var osc2=ctx.createOscillator();
-  osc2.type='sine';
-  osc2.frequency.setValueAtTime(freq*2,startTime);
-  var g2=ctx.createGain();
-  g2.gain.setValueAtTime(0.08,startTime);
-  /* Enveloppe piano : attaque rapide, decay, sustain, release */
-  var gain=ctx.createGain();
-  gain.gain.setValueAtTime(0.0,startTime);
-  gain.gain.linearRampToValueAtTime(0.4,startTime+0.008);
-  gain.gain.exponentialRampToValueAtTime(0.22,startTime+0.06);
-  gain.gain.setValueAtTime(0.22,startTime+duration*0.6);
-  gain.gain.exponentialRampToValueAtTime(0.001,startTime+duration);
-  osc.connect(gain);
-  osc2.connect(g2);g2.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start(startTime);osc.stop(startTime+duration+0.05);
-  osc2.start(startTime);osc2.stop(startTime+duration+0.05);
+  if(!_samplerReady)return;
+  var note=_midiToNote(midi);
+  var now=Tone.now();
+  var t=(startTime-Tone.getContext().rawContext.currentTime)+now;
+  _sampler.triggerAttackRelease(note,duration,Math.max(t,now));
 }
 
 function _playChord(midis,startTime,arpeggiate){
