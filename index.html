@@ -278,6 +278,34 @@ body.light .modal-title{font-family:'Instrument Serif',serif;font-style:italic;f
 .compare-legend{display:flex;gap:8px;font-size:9px;color:var(--text2);flex-wrap:wrap;margin-top:.25rem}
 .cleg{display:flex;align-items:center;gap:4px}
 .cleg-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+/* ── MODE ÉCOUTE ── */
+.listen-btn{font-size:11px;padding:4px 12px;border-radius:99px;cursor:pointer;border:1px solid var(--purple-border);background:var(--purple-bg);color:var(--purple);font-family:var(--ui-font);font-weight:500;transition:all .15s}
+.listen-btn:hover{opacity:.85}
+.listen-btn.active{background:var(--purple);color:#fff}
+.listen-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.listen-overlay.open{display:flex}
+.listen-modal{background:var(--surface);border-radius:16px;padding:2rem;width:min(480px,92vw);border:1px solid var(--border);box-shadow:0 12px 48px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:1.25rem}
+.listen-title{font-size:18px;font-weight:500;color:var(--accent);font-family:var(--logo-font);text-align:center}
+body.light .listen-title{font-style:italic}
+.listen-question{font-size:13px;color:var(--text2);text-align:center;line-height:1.6}
+.listen-play-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:.625rem 1.5rem;border-radius:99px;border:none;background:var(--tonic);color:#fff;font-size:13px;font-weight:500;cursor:pointer;margin:0 auto;transition:all .15s}
+.listen-play-btn:hover{opacity:.85}
+.listen-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.listen-choice{padding:.5rem .75rem;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:12px;font-family:'DM Mono',monospace;font-weight:500;cursor:pointer;text-align:center;transition:all .15s}
+.listen-choice:hover{border-color:var(--purple);color:var(--purple);background:var(--purple-bg)}
+.listen-choice.correct{border-color:#4A9A4A;background:#E8F5E8;color:#2A6A2A}
+.listen-choice.wrong{border-color:var(--tonic);background:var(--tonic-bg);color:var(--tonic)}
+.listen-feedback{text-align:center;font-size:12px;font-weight:500;min-height:20px}
+.listen-feedback.ok{color:#2A6A2A}
+.listen-feedback.ko{color:var(--tonic)}
+.listen-footer{display:flex;justify-content:space-between;align-items:center}
+.listen-skip{font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer}
+.listen-close{font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer}
+.listen-level{display:flex;gap:4px;justify-content:center}
+.listen-lvl-btn{font-size:10px;padding:3px 10px;border-radius:99px;border:1px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer}
+.listen-lvl-btn.active{background:var(--purple-bg);color:var(--purple);border-color:var(--purple-border);font-weight:500}
+.listen-hint{font-size:10px;color:var(--text3);text-align:center;font-style:italic}
 </style>
 </head>
 <body class="light">
@@ -290,9 +318,32 @@ body.light .modal-title{font-family:'Instrument Serif',serif;font-style:italic;f
       <span class="nl">Live MIDI</span>
     </div>
     <button id="theme-btn" class="theme-btn" onclick="toggleTheme()">☾ Dark</button>
+    <button class="listen-btn" id="listen-nav-btn" onclick="openListenMode()">&#9834; Écouter</button>
     <button class="import-btn" onclick="openImportModal()">&#8659; Importer</button>
   </div>
 </nav>
+
+
+<!-- ── MODE ÉCOUTE ── -->
+<div class="listen-overlay" id="listen-overlay">
+  <div class="listen-modal">
+    <div class="listen-title">Mode Écoute</div>
+    <div class="listen-level" id="listen-level">
+      <button class="listen-lvl-btn active" onclick="setListenLevel(1,this)">Tonique</button>
+      <button class="listen-lvl-btn" onclick="setListenLevel(2,this)">Mode</button>
+      <button class="listen-lvl-btn" onclick="setListenLevel(3,this)">Progression</button>
+    </div>
+    <div class="listen-question" id="listen-question">Appuie sur ▶ pour écouter</div>
+    <button class="listen-play-btn" id="listen-play-btn" onclick="listenPlay()">&#9654; Jouer</button>
+    <div class="listen-choices" id="listen-choices"></div>
+    <div class="listen-feedback" id="listen-feedback"></div>
+    <div class="listen-hint" id="listen-hint"></div>
+    <div class="listen-footer">
+      <button class="listen-skip" onclick="listenNext()">Suivant ›</button>
+      <button class="listen-close" onclick="closeListenMode()">Fermer</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODALE IMPORT -->
 <div class="modal-overlay" id="import-overlay" onclick="closeImportIfOutside(event)">
@@ -1572,6 +1623,207 @@ function audioUpdateLabel(){
   if(st.viewMode==='scale')lbl.textContent='Gamme';
   else if(customProg.idx>=0)lbl.textContent='Progression';
   else lbl.textContent=PROGS[stdProg.idx]?PROGS[stdProg.idx].name:'Progression';
+}
+
+
+/* ══════════════════════════════════════════════
+   MODULE ÉCOUTE — Reconnaissance auditive
+   ══════════════════════════════════════════════ */
+var listenState={
+  level:1,        /* 1=tonique, 2=mode, 3=progression */
+  answer:null,    /* {root, scale} ou {progIdx} */
+  answered:false
+};
+
+function openListenMode(){
+  document.getElementById('listen-overlay').classList.add('open');
+  listenNext();
+}
+function closeListenMode(){
+  document.getElementById('listen-overlay').classList.remove('open');
+}
+
+function setListenLevel(lvl,btn){
+  listenState.level=lvl;
+  document.querySelectorAll('.listen-lvl-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  listenNext();
+}
+
+function listenNext(){
+  listenState.answered=false;
+  document.getElementById('listen-feedback').textContent='';
+  document.getElementById('listen-feedback').className='listen-feedback';
+  document.getElementById('listen-hint').textContent='';
+  /* Reset choice colors */
+  document.querySelectorAll('.listen-choice').forEach(function(b){
+    b.classList.remove('correct','wrong');b.disabled=false;
+  });
+
+  if(listenState.level===1){
+    /* Niveau 1 : identifier la tonique — joue une gamme majeure sur racine aléatoire */
+    var rootIdx=Math.floor(Math.random()*12);
+    listenState.answer={root:rootIdx,scale:'major'};
+    document.getElementById('listen-question').textContent='Quelle est la tonique de cette gamme ?';
+    document.getElementById('listen-hint').textContent='Écoute la première et dernière note.';
+    buildListenChoicesRoots(rootIdx);
+  } else if(listenState.level===2){
+    /* Niveau 2 : identifier majeur vs mineur */
+    var rootIdx=Math.floor(Math.random()*12);
+    var scales=['major','minor','dorian','phrygian','lydian','mixo'];
+    var scaleId=scales[Math.floor(Math.random()*scales.length)];
+    listenState.answer={root:rootIdx,scale:scaleId};
+    document.getElementById('listen-question').textContent='Quel mode est joué ?';
+    document.getElementById('listen-hint').textContent='Écoute la couleur générale — lumineuse ou sombre ?';
+    buildListenChoicesScales(scaleId);
+  } else {
+    /* Niveau 3 : identifier la progression parmi 4 */
+    var progIdx=Math.floor(Math.random()*PROGS.length);
+    var rootIdx=Math.floor(Math.random()*12);
+    listenState.answer={progIdx:progIdx,root:rootIdx};
+    document.getElementById('listen-question').textContent='Quelle progression reconnaîs-tu ?';
+    document.getElementById('listen-hint').textContent='Écoute le mouvement harmonique.';
+    buildListenChoicesProgs(progIdx);
+  }
+}
+
+function buildListenChoicesRoots(correct){
+  /* 6 choix : la bonne + 5 aléatoires */
+  var pool=[...Array(12).keys()];
+  var wrong=pool.filter(function(r){return r!==correct;});
+  wrong=wrong.sort(function(){return Math.random()-.5;}).slice(0,5);
+  var choices=[correct].concat(wrong).sort(function(){return Math.random()-.5;});
+  var wrap=document.getElementById('listen-choices');
+  wrap.style.gridTemplateColumns='1fr 1fr 1fr';
+  wrap.innerHTML='';
+  choices.forEach(function(r){
+    var b=document.createElement('button');b.className='listen-choice';b.textContent=EN[r];
+    b.onclick=(function(root){return function(){listenCheckRoot(root);};})(r);
+    wrap.appendChild(b);
+  });
+}
+
+function buildListenChoicesScales(correct){
+  var options=[
+    {id:'major',l:'Majeure'},{id:'minor',l:'Min. nat.'},{id:'dorian',l:'Dorien'},
+    {id:'phrygian',l:'Phrygien'},{id:'lydian',l:'Lydien'},{id:'mixo',l:'Mixolydien'}
+  ];
+  var wrap=document.getElementById('listen-choices');
+  wrap.style.gridTemplateColumns='1fr 1fr';
+  wrap.innerHTML='';
+  options.forEach(function(sc){
+    var b=document.createElement('button');b.className='listen-choice';b.textContent=sc.l;
+    b.onclick=(function(id){return function(){listenCheckScale(id);};})(sc.id);
+    wrap.appendChild(b);
+  });
+}
+
+function buildListenChoicesProgs(correct){
+  var pool=[...Array(PROGS.length).keys()];
+  var wrong=pool.filter(function(i){return i!==correct;});
+  wrong=wrong.sort(function(){return Math.random()-.5;}).slice(0,3);
+  var choices=[correct].concat(wrong).sort(function(){return Math.random()-.5;});
+  var wrap=document.getElementById('listen-choices');
+  wrap.style.gridTemplateColumns='1fr 1fr';
+  wrap.innerHTML='';
+  choices.forEach(function(i){
+    var b=document.createElement('button');b.className='listen-choice';b.textContent=PROGS[i].name;
+    b.onclick=(function(idx){return function(){listenCheckProg(idx);};})(i);
+    wrap.appendChild(b);
+  });
+}
+
+function listenPlay(){
+  var ans=listenState.answer;
+  if(!ans)return;
+  var ctx=_getCtx();var now=ctx.currentTime+0.05;
+  if(listenState.level===1||listenState.level===2){
+    /* Joue la gamme */
+    var sc=SCALES.filter(function(s){return s.id===ans.scale;})[0]||SCALES[0];
+    var startMidi=48;for(var m=48;m<=60;m++){if(mod(m)===ans.root){startMidi=m;break;}}
+    var bd=60/100;var seq=[];
+    sc.iv.forEach(function(iv){
+      var target=mod(ans.root+iv);
+      var midi=startMidi;
+      for(var m=startMidi;m<=startMidi+12;m++){if(mod(m)===target){midi=m;break;}}
+      seq.push(midi);
+    });
+    seq.push(startMidi+12);
+    seq.forEach(function(midi,i){_playNote(midi,now+i*bd,bd*0.85);});
+  } else {
+    /* Joue la progression */
+    var prog=PROGS[ans.progIdx];
+    var sc=SCALES[0];/* Toujours majeur pour niveau 3 */
+    var bd=60/90;var steps=[];
+    prog.degs.forEach(function(d){
+      if(d>=sc.iv.length)return;
+      var rn=mod(ans.root+sc.iv[d]);var bt=sc.ch[d];
+      var iv=ENRICH_IV[bt]||[0,4,7];
+      var base=48;for(var m=48;m<=60;m++){if(mod(m)===rn){base=m;break;}}
+      steps.push(iv.map(function(x){return base+x;}));
+    });
+    steps.forEach(function(midis,i){_playChord(midis,now+i*bd*2,true);});
+  }
+}
+
+function listenCheckRoot(root){
+  if(listenState.answered)return;
+  listenState.answered=true;
+  var correct=listenState.answer.root;
+  var fb=document.getElementById('listen-feedback');
+  document.querySelectorAll('.listen-choice').forEach(function(b){
+    b.disabled=true;
+    if(b.textContent===EN[correct])b.classList.add('correct');
+    else if(b.textContent===EN[root]&&root!==correct)b.classList.add('wrong');
+  });
+  if(root===correct){
+    fb.textContent='✓ Correct ! La tonique est '+EN[correct];fb.className='listen-feedback ok';
+  } else {
+    fb.textContent='✗ La tonique : '+EN[correct];fb.className='listen-feedback ko';
+  }
+}
+
+function listenCheckScale(scaleId){
+  if(listenState.answered)return;
+  listenState.answered=true;
+  var correct=listenState.answer.scale;
+  var correctLabel=SCALES.filter(function(s){return s.id===correct;})[0].label;
+  var fb=document.getElementById('listen-feedback');
+  document.querySelectorAll('.listen-choice').forEach(function(b){
+    b.disabled=true;
+    var lbl=SCALES.filter(function(s){return s.id===correct;})[0].label;
+    if(b.textContent===lbl)b.classList.add('correct');
+    else if(b.textContent===SCALES.filter(function(s){return s.id===scaleId;})[0].label&&scaleId!==correct)b.classList.add('wrong');
+  });
+  if(scaleId===correct){
+    fb.textContent='✓ Correct ! '+correctLabel;fb.className='listen-feedback ok';
+  } else {
+    fb.textContent='✗ Etait : '+correctLabel;fb.className='listen-feedback ko';
+  }
+  /* Show harmony hint */
+  if(SCALE_HARMONY[correct]){
+    var hint=document.getElementById('listen-hint');
+    hint.textContent='';
+    var tmp=document.createElement('div');tmp.innerHTML=SCALE_HARMONY[correct];
+    hint.textContent=tmp.textContent.substring(0,80)+'...';
+  }
+}
+
+function listenCheckProg(progIdx){
+  if(listenState.answered)return;
+  listenState.answered=true;
+  var correct=listenState.answer.progIdx;
+  var fb=document.getElementById('listen-feedback');
+  document.querySelectorAll('.listen-choice').forEach(function(b){
+    b.disabled=true;
+    if(b.textContent===PROGS[correct].name)b.classList.add('correct');
+    else if(b.textContent===PROGS[progIdx].name&&progIdx!==correct)b.classList.add('wrong');
+  });
+  if(progIdx===correct){
+    fb.textContent='✓ Correct ! '+PROGS[correct].name;fb.className='listen-feedback ok';
+  } else {
+    fb.textContent='✗ Etait : '+PROGS[correct].name;fb.className='listen-feedback ko';
+  }
 }
 
 /* ── INIT ── */
