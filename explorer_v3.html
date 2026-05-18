@@ -1237,8 +1237,8 @@ async function importSearch(){
 
 function showImportList(artist,results){
   var res=document.getElementById('import-result');res.classList.add('visible');res.innerHTML='';
-  var title=document.createElement('div');title.className='mr-song';title.textContent=artist+' — '+results.length+' morceaux trouvés';res.appendChild(title);
-  var sub=document.createElement('div');sub.className='mr-key';sub.style.marginBottom='.5rem';sub.textContent='Clique sur un morceau pour l\'importer';res.appendChild(sub);
+  var title=document.createElement('div');title.className='mr-song';title.style.color='var(--text)';title.textContent=artist+' — '+results.length+' morceaux trouvés';res.appendChild(title);
+  var sub=document.createElement('div');sub.className='mr-key';sub.style.cssText='margin-bottom:.5rem;color:var(--text2)';sub.textContent='Clique sur un morceau pour l\'importer';res.appendChild(sub);
   results.forEach(function(r,i){
     var item=document.createElement('div');
     item.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;border:1px solid var(--border);margin-bottom:4px;transition:all .1s';
@@ -1247,7 +1247,7 @@ function showImportList(artist,results){
     var num=document.createElement('span');num.style.cssText='font-size:10px;font-family:DM Mono,monospace;color:var(--text3);width:16px;flex-shrink:0';num.textContent=(i+1)+'.';
     var info=document.createElement('div');info.style.flex='1';
     var name=document.createElement('div');name.style.cssText='font-size:11px;font-weight:500;color:var(--text);font-family:DM Mono,monospace';name.textContent=r.title;
-    var chordStr=document.createElement('div');chordStr.style.cssText='font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-top:1px';chordStr.textContent=r.rawChords+' · '+r.key;
+    var chordStr=document.createElement('div');chordStr.style.cssText='font-size:9px;color:var(--text2);font-family:DM Mono,monospace;margin-top:1px';chordStr.textContent=r.rawChords+' · '+r.key;
     info.appendChild(name);info.appendChild(chordStr);
     item.appendChild(num);item.appendChild(info);
     item.onclick=(function(result){return function(){importResult=result;showImportResult(result);};})(r);
@@ -1322,75 +1322,6 @@ function detectKey(chords){
 }
 
 /* importSearch défini plus haut */
-async function importSearch_OLD(){
-  var query=document.getElementById('import-query').value.trim();
-  if(!query)return;
-  var btn=document.getElementById('import-btn');
-  var status=document.getElementById('import-status');
-  var result=document.getElementById('import-result');
-  btn.disabled=true;btn.textContent='Recherche...';
-  status.textContent='Analyse en cours...';
-  result.classList.remove('visible');
-  importResult=null;
-
-  var prompt='Tu es un expert en théorie musicale. Pour le morceau "'+query+'", donne-moi:\n1. Les accords principaux de la progression (couplet ou thème principal)\n2. La tonalité principale\n3. Une note brève sur la structure harmonique\n\nRéponds UNIQUEMENT en JSON valide, sans markdown, sans backticks, exactement dans ce format:\n{\n  "title": "Titre exact du morceau",\n  "artist": "Artiste",\n  "key": "C major",\n  "chords": "Am F C G",\n  "note": "Description courte de la progression"\n}\n\nLes accords dans "chords" doivent être séparés par des espaces, en notation anglaise (C D E F G A B avec # et b). Inclure max 8 accords représentatifs.';
-
-  try{
-    var response=await fetch('/api/claude',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({prompt:prompt})
-    });
-    if(!response.ok){
-      var errText=await response.text();
-      throw new Error('HTTP '+response.status+' : '+errText.substring(0,100));
-    }
-    var data=await response.json();
-    /* Gère les deux formats : Anthropic et Groq/OpenAI */
-    var text='';
-    if(data.content&&data.content[0]&&data.content[0].text){
-      /* Format Anthropic */
-      text=data.content[0].text;
-    } else if(data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content){
-      /* Format Groq / OpenAI */
-      text=data.choices[0].message.content;
-    } else if(data.text){
-      text=data.text;
-    } else {
-      throw new Error('Format inattendu : '+JSON.stringify(data).substring(0,120));
-    }
-    if(!text)throw new Error('Pas de texte dans la réponse');
-    /* Nettoie et parse JSON — gère les blocs markdown */
-    var clean=text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
-    /* Cherche le premier { et le dernier } */
-    var start=clean.indexOf('{');var end=clean.lastIndexOf('}');
-    if(start>=0&&end>start) clean=clean.substring(start,end+1);
-    var parsed=JSON.parse(clean);
-    /* Parse les accords */
-    var chords=parseChordString(parsed.chords||'');
-    if(chords.length===0)throw new Error('Aucun accord reconnu');
-    /* Détecte la tonalité */
-    var keyDetect=detectKey(chords);
-    /* Stocke le résultat */
-    importResult={
-      title:parsed.title||query,
-      artist:parsed.artist||'',
-      key:parsed.key||EN[keyDetect.root]+' '+(keyDetect.scId==='major'?'Majeur':'Mineur'),
-      chords:chords,
-      rawChords:parsed.chords,
-      note:parsed.note||'',
-      keyDetect:keyDetect
-    };
-    /* Affiche le résultat */
-    showImportResult(importResult);
-    status.textContent='';
-  } catch(err){
-    status.textContent='Erreur : '+err.message+'. Essaie un autre titre.';
-    console.error(err);
-  }
-  btn.disabled=false;btn.textContent='Rechercher';
-}
-
 function showImportResult(res){
   document.getElementById('import-song-name').textContent=res.title+(res.artist?' — '+res.artist:'');
   document.getElementById('import-key').textContent='Tonalité détectée : '+res.key+' · '+res.chords.length+' accords';
