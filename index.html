@@ -255,6 +255,12 @@ body.light .modal-title{font-family:'Instrument Serif',serif;font-style:italic;f
 .modal-ex{font-size:10px;padding:2px 8px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-family:'DM Mono',monospace}
 .modal-ex:hover{background:var(--accent-bg);color:var(--accent);border-color:var(--accent2)}
 
+
+/* ── INVERSIONS ── */
+.inv-bar{display:flex;align-items:center;gap:6px;margin-top:4px;padding:3px 0}
+.inv-btn{width:22px;height:22px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .1s;line-height:1}
+.inv-btn:hover{background:var(--purple-bg);color:var(--purple);border-color:var(--purple-border)}
+.inv-label{font-size:9px;font-family:'DM Mono',monospace;color:var(--purple);background:var(--purple-bg);padding:2px 7px;border-radius:4px;flex:1;text-align:center}
 </style>
 </head>
 <body class="light">
@@ -475,7 +481,7 @@ var customProgs=[];
 var customProg={idx:-1,activeStep:-1,transpMode:'root'};
 var buildMode=false;
 var bld={currentNote:null,currentEnrich:'',sequence:[]};
-var scaleState={activeDeg:-1,activeEnrich:''};
+var scaleState={activeDeg:-1,activeEnrich:'',activeInv:0};
 
 function getSC(){for(var i=0;i<SCALES.length;i++)if(SCALES[i].id===st.scale)return SCALES[i];return SCALES[0];}
 function getNotes(){var sc=getSC();return sc.iv.map(function(iv){return mod(st.root+iv);});}
@@ -500,6 +506,31 @@ function computeIntervals(seq){
   if(!seq||seq.length===0)return[];var root=seq[0].semi;
   return seq.map(function(s){return mod(s.semi-root);});
 }
+
+/* ── INVERSIONS ── */
+function getInvertedMidis(semi,enrichId,baseType,invIdx){
+  var iv=ENRICH_IV[enrichId]||ENRICH_IV[baseType]||[0,4,7];
+  /* Base midi for root note in octave 3 */
+  var base=48;for(var m=48;m<=60;m++){if(mod(m)===semi){base=m;break;}}
+  /* Build voicing: rotate by invIdx, shifting lower notes up an octave */
+  var notes=iv.map(function(x){return base+x;});
+  for(var i=0;i<invIdx;i++){
+    var lowest=notes[0];
+    notes.shift();
+    notes.push(lowest+12);
+  }
+  return notes;
+}
+
+function inversionLabel(semi,enrichId,baseType,invIdx){
+  var iv=ENRICH_IV[enrichId]||ENRICH_IV[baseType]||[0,4,7];
+  if(invIdx===0)return 'Fondamental';
+  var bassInterval=iv[invIdx%iv.length];
+  var bassSemi=mod(semi+bassInterval);
+  var chordName=EN[semi]+(ENRICH_SUF[enrichId]||'');
+  return chordName+'/'+EN[bassSemi];
+}
+
 function customProgChordStr(cp){
   return cp.sequence.map(function(s){return s.label;}).join(' - ');
 }
@@ -766,16 +797,40 @@ function renderScalePanel(header,body){
           var ez=document.createElement('div');ez.className='enrich-zone';
           var er=document.createElement('div');er.className='enrich-row';
           enrList.forEach(function(e){var eb=document.createElement('button');eb.className='enrich-btn'+(scaleState.activeEnrich===e.id?' active':'');eb.textContent=e.l;
-            eb.onclick=(function(eid,idx){return function(ev){ev.stopPropagation();scaleState.activeEnrich=(scaleState.activeEnrich===eid?'':eid);renderMainPanel();var rn=mod(st.root+sc.iv[idx]);var notesStr=highlightChord(rn,scaleState.activeEnrich,sc.ch[idx]);document.getElementById('piano-sub').textContent=chordNameDeg(idx,scaleState.activeEnrich)+' : '+notesStr;};})(e.id,i);
+            eb.onclick=(function(eid,idx){return function(ev){ev.stopPropagation();scaleState.activeEnrich=(scaleState.activeEnrich===eid?'':eid);scaleState.activeInv=0;renderMainPanel();var rn=mod(st.root+sc.iv[idx]);var notesStr=highlightChord(rn,scaleState.activeEnrich,sc.ch[idx]);document.getElementById('piano-sub').textContent=chordNameDeg(idx,scaleState.activeEnrich)+' : '+notesStr;};})(e.id,i);
             er.appendChild(eb);
           });
           var rn=mod(st.root+sc.iv[i]);var iv=ENRICH_IV[scaleState.activeEnrich]||ENRICH_IV[t]||[0,4,7];
           var ne=document.createElement('div');ne.className='enrich-notes';ne.textContent=iv.map(function(x){return EN[mod(rn+x)];}).join(' - ');
-          ez.appendChild(er);ez.appendChild(ne);row.appendChild(ez);
+          ez.appendChild(er);ez.appendChild(ne);
+          /* Inversion bar */
+          var invCount=iv.length;
+          var invBar=document.createElement('div');invBar.className='inv-bar';
+          var invL=document.createElement('button');invL.className='inv-btn';invL.innerHTML='&#8249;';
+          invL.onclick=(function(idx,baseT){return function(ev){ev.stopPropagation();
+            scaleState.activeInv=((scaleState.activeInv-1)+invCount)%invCount;
+            var midis=getInvertedMidis(mod(st.root+sc.iv[idx]),scaleState.activeEnrich,baseT,scaleState.activeInv);
+            var chSet={};midis.forEach(function(m){chSet[m]=true;});paintPiano(chSet);
+            document.getElementById('piano-sub').textContent=inversionLabel(mod(st.root+sc.iv[idx]),scaleState.activeEnrich,baseT,scaleState.activeInv)+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');
+            renderMainPanel();
+          };})(i,t);
+          var invLbl=document.createElement('div');invLbl.className='inv-label';
+          invLbl.textContent=inversionLabel(rn,scaleState.activeEnrich,t,scaleState.activeInv);
+          var invR=document.createElement('button');invR.className='inv-btn';invR.innerHTML='&#8250;';
+          invR.onclick=(function(idx,baseT){return function(ev){ev.stopPropagation();
+            scaleState.activeInv=(scaleState.activeInv+1)%invCount;
+            var midis=getInvertedMidis(mod(st.root+sc.iv[idx]),scaleState.activeEnrich,baseT,scaleState.activeInv);
+            var chSet={};midis.forEach(function(m){chSet[m]=true;});paintPiano(chSet);
+            document.getElementById('piano-sub').textContent=inversionLabel(mod(st.root+sc.iv[idx]),scaleState.activeEnrich,baseT,scaleState.activeInv)+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');
+            renderMainPanel();
+          };})(i,t);
+          invBar.appendChild(invL);invBar.appendChild(invLbl);invBar.appendChild(invR);
+          ez.appendChild(invBar);
+          row.appendChild(ez);
         }
       }
       row.onclick=(function(idx,el){return function(){
-        var same=(scaleState.activeDeg===idx);scaleState.activeDeg=same?-1:idx;scaleState.activeEnrich='';
+        var same=(scaleState.activeDeg===idx);scaleState.activeDeg=same?-1:idx;scaleState.activeEnrich='';scaleState.activeInv=0;
         if(!same){var rn=mod(st.root+sc.iv[idx]);var notesStr=highlightChord(rn,'',sc.ch[idx]);document.getElementById('piano-sub').textContent=chordNameDeg(idx,'')+' : '+notesStr;}
         else{paintPiano(null);document.getElementById('piano-sub').textContent='3 octaves · tonique en rouge';}
         renderMainPanel();
@@ -1323,8 +1378,8 @@ function audioToggle(){
     var rn=mod(st.root+sc.iv[d]);
     var enrichId=scaleState.activeEnrich||sc.ch[d];
     var iv=ENRICH_IV[enrichId]||[0,4,7];
-    var base=48;for(var m=48;m<=60;m++){if(mod(m)===rn){base=m;break;}}
-    _playChord(iv.map(function(x){return base+x;}),ctx.currentTime+0.05,true);
+    var midis=getInvertedMidis(rn,enrichId,sc.ch[d],scaleState.activeInv);
+    _playChord(midis,ctx.currentTime+0.05,false);
     setTimeout(audioStop,2500);
   } else if(st.viewMode==='scale'){
     _playScale();
