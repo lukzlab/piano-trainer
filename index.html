@@ -315,6 +315,14 @@ body.light .listen-title{font-style:italic}
 .auto-sound-tog.on .auto-sound-slider{background:var(--tonic)}
 .auto-sound-tog.on .auto-sound-slider::after{transform:translateX(12px)}
 .auto-sound-lbl{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace}
+
+/* ── MÉTRONOME ── */
+.metro-btn{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:var(--surface);color:var(--text2);transition:all .15s}
+.metro-btn:hover{border-color:var(--accent);color:var(--accent)}
+.metro-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.metro-sig{display:flex;gap:3px;flex-shrink:0}
+.metro-sig-btn{font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer;font-family:'DM Mono',monospace;transition:all .1s}
+.metro-sig-btn.active{background:var(--accent-bg);color:var(--accent);border-color:var(--accent2);font-weight:600}
 </style>
 </head>
 <body class="light">
@@ -439,6 +447,21 @@ body.light .listen-title{font-style:italic}
             <span class="auto-sound-slider"></span>
             <span class="auto-sound-lbl">auto</span>
           </label>
+          <span style="width:1px;height:16px;background:var(--border);flex-shrink:0"></span>
+          <button class="metro-btn" id="metro-btn" onclick="metroToggle()" title="Métronome">&#9711;</button>
+          <div class="metro-sig" id="metro-sig">
+            <button class="metro-sig-btn" onclick="metroSetSig(2,this)">2/4</button>
+            <button class="metro-sig-btn active" onclick="metroSetSig(4,this)">4/4</button>
+            <button class="metro-sig-btn" onclick="metroSetSig(3,this)">3/4</button>
+          </div>
+          <input class="audio-tempo" id="metro-vol" type="range" min="1" max="10" value="5" oninput="metroSetVol(this.value)" title="Volume métronome" style="width:50px">
+          <select id="metro-sound" onchange="metroSetSound(this.value)" style="font-size:9px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'DM Mono',monospace;cursor:pointer">
+            <option value="triangle">Triangle</option>
+            <option value="woodblock">Woodblock</option>
+            <option value="noise">Click</option>
+            <option value="bell">Cloche</option>
+            <option value="perc">Percussion</option>
+          </select>
         </div>
       </div>
     </div>
@@ -1614,6 +1637,7 @@ function audioStop(){
 function audioUpdateBpm(val){
   _audioBpm=parseInt(val);
   document.getElementById('audio-bpm-label').textContent=val;
+  if(_metroPlaying){metroStop();metroToggle();}
 }
 
 function _playScale(){
@@ -1914,6 +1938,136 @@ function autoSoundTrigger(){
       _playChord(midis,now,false);
     }
   },280);
+}
+
+
+/* ══════════════════════════════════════════════
+   MODULE MÉTRONOME
+   ══════════════════════════════════════════════ */
+var _metroPlaying=false,_metroSig=4,_metroBeat=0,_metroNext=0,_metroTimer=null;
+
+function metroToggle(){
+  if(_metroPlaying){metroStop();return;}
+  var ctx=_getCtx();
+  _metroPlaying=true;
+  _metroBeat=0;
+  _metroNext=ctx.currentTime+0.05;
+  var btn=document.getElementById('metro-btn');
+  if(btn){btn.classList.add('active');btn.innerHTML='&#9679;';}
+  _metroSchedule();
+}
+
+function metroStop(){
+  _metroPlaying=false;
+  if(_metroTimer)clearTimeout(_metroTimer);
+  var btn=document.getElementById('metro-btn');
+  if(btn){btn.classList.remove('active');btn.innerHTML='&#9711;';}
+}
+
+function metroSetSig(sig,btn){
+  _metroSig=sig;
+  document.querySelectorAll('.metro-sig-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  if(_metroPlaying){metroStop();metroToggle();}
+}
+
+var _metroVol=0.5;
+var _metroSound='triangle';
+function metroSetVol(val){_metroVol=parseInt(val)/10;}
+function metroSetSound(val){_metroSound=val;}
+
+function _metroClick(when,strong){
+  var ctx=_getCtx();
+  var gain=ctx.createGain();
+  gain.connect(ctx.destination);
+  var vol=(strong?0.7:0.4)*_metroVol;
+
+  if(_metroSound==='triangle'){
+    var osc=ctx.createOscillator();
+    osc.type=strong?'triangle':'sine';
+    osc.frequency.value=strong?900:600;
+    gain.gain.setValueAtTime(0,when);
+    gain.gain.linearRampToValueAtTime(vol,when+0.004);
+    gain.gain.exponentialRampToValueAtTime(0.001,when+0.08);
+    osc.connect(gain);osc.start(when);osc.stop(when+0.1);
+
+  } else if(_metroSound==='woodblock'){
+    /* Two slightly detuned oscillators for woody texture */
+    [strong?880:550, strong?900:570].forEach(function(freq,i){
+      var o=ctx.createOscillator();o.type='square';o.frequency.value=freq;
+      var g=ctx.createGain();
+      g.gain.setValueAtTime(0,when);
+      g.gain.linearRampToValueAtTime(vol*(i===0?0.6:0.4),when+0.002);
+      g.gain.exponentialRampToValueAtTime(0.001,when+0.05);
+      o.connect(g);g.connect(ctx.destination);o.start(when);o.stop(when+0.07);
+    });
+
+  } else if(_metroSound==='noise'){
+    /* White noise burst — very short, neutral click */
+    var bufSize=ctx.sampleRate*0.025;
+    var buf=ctx.createBuffer(1,bufSize,ctx.sampleRate);
+    var data=buf.getChannelData(0);
+    for(var i=0;i<bufSize;i++)data[i]=(Math.random()*2-1);
+    var src2=ctx.createBufferSource();src2.buffer=buf;
+    /* High-pass filter to make it crisp */
+    var filter=ctx.createBiquadFilter();filter.type='highpass';filter.frequency.value=strong?2000:1200;
+    gain.gain.setValueAtTime(0,when);
+    gain.gain.linearRampToValueAtTime(vol,when+0.001);
+    gain.gain.exponentialRampToValueAtTime(0.001,when+0.025);
+    src2.connect(filter);filter.connect(gain);src2.start(when);src2.stop(when+0.03);
+
+  } else if(_metroSound==='bell'){
+    [[1,0.6],[2.76,0.2],[5.4,0.1]].forEach(function(h){
+      var o=ctx.createOscillator();o.type='sine';
+      o.frequency.value=(strong?880:660)*h[0];
+      var g=ctx.createGain();
+      g.gain.setValueAtTime(0,when);
+      g.gain.linearRampToValueAtTime(vol*h[1],when+0.005);
+      g.gain.exponentialRampToValueAtTime(0.001,when+(strong?0.4:0.25));
+      o.connect(g);g.connect(ctx.destination);o.start(when);o.stop(when+0.5);
+    });
+
+  } else if(_metroSound==='perc'){
+    /* Kick-style on beat 1, snare-style on others */
+    if(strong){
+      /* Kick: pitch-swept sine — thump */
+      var o=ctx.createOscillator();o.type='sine';
+      o.frequency.setValueAtTime(180,when);
+      o.frequency.exponentialRampToValueAtTime(40,when+0.08);
+      var g=ctx.createGain();
+      g.gain.setValueAtTime(0,when);
+      g.gain.linearRampToValueAtTime(vol*1.2,when+0.003);
+      g.gain.exponentialRampToValueAtTime(0.001,when+0.12);
+      o.connect(g);g.connect(ctx.destination);o.start(when);o.stop(when+0.15);
+    } else {
+      /* Snare: noise + short tone */
+      var bufSize=ctx.sampleRate*0.08;
+      var buf=ctx.createBuffer(1,bufSize,ctx.sampleRate);
+      var data=buf.getChannelData(0);
+      for(var i=0;i<bufSize;i++)data[i]=(Math.random()*2-1)*(1-i/bufSize);
+      var src2=ctx.createBufferSource();src2.buffer=buf;
+      var filter=ctx.createBiquadFilter();filter.type='bandpass';filter.frequency.value=1800;filter.Q.value=0.8;
+      var g=ctx.createGain();
+      g.gain.setValueAtTime(vol*0.7,when);
+      g.gain.exponentialRampToValueAtTime(0.001,when+0.08);
+      src2.connect(filter);filter.connect(g);g.connect(ctx.destination);
+      src2.start(when);src2.stop(when+0.1);
+    }
+  }
+}
+
+function _metroSchedule(){
+  if(!_metroPlaying)return;
+  var ctx=_getCtx();
+  var lookAhead=0.1; /* seconds */
+  var scheduleAhead=0.05;
+  while(_metroNext<ctx.currentTime+lookAhead){
+    var strong=(_metroBeat===0);
+    _metroClick(_metroNext,strong);
+    _metroBeat=(_metroBeat+1)%_metroSig;
+    _metroNext+=60/_audioBpm;
+  }
+  _metroTimer=setTimeout(_metroSchedule,scheduleAhead*1000);
 }
 
 /* ── INIT ── */
