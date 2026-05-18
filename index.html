@@ -1288,16 +1288,28 @@ function _getAudioCtx(){
 function _playNote(midi,startTime,duration){
   var ctx=_getAudioCtx();
   var freq=261.63*Math.pow(2,(midi-60)/12);
+  /* Oscillateur principal */
   var osc=ctx.createOscillator();
-  var gain=ctx.createGain();
   osc.type='triangle';
   osc.frequency.setValueAtTime(freq,startTime);
+  /* Harmonique douce +1 octave à -18dB */
+  var osc2=ctx.createOscillator();
+  osc2.type='sine';
+  osc2.frequency.setValueAtTime(freq*2,startTime);
+  var g2=ctx.createGain();
+  g2.gain.setValueAtTime(0.08,startTime);
+  /* Enveloppe piano : attaque rapide, decay, sustain, release */
+  var gain=ctx.createGain();
   gain.gain.setValueAtTime(0.0,startTime);
-  gain.gain.linearRampToValueAtTime(0.35,startTime+0.01);
-  gain.gain.setValueAtTime(0.35,startTime+duration*0.7);
-  gain.gain.linearRampToValueAtTime(0.0,startTime+duration);
-  osc.connect(gain);gain.connect(ctx.destination);
-  osc.start(startTime);osc.stop(startTime+duration);
+  gain.gain.linearRampToValueAtTime(0.4,startTime+0.008);
+  gain.gain.exponentialRampToValueAtTime(0.22,startTime+0.06);
+  gain.gain.setValueAtTime(0.22,startTime+duration*0.6);
+  gain.gain.exponentialRampToValueAtTime(0.001,startTime+duration);
+  osc.connect(gain);
+  osc2.connect(g2);g2.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(startTime);osc.stop(startTime+duration+0.05);
+  osc2.start(startTime);osc2.stop(startTime+duration+0.05);
 }
 
 function _playChord(midis,startTime,arpeggiate){
@@ -1315,7 +1327,21 @@ function audioToggle(){
   var btn=document.getElementById('audio-play-btn');
   btn.innerHTML='&#9646;&#9646;';
   btn.classList.add('playing');
-  if(st.viewMode==='scale')_playScale();else _playProgression();
+  /* Mode accord actif : joue l'accord sélectionné */
+  if(st.viewMode==='scale'&&scaleState.activeDeg>=0){
+    var sc=getSC();var d=scaleState.activeDeg;
+    var rn=mod(st.root+sc.iv[d]);
+    var enrichId=scaleState.activeEnrich||sc.ch[d];
+    var iv=ENRICH_IV[enrichId]||[0,4,7];
+    var base=48;for(var m=48;m<=60;m++){if(mod(m)===rn){base=m;break;}}
+    var midis=iv.map(function(x){return base+x;});
+    _playChord(midis,ctx.currentTime+0.05,true);
+    setTimeout(audioStop,2500);
+  } else if(st.viewMode==='scale'){
+    _playScale();
+  } else {
+    _playProgression();
+  }
 }
 
 function audioStop(){
@@ -1343,6 +1369,8 @@ function _playScale(){
     for(var m=startMidi;m<=startMidi+12;m++){if(mod(m)===semi){midi=m;break;}}
     seq.push(midi);
   });
+  /* Résolution : tonique octave supérieure */
+  seq.push(startMidi+12);
   seq.forEach(function(midi,i){_playNote(midi,now+i*beatDur,beatDur*0.85);});
   setTimeout(audioStop,(seq.length*beatDur+0.3)*1000);
 }
