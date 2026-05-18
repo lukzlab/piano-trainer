@@ -20,9 +20,15 @@ module.exports = async function handler(req, res) {
 
     const data = await response.json();
     console.log('Status:', response.status);
+    console.log('Data:', JSON.stringify(data).substring(0, 300));
 
-    // Convertit en format compatible avec notre parser
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    console.log('Text extracted:', text.substring(0, 100));
+
+    if (!text) {
+      return res.status(500).json({ error: 'Pas de texte extrait', raw: data });
+    }
+
     res.status(200).json({
       choices: [{ message: { content: text } }]
     });
