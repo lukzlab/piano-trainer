@@ -1439,8 +1439,7 @@ function audioUpdateLabel(){
 }
 
 function _getAudioCtx(){
-  if(!_audioCtx)_audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-  return _audioCtx;
+  return Tone.getContext().rawContext;
 }
 
 function _playNote(midi,startTime,duration){
