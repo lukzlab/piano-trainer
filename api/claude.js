@@ -7,23 +7,25 @@ module.exports = async function handler(req, res) {
 
   try {
     const { prompt } = req.body;
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + process.env.GEMINI_API_KEY;
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + process.env.GROQ_API_KEY
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        max_tokens: 500,
-        messages: [{ role: 'user', content: prompt }]
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 500, temperature: 0.1 }
       })
     });
 
     const data = await response.json();
     console.log('Status:', response.status);
-    res.status(200).json(data);
+
+    // Convertit en format compatible avec notre parser
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    res.status(200).json({
+      choices: [{ message: { content: text } }]
+    });
 
   } catch(err) {
     console.error('Erreur:', err.message);
