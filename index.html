@@ -433,6 +433,7 @@ body.dark .ctrl-label, body.graphite .ctrl-label { color: var(--text3); }
 .song-section-chords{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:.25rem}
 .song-chord-chip{font-size:11px;padding:3px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:500;background:var(--bg2);color:var(--text2);border:1px solid var(--border);cursor:pointer;transition:all .1s}
 .song-chord-chip:hover{background:var(--tonic-bg);color:var(--tonic);border-color:var(--tonic)}
+.song-chord-chip.active{background:var(--tonic);color:#fff;border-color:var(--tonic)}
 
 
 .song-loading{font-size:11px;color:var(--text3);font-family:'Inter Tight',sans-serif;padding:1rem 0;text-align:center}
@@ -2511,6 +2512,28 @@ function previewSectionChords(idx){
       });
     }
   }
+}
+
+
+function playSongChord(raw){
+  /* Parse the chord and show on piano + play */
+  var chords=parseChordString(raw);
+  if(!chords.length)return;
+  var c=chords[0];
+  var type=qualToType(c.qual);
+  var enrichId=c.qual&&ENRICH_SUF[c.qual]!==undefined?c.qual:type;
+  var midis=getInvertedMidis(c.semi,enrichId,type,0);
+  /* Highlight on piano */
+  var chSet={};midis.forEach(function(m){chSet[m]=true;});
+  paintPiano(chSet);
+  document.getElementById('piano-sub').textContent=raw+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');
+  /* Play sound */
+  var ctx=_getCtx();
+  _playChord(midis,ctx.currentTime+0.05,true);
+  /* Highlight active chip */
+  document.querySelectorAll('.song-chord-chip').forEach(function(el){
+    el.classList.toggle('active',el.textContent===raw);
+  });
 }
 
 /* ── INIT ── */
