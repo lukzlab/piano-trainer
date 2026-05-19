@@ -433,8 +433,8 @@ body.dark .ctrl-label, body.graphite .ctrl-label { color: var(--text3); }
 .song-section-chords{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:.25rem}
 .song-chord-chip{font-size:11px;padding:3px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:500;background:var(--bg2);color:var(--text2);border:1px solid var(--border);cursor:pointer;transition:all .1s}
 .song-chord-chip:hover{background:var(--tonic-bg);color:var(--tonic);border-color:var(--tonic)}
-.song-section-import{font-size:9px;color:var(--text3);cursor:pointer;font-family:'JetBrains Mono',monospace;padding:2px 6px;border:1px solid var(--border);border-radius:3px;transition:all .1s}
-.song-section-import:hover{color:var(--tonic);border-color:var(--tonic)}
+
+
 .song-loading{font-size:11px;color:var(--text3);font-family:'Inter Tight',sans-serif;padding:1rem 0;text-align:center}
 .song-error{font-size:11px;color:var(--tonic);font-family:'Inter Tight',sans-serif;padding:.5rem 0}
 </style>
@@ -1628,7 +1628,7 @@ async function importSearch(){
   if(isArtistSearch){
     prompt='Tu es un expert en théorie musicale. Pour l\'artiste "'+query+'", donne-moi les 5 morceaux les plus connus avec leurs progressions d\'accords principales.\n\nRéponds UNIQUEMENT en JSON valide, sans markdown, sans backticks:\n{\n  "artist": "Nom exact de l\'artiste",\n  "songs": [\n    {"title": "Titre 1", "key": "C major", "chords": "Am F C G", "note": "Description courte"}\n  ]\n}\n\nLes accords dans "chords" doivent être séparés par des espaces, en notation anglaise.';
   } else {
-    prompt='Tu es un expert en théorie musicale. Pour le morceau "'+query+'", donne-moi les accords principaux, la tonalité, et une note harmonique.\n\nRéponds UNIQUEMENT en JSON valide, sans markdown, sans backticks:\n{\n  "title": "Titre exact du morceau",\n  "artist": "Artiste",\n  "key": "C major",\n  "chords": "Am F C G",\n  "note": "Description courte"\n}\n\nLes accords dans "chords" doivent être séparés par des espaces, en notation anglaise.';
+    prompt='Tu es un expert en théorie musicale. Pour le morceau "'+query+'", donne-moi la structure harmonique complète.\n\nRéponds UNIQUEMENT en JSON valide, sans markdown, sans backticks:\n{\n  "title": "Titre exact",\n  "artist": "Artiste",\n  "key": "C major",\n  "bpm": 120,\n  "sections": [\n    {"name": "Intro", "chords": "C G Am F", "bars": 4, "note": "description"},\n    {"name": "Couplet", "chords": "Am F C G", "bars": 8, "note": "description"},\n    {"name": "Refrain", "chords": "F C G Am", "bars": 8, "note": "description"}\n  ]\n}\n\nInclus toutes les vraies sections: Intro, Couplet, Pre-Refrain, Refrain, Bridge, Solo, Outro. Accords séparés par espaces, notation anglaise.';
   }
   try{
     var response=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt})});
@@ -1650,11 +1650,18 @@ async function importSearch(){
       }).filter(function(r){return r.chords.length>0;});
       showImportList(parsed.artist,importResults);
     } else {
-      var chords=parseChordString(parsed.chords||'');
-      if(chords.length===0)throw new Error('Aucun accord reconnu');
-      var kd=detectKey(chords);
-      importResult={title:parsed.title||query,artist:parsed.artist||'',key:parsed.key||EN[kd.root],chords:chords,rawChords:parsed.chords,note:parsed.note||'',keyDetect:kd};
-      showImportResult(importResult);
+      if(parsed.sections&&parsed.sections.length>0){
+        closeImportModal();
+        renderSongDetail(parsed);
+        document.getElementById('song-detail-panel').style.display='block';
+        document.getElementById('main-panel').style.display='none';
+      } else {
+        var chords=parseChordString(parsed.chords||'');
+        if(chords.length===0)throw new Error('Aucun accord reconnu');
+        var kd=detectKey(chords);
+        importResult={title:parsed.title||query,artist:parsed.artist||'',key:parsed.key||EN[kd.root],chords:chords,rawChords:parsed.chords,note:parsed.note||'',keyDetect:kd};
+        showImportResult(importResult);
+      }
     }
     status.textContent='';
   }catch(err){
@@ -2428,6 +2435,7 @@ async function fetchSongDetail(title, artist){
 }
 
 function renderSongDetail(data){
+  window._songDetailData=data;
   var panel=document.getElementById('song-detail-panel');
   var html='<button class="song-detail-back" onclick="closeSongDetail()">← Retour</button>';
   html+='<div class="song-detail-title">'+data.title+'</div>';
@@ -2448,7 +2456,7 @@ function renderSongDetail(data){
       if(sec.note){
         html+='<div style="font-size:9px;color:var(--text3);margin-bottom:.25rem">'+sec.note+'</div>';
       }
-      html+='<button class="song-section-import" onclick="importSongSection('+JSON.stringify(sec).replace(/"/g,"'")+')">+ Importer cette section</button>';
+      
       html+='</div>';
     });
   }
@@ -2469,6 +2477,40 @@ function importSongSection(sec){
   st.viewMode='prog';
   closeSongDetail();
   buildProgList();updateAll();saveToStorage();
+}
+
+
+function previewSectionChords(idx){
+  var panel=document.getElementById('song-detail-panel');
+  var rows=panel.querySelectorAll('.song-section');
+  rows.forEach(function(r,i){r.style.opacity=i===idx?'1':'.5';});
+  /* Get chords from stored data */
+  if(window._songDetailData&&window._songDetailData.sections){
+    var sec=window._songDetailData.sections[idx];
+    if(!sec)return;
+    var chords=parseChordString(sec.chords||'');
+    if(chords.length===0)return;
+    var seq=chords.map(function(c){
+      var type=qualToType(c.qual);
+      var enrich=c.qual&&ENRICH_SUF[c.qual]!==undefined?c.qual:type;
+      return{semi:c.semi,type:type,enrich:enrich,label:enrichLabel(c.semi,enrich),iv:ENRICH_IV[enrich]||[0,4,7]};
+    });
+    /* Show on circle */
+    customProgs.push({name:sec.name,sequence:seq});
+    var tmpIdx=customProgs.length-1;
+    customProg.idx=tmpIdx;customProg.activeStep=-1;
+    st.viewMode='prog';
+    drawCOF();
+    /* Play if auto-sound */
+    if(_autoSound){
+      var ctx=_getCtx();var now=ctx.currentTime+0.05;var bd=60/_audioBpm;
+      seq.forEach(function(s,i){
+        var iv=ENRICH_IV[s.enrich]||[0,4,7];
+        var base=48;for(var m=48;m<=60;m++){if(mod(m)===s.semi){base=m;break;}}
+        _playChord(iv.map(function(x){return base+x;}),now+i*bd*2,true);
+      });
+    }
+  }
 }
 
 /* ── INIT ── */
