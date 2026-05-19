@@ -2438,30 +2438,61 @@ async function fetchSongDetail(title, artist){
 function renderSongDetail(data){
   window._songDetailData=data;
   var panel=document.getElementById('song-detail-panel');
-  var html='<button class="song-detail-back" onclick="closeSongDetail()">← Retour</button>';
-  html+='<div class="song-detail-title">'+data.title+'</div>';
-  html+='<div class="song-detail-meta">'+data.artist
-    +(data.key?' · '+data.key:'')
-    +(data.bpm?' · '+data.bpm+' BPM':'')+'</div>';
-
+  panel.innerHTML='';
+  var back=document.createElement('button');
+  back.className='song-detail-back';
+  back.textContent='\u2190 Retour';
+  back.onclick=closeSongDetail;
+  panel.appendChild(back);
+  var title=document.createElement('div');
+  title.className='song-detail-title';
+  title.textContent=data.title;
+  panel.appendChild(title);
+  var meta=document.createElement('div');
+  meta.className='song-detail-meta';
+  meta.textContent=data.artist+(data.key?' \u00b7 '+data.key:'')+(data.bpm?' \u00b7 '+data.bpm+' BPM':'');
+  panel.appendChild(meta);
   if(data.sections&&data.sections.length){
-    data.sections.forEach(function(sec,idx){
+    data.sections.forEach(function(sec,secIdx){
       var chords=parseChordString(sec.chords||'');
-      html+='<div class="song-section">';
-      html+='<div class="song-section-name">'+sec.name+(sec.bars?' · '+sec.bars+' mesures':'')+'</div>';
-      html+='<div class="song-section-chords" id="sec-chords-'+idx+'">';
+      var section=document.createElement('div');
+      section.className='song-section';
+      var nameRow=document.createElement('div');
+      nameRow.className='song-section-name';
+      nameRow.style.cssText='cursor:pointer;display:flex;align-items:center;justify-content:space-between';
+      var nameSpan=document.createElement('span');
+      nameSpan.textContent=sec.name+(sec.bars?' \u00b7 '+sec.bars+' mesures':'');
+      var playIcon=document.createElement('span');
+      playIcon.textContent='\u25b6';
+      playIcon.style.cssText='opacity:.4;font-size:8px';
+      nameRow.appendChild(nameSpan);nameRow.appendChild(playIcon);
+      nameRow.onclick=(function(si){return function(){previewSectionChords(si);};})(secIdx);
+      section.appendChild(nameRow);
+      var chordsDiv=document.createElement('div');
+      chordsDiv.className='song-section-chords';
+      chordsDiv.id='sec-chords-'+secIdx;
       chords.forEach(function(c){
-        html+='<span class="song-chord-chip">'+c.raw+'</span>';
+        var chip=document.createElement('span');
+        chip.className='song-chord-chip';
+        chip.textContent=c.raw;
+        chip.onclick=(function(chord,chipEl){return function(e){
+          e.stopPropagation();
+          playSongChord(chord);
+          document.querySelectorAll('.song-chord-chip').forEach(function(el){el.classList.remove('active');});
+          chipEl.classList.add('active');
+        };})(c.raw,chip);
+        chordsDiv.appendChild(chip);
       });
-      html+='</div>';
+      section.appendChild(chordsDiv);
       if(sec.note){
-        html+='<div style="font-size:9px;color:var(--text3);margin-bottom:.25rem">'+sec.note+'</div>';
+        var note=document.createElement('div');
+        note.style.cssText='font-size:9px;color:var(--text3);margin-bottom:.25rem';
+        note.textContent=sec.note;
+        section.appendChild(note);
       }
-      
-      html+='</div>';
+      panel.appendChild(section);
     });
   }
-  panel.innerHTML=html;
 }
 
 function importSongSection(sec){
