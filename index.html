@@ -2527,12 +2527,18 @@ function previewSectionChords(idx){
       var enrich=c.qual&&ENRICH_SUF[c.qual]!==undefined?c.qual:type;
       return{semi:c.semi,type:type,enrich:enrich,label:enrichLabel(c.semi,enrich),iv:ENRICH_IV[enrich]||[0,4,7]};
     });
-    /* Show on circle */
-    customProgs.push({name:sec.name,sequence:seq});
-    var tmpIdx=customProgs.length-1;
-    customProg.idx=tmpIdx;customProg.activeStep=-1;
-    st.viewMode='prog';
-    drawCOF();
+    /* Show on circle temporarily - no save */
+    var tmpProg={name:sec.name,sequence:seq};
+    var prevIdx=customProg.idx;
+    var prevView=st.viewMode;
+    window._tmpSectionProg=tmpProg;
+    /* Paint piano with first chord */
+    if(seq.length>0){
+      var s=seq[0];
+      var midis=getInvertedMidis(s.semi,s.enrich,s.type,0);
+      var chSet={};midis.forEach(function(m){chSet[m]=true;});
+      paintPiano(chSet);
+    }
     /* Play if auto-sound */
     if(_autoSound){
       var ctx=_getCtx();var now=ctx.currentTime+0.05;var bd=60/_audioBpm;
