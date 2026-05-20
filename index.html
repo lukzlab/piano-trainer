@@ -423,6 +423,39 @@ body.light .listen-title{}
 .song-transp-btn{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .1s}
 .song-transp-btn:hover{color:var(--tonic);border-color:var(--tonic)}
 .song-transp-btn.active{color:var(--tonic);border-color:var(--tonic);font-weight:600}
+
+/* ── MODULE PRACTICE ── */
+.practice-btn{font-size:11px;padding:4px 12px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'Inter Tight',sans-serif;transition:all .15s}
+.practice-btn:hover{border-color:var(--accent);color:var(--accent)}
+.practice-btn.active{background:var(--tonic);color:#fff;border-color:var(--tonic)}
+.practice-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;flex-direction:column;align-items:center;justify-content:center}
+.practice-overlay.open{display:flex}
+.practice-close{position:absolute;top:1rem;right:1.5rem;font-size:12px;padding:4px 12px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'Inter Tight',sans-serif}
+.practice-title{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:2rem;text-align:center}
+.practice-chord-display{display:flex;align-items:center;justify-content:center;gap:3rem;margin-bottom:2.5rem}
+.practice-chord-prev{font-size:28px;font-weight:500;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:-.02em;text-align:right;min-width:120px}
+.practice-chord-current{font-size:72px;font-weight:600;color:var(--text);font-family:'Inter Tight',sans-serif;letter-spacing:-.04em;text-align:center;min-width:200px;transition:opacity .1s}
+.practice-chord-next{font-size:28px;font-weight:500;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:-.02em;text-align:left;min-width:120px}
+.practice-beat{display:flex;gap:12px;justify-content:center;margin-bottom:2.5rem}
+.practice-beat-dot{width:10px;height:10px;border-radius:50%;background:var(--border2);transition:background .05s,transform .05s}
+.practice-beat-dot.active{background:var(--tonic);transform:scale(1.4)}
+.practice-beat-dot.strong{background:var(--tonic)}
+.practice-controls{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem}
+.practice-play-btn{width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--tonic);color:#fff;transition:all .15s}
+.practice-play-btn:hover{opacity:.88}
+.practice-bpm-ctrl{display:flex;align-items:center;gap:8px}
+.practice-bpm-btn{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;line-height:1}
+.practice-bpm-val{font-size:14px;font-family:'JetBrains Mono',monospace;color:var(--text);width:40px;text-align:center;font-weight:500}
+.practice-bpm-label{font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.practice-section-name{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);font-family:'JetBrains Mono',monospace;text-align:center;margin-bottom:.5rem}
+.practice-prog-dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;max-width:400px}
+.practice-prog-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);cursor:pointer;transition:all .1s}
+.practice-prog-dot.active{background:var(--tonic);transform:scale(1.3)}
+.practice-prog-dot.done{background:var(--tonic-bg)}
+/* Song play button in fiche */
+.song-play-btn{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:10px;cursor:pointer;font-family:'Inter Tight',sans-serif;margin-bottom:.75rem;transition:all .15s}
+.song-play-btn:hover{color:var(--tonic);border-color:var(--tonic)}
+.song-play-btn.playing{background:var(--tonic);color:#fff;border-color:var(--tonic)}
 </style>
 </head>
 <body class="light">
@@ -467,11 +500,42 @@ body.light .listen-title{}
       <span class="peda-tog-slider"></span>
       <span class="peda-tog-lbl">fiches</span>
     </label>
+    <button class="practice-btn" id="practice-nav-btn" onclick="openPracticeMode()">&#9654; Practice</button>
     <button class="listen-btn" id="listen-nav-btn" onclick="openListenMode()">&#9834; Écouter</button>
     <button class="import-btn" onclick="openImportModal()">&#8659; Importer</button>
   </div>
 </nav>
 
+
+
+<!-- ── PRACTICE MODE ── -->
+<div class="practice-overlay" id="practice-overlay">
+  <button class="practice-close" onclick="closePracticeMode()">✕ Fermer</button>
+  <div class="practice-title" id="practice-title">Practice</div>
+  <div class="practice-section-name" id="practice-section-name"></div>
+  <div class="practice-chord-display">
+    <div class="practice-chord-prev" id="practice-prev"></div>
+    <div class="practice-chord-current" id="practice-current">—</div>
+    <div class="practice-chord-next" id="practice-next"></div>
+  </div>
+  <div class="practice-beat" id="practice-beat"></div>
+  <div class="practice-controls">
+    <div class="practice-bpm-ctrl">
+      <button class="practice-bpm-btn" onclick="practiceChangeBpm(-5)">−</button>
+      <span class="practice-bpm-val" id="practice-bpm-val">120</span>
+      <button class="practice-bpm-btn" onclick="practiceChangeBpm(+5)">+</button>
+      <span class="practice-bpm-label">BPM</span>
+    </div>
+    <button class="practice-play-btn" id="practice-play-btn" onclick="practiceToggle()">&#9654;</button>
+    <div class="practice-bpm-ctrl">
+      <button class="practice-bpm-btn" onclick="practiceChangeSig(-1)">−</button>
+      <span class="practice-bpm-val" id="practice-sig-val">4/4</span>
+      <button class="practice-bpm-btn" onclick="practiceChangeSig(+1)">+</button>
+      <span class="practice-bpm-label">mesure</span>
+    </div>
+  </div>
+  <div class="practice-prog-dots" id="practice-prog-dots"></div>
+</div>
 
 <!-- ── MODE ÉCOUTE ── -->
 <div class="listen-overlay" id="listen-overlay">
@@ -2801,6 +2865,229 @@ function robustJSONParse(text){
   /* Fix unescaped newlines inside strings */
   s=s.replace(/"([^"]*)"/g,function(m,p){return '"'+p.replace(/\n/g,' ').replace(/\r/g,' ')+'"';});
   return JSON.parse(s);
+}
+
+
+/* ══════════════════════════════════════════════
+   MODULE PRACTICE
+   ══════════════════════════════════════════════ */
+var _practiceState={
+  playing:false,
+  chords:[],      /* [{label,semi,type,midis}] */
+  idx:0,
+  beat:0,
+  sig:4,
+  bpm:120,
+  timer:null,
+  source:null     /* 'song' | 'prog' | 'scale' */
+};
+
+function openPracticeMode(){
+  /* Build chord list from current context */
+  var chords=_buildPracticeChords();
+  if(!chords.length){
+    alert('Sélectionne une progression ou un morceau importé pour pratiquer.');
+    return;
+  }
+  _practiceState.chords=chords;
+  _practiceState.idx=0;
+  _practiceState.beat=0;
+  _practiceState.bpm=_audioBpm;
+  _practiceState.playing=false;
+  document.getElementById('practice-overlay').classList.add('open');
+  _practiceRender();
+  _practiceBuildDots();
+}
+
+function closePracticeMode(){
+  practiceStop();
+  document.getElementById('practice-overlay').classList.remove('open');
+}
+
+function _buildPracticeChords(){
+  var chords=[];
+  /* Priority: song detail > custom prog > std prog > scale degrees */
+  var songPanel=document.getElementById('song-detail-panel');
+  if(window._songDetailData&&songPanel&&songPanel.style.display!=='none'){
+    var si=window._activeSongSection||0;
+    var sec=window._songDetailData.sections&&window._songDetailData.sections[si];
+    if(sec){
+      document.getElementById('practice-title').textContent=
+        window._songDetailData.title+' · '+(sec.name||'');
+      var parsed=parseChordString(sec.chords||'');
+      parsed.forEach(function(c){
+        var type=qualToType(c.qual);
+        var enrich=c.qual&&ENRICH_SUF[c.qual]!==undefined?c.qual:type;
+        chords.push({label:c.raw,semi:c.semi,type:type,midis:getInvertedMidis(c.semi,enrich,type,0)});
+      });
+      return chords;
+    }
+  }
+  if(st.viewMode==='prog'){
+    if(customProg.idx>=0){
+      document.getElementById('practice-title').textContent=customProgs[customProg.idx].name;
+      customProgs[customProg.idx].sequence.forEach(function(s){
+        chords.push({label:s.label,semi:s.semi,type:s.type,midis:getInvertedMidis(s.semi,s.enrich,s.type,0)});
+      });
+    } else {
+      var prog=PROGS[stdProg.idx];
+      var sc=getSC();
+      document.getElementById('practice-title').textContent=prog.name;
+      if(sc.ch){
+        prog.degs.forEach(function(d,i){
+          if(d>=sc.iv.length)return;
+          var rn=mod(st.root+sc.iv[d]);
+          var bt=sc.ch[d];
+          var enrich=stdProg.enrichPerStep[i]||bt;
+          var inv=stdProg.invPerStep[i]||0;
+          chords.push({label:chordNameDeg(d,enrich),semi:rn,type:bt,midis:getInvertedMidis(rn,enrich,bt,inv)});
+        });
+      }
+    }
+    return chords;
+  }
+  /* Scale: use all degrees */
+  var sc=getSC();
+  if(sc.ch){
+    document.getElementById('practice-title').textContent=EN[st.root]+' '+sc.label;
+    sc.ch.forEach(function(t,i){
+      var rn=mod(st.root+sc.iv[i]);
+      chords.push({label:chordNameDeg(i,''),semi:rn,type:t,midis:getInvertedMidis(rn,t,t,0)});
+    });
+  }
+  return chords;
+}
+
+function _practiceRender(){
+  var state=_practiceState;
+  var chords=state.chords;
+  if(!chords.length)return;
+  var cur=chords[state.idx];
+  var prev=state.idx>0?chords[state.idx-1]:null;
+  var next=state.idx<chords.length-1?chords[state.idx+1]:chords[0];
+  document.getElementById('practice-section-name').textContent=cur.section||'';
+  document.getElementById('practice-current').textContent=cur.label;
+  document.getElementById('practice-prev').textContent=prev?prev.label:'';
+  document.getElementById('practice-next').textContent=next?next.label:'';
+  document.getElementById('practice-bpm-val').textContent=state.bpm;
+  document.getElementById('practice-sig-val').textContent=state.sig+'/4';
+  /* Update piano */
+  var chSet={};cur.midis.forEach(function(m){chSet[m]=true;});
+  paintPiano(chSet);
+  /* Update COF */
+  window._songChordHighlight={semi:cur.semi,type:cur.type};
+  drawCOF();
+  /* Update dots */
+  document.querySelectorAll('.practice-prog-dot').forEach(function(d,i){
+    d.classList.toggle('active',i===state.idx);
+    d.classList.toggle('done',i<state.idx);
+  });
+  /* Update beats */
+  var beatDiv=document.getElementById('practice-beat');
+  beatDiv.innerHTML='';
+  for(var b=0;b<state.sig;b++){
+    var dot=document.createElement('div');
+    dot.className='practice-beat-dot'+(b===0?' strong':'')+(b===state.beat?' active':'');
+    beatDiv.appendChild(dot);
+  }
+}
+
+function _practiceBuildDots(){
+  var wrap=document.getElementById('practice-prog-dots');
+  wrap.innerHTML='';
+  _practiceState.chords.forEach(function(c,i){
+    var dot=document.createElement('div');
+    dot.className='practice-prog-dot'+(i===0?' active':'');
+    dot.title=c.label;
+    dot.onclick=(function(idx){return function(){
+      _practiceState.idx=idx;_practiceState.beat=0;_practiceRender();
+    };})(i);
+    wrap.appendChild(dot);
+  });
+}
+
+function practiceToggle(){
+  if(_practiceState.playing){practiceStop();}
+  else{practiceStart();}
+}
+
+function practiceStart(){
+  _practiceState.playing=true;
+  _practiceState.beat=0;
+  document.getElementById('practice-play-btn').innerHTML='&#9646;&#9646;';
+  _practiceSchedule();
+}
+
+function practiceStop(){
+  _practiceState.playing=false;
+  if(_practiceState.timer)clearInterval(_practiceState.timer);
+  document.getElementById('practice-play-btn').innerHTML='&#9654;';
+}
+
+function _practiceSchedule(){
+  if(!_practiceState.playing)return;
+  var state=_practiceState;
+  var msPerBeat=Math.round(60000/state.bpm);
+  state.timer=setInterval(function(){
+    if(!state.playing){clearInterval(state.timer);return;}
+    /* Tick beat */
+    state.beat=(state.beat+1)%state.sig;
+    /* On beat 1: advance chord */
+    if(state.beat===0){
+      state.idx=(state.idx+1)%state.chords.length;
+      /* Play chord */
+      var cur=state.chords[state.idx];
+      var ctx=_getCtx();
+      _playChord(cur.midis,ctx.currentTime+0.02,true);
+    }
+    /* Beat click */
+    _metroClick(_getCtx().currentTime+0.02, state.beat===0);
+    _practiceRender();
+  },msPerBeat);
+  /* Play first chord immediately */
+  var cur=state.chords[state.idx];
+  var ctx=_getCtx();
+  _playChord(cur.midis,ctx.currentTime+0.02,true);
+  _metroClick(ctx.currentTime+0.02,true);
+}
+
+function practiceChangeBpm(delta){
+  _practiceState.bpm=Math.max(40,Math.min(240,_practiceState.bpm+delta));
+  _audioBpm=_practiceState.bpm;
+  document.getElementById('practice-bpm-val').textContent=_practiceState.bpm;
+  if(_practiceState.playing){practiceStop();practiceStart();}
+}
+
+function practiceChangeSig(delta){
+  var sigs=[2,3,4,6];
+  var idx=sigs.indexOf(_practiceState.sig);
+  idx=Math.max(0,Math.min(sigs.length-1,idx+delta));
+  _practiceState.sig=sigs[idx];
+  _practiceState.beat=0;
+  document.getElementById('practice-sig-val').textContent=_practiceState.sig+'/4';
+  if(_practiceState.playing){practiceStop();practiceStart();}
+}
+
+/* ── Song full playback ── */
+function openSongPlayback(){
+  if(!window._songDetailData)return;
+  /* Build flat chord list from all sections */
+  var allChords=[];
+  window._songDetailData.sections.forEach(function(sec){
+    var parsed=parseChordString(sec.chords||'');
+    parsed.forEach(function(c){
+      var type=qualToType(c.qual);
+      var enrich=c.qual&&ENRICH_SUF[c.qual]!==undefined?c.qual:type;
+      allChords.push({label:c.raw,semi:c.semi,type:type,midis:getInvertedMidis(c.semi,enrich,type,0),section:sec.name});
+    });
+  });
+  if(!allChords.length)return;
+  _practiceState.chords=allChords;
+  _practiceState.idx=0;_practiceState.beat=0;
+  document.getElementById('practice-title').textContent=window._songDetailData.title;
+  document.getElementById('practice-overlay').classList.add('open');
+  _practiceRender();
+  _practiceBuildDots();
 }
 
 /* ── INIT ── */
