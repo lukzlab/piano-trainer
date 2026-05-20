@@ -1847,11 +1847,32 @@ function audioToggle(){
   _audioPlaying=true;
   var btn=document.getElementById('audio-play-btn');
   btn.innerHTML='&#9646;&#9646;';btn.classList.add('playing');
+  /* If song detail is active, play current section */
+  var songPanel=document.getElementById('song-detail-panel');
+  if(window._songDetailData&&songPanel&&songPanel.style.display!=='none'){
+    var si=window._activeSongSection||0;
+    var sec=window._songDetailData.sections&&window._songDetailData.sections[si];
+    if(sec){
+      var chords=parseChordString(sec.chords||'');
+      var steps=chords.map(function(c){
+        var type=qualToType(c.qual);
+        var enrich=c.qual&&ENRICH_SUF[c.qual]!==undefined?c.qual:type;
+        var midis=getInvertedMidis(c.semi,enrich,type,0);
+        return midis;
+      });
+      if(steps.length){
+        var bd=60/_audioBpm;
+        var now=ctx.currentTime+0.05;
+        steps.forEach(function(midis,i){_playChord(midis,now+i*bd*2,true);});
+        setTimeout(audioStop,(steps.length*bd*2+0.5)*1000);
+        return;
+      }
+    }
+  }
   if(st.viewMode==='scale'&&scaleState.activeDeg>=0){
     var sc=getSC();var d=scaleState.activeDeg;
     var rn=mod(st.root+sc.iv[d]);
     var enrichId=scaleState.activeEnrich||sc.ch[d];
-    var iv=ENRICH_IV[enrichId]||[0,4,7];
     var midis=getInvertedMidis(rn,enrichId,sc.ch[d],scaleState.activeInv);
     _playChord(midis,ctx.currentTime+0.05,false);
     setTimeout(audioStop,2500);
