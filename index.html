@@ -11,8 +11,8 @@
 
 /* ── VARIABLES THÈME ── */
 body.light{
-  --bg:#f4ece0;--bg2:#ede2cf;--bg3:#e4d8c4;
-  --surface:#faf3e6;--surface2:#ede2cf;
+  --bg:#faf6f0;--bg2:#f4ede2;--bg3:#ede4d6;
+  --surface:#fffcf8;--surface2:#f4ede2;
   --border:rgba(60,40,20,0.13);--border2:rgba(60,40,20,0.28);
   --text:#2b1f12;--text2:rgba(43,31,18,0.60);--text3:rgba(43,31,18,0.36);
   --accent:#9c3a1c;--accent2:rgba(156,58,28,0.40);--accent-bg:rgba(156,58,28,0.10);
@@ -24,11 +24,11 @@ body.light{
   --dim-bg:#EAE0F0;--dim-txt:#3A2060;
   --aug-bg:#FFF0C0;--aug-txt:#5A3800;
   --prog-active-bg:rgba(156,58,28,0.07);--prog-active-border:rgba(156,58,28,0.25);
-  --nav-bg:#faf3e6;--nav-border:rgba(60,40,20,0.13);
-  --piano-bg:#ede2cf;--piano-white:#fffaef;--piano-black:#2b1f12;
+  --nav-bg:#fffcf8;--nav-border:rgba(60,40,20,0.10);
+  --piano-bg:#f0e8d8;--piano-white:#fffcf8;--piano-black:#2b1f12;
   --piano-border:rgba(60,40,20,0.18);--piano-border-black:#0e0a06;
   --enrich-active-bg:#9c3a1c;--enrich-active-txt:#faf3e6;--enrich-active-border:rgba(156,58,28,0.40);
-  --cof-bg:#f4ece0;--cof-border:rgba(60,40,20,0.13);
+  --cof-bg:#faf6f0;--cof-border:rgba(60,40,20,0.13);
   --tonic-scale:#d0a870;
   --logo-font:'Instrument Serif',serif;
   --ui-font:'Inter Tight',sans-serif;
@@ -85,8 +85,8 @@ body.graphite{
 
 /* ── THÈME MANUSCRIT ── */
 body.manuscrit{
-  --bg:#f4ece0;--bg2:#ede2cf;--bg3:#e4d8c4;
-  --surface:#faf3e6;--surface2:#ede2cf;
+  --bg:#faf6f0;--bg2:#f4ede2;--bg3:#ede4d6;
+  --surface:#fffcf8;--surface2:#f4ede2;
   --border:rgba(60,40,20,0.13);--border2:rgba(60,40,20,0.28);
   --text:#2b1f12;--text2:rgba(43,31,18,0.60);--text3:rgba(43,31,18,0.36);
   --accent:#9c3a1c;--accent2:rgba(156,58,28,0.40);--accent-bg:rgba(156,58,28,0.10);
@@ -98,11 +98,11 @@ body.manuscrit{
   --dim-bg:#EAE0F0;--dim-txt:#3A2060;
   --aug-bg:#FFF0C0;--aug-txt:#5A3800;
   --prog-active-bg:rgba(156,58,28,0.07);--prog-active-border:rgba(156,58,28,0.25);
-  --nav-bg:#faf3e6;--nav-border:rgba(60,40,20,0.13);
-  --piano-bg:#ede2cf;--piano-white:#fffaef;--piano-black:#2b1f12;
+  --nav-bg:#fffcf8;--nav-border:rgba(60,40,20,0.10);
+  --piano-bg:#f0e8d8;--piano-white:#fffcf8;--piano-black:#2b1f12;
   --piano-border:rgba(60,40,20,0.18);--piano-border-black:#0e0a06;
   --enrich-active-bg:#9c3a1c;--enrich-active-txt:#faf3e6;--enrich-active-border:rgba(156,58,28,0.40);
-  --cof-bg:#f4ece0;--cof-border:rgba(60,40,20,0.13);
+  --cof-bg:#faf6f0;--cof-border:rgba(60,40,20,0.13);
   --tonic-scale:#d0a870;
   --logo-font:'Instrument Serif',serif;
   --ui-font:'Inter Tight',sans-serif;
@@ -438,6 +438,13 @@ body.dark .ctrl-label, body.graphite .ctrl-label { color: var(--text3); }
 
 .song-loading{font-size:11px;color:var(--text3);font-family:'Inter Tight',sans-serif;padding:1rem 0;text-align:center}
 .song-error{font-size:11px;color:var(--tonic);font-family:'Inter Tight',sans-serif;padding:.5rem 0}
+
+/* ── TRANSPOSE SONG ── */
+.song-transp-bar{display:flex;align-items:center;gap:8px;padding:.5rem 0;border-top:1px solid var(--border);margin-top:.5rem;flex-wrap:wrap}
+.song-transp-label{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.song-transp-btn{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .1s}
+.song-transp-btn:hover{color:var(--tonic);border-color:var(--tonic)}
+.song-transp-btn.active{color:var(--tonic);border-color:var(--tonic);font-weight:600}
 </style>
 </head>
 <body class="light">
@@ -2452,6 +2459,35 @@ function renderSongDetail(data){
   meta.className='song-detail-meta';
   meta.textContent=data.artist+(data.key?' \u00b7 '+data.key:'')+(data.bpm?' \u00b7 '+data.bpm+' BPM':'');
   panel.appendChild(meta);
+  /* Transpose bar */
+  var transpBar=document.createElement('div');
+  transpBar.className='song-transp-bar';
+  var transpLbl=document.createElement('span');
+  transpLbl.className='song-transp-label';
+  transpLbl.textContent='Transposer';
+  transpBar.appendChild(transpLbl);
+  var roots=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+  var noteToSemiMap={'C':0,'C#':1,'D':2,'Eb':3,'E':4,'F':5,'F#':6,'G':7,'Ab':8,'A':9,'Bb':10,'B':11};
+  /* Detect original key root */
+  var origKey=data.key||'C major';
+  var origRoot=origKey.split(' ')[0];
+  var origSemi=noteToSemiMap[origRoot]||0;
+  window._songOrigSemi=origSemi;
+  window._songCurrentSemi=origSemi;
+  roots.forEach(function(r){
+    var btn=document.createElement('button');
+    btn.className='song-transp-btn'+(r===origRoot?' active':'');
+    btn.textContent=r;
+    btn.onclick=(function(root,semi){return function(){
+      window._songCurrentSemi=semi;
+      var interval=semi-window._songOrigSemi;
+      document.querySelectorAll('.song-transp-btn').forEach(function(b){b.classList.toggle('active',b.textContent===root);});
+      transposeSongDetail(interval);
+    };})(r, noteToSemiMap[r]);
+    transpBar.appendChild(btn);
+  });
+  panel.appendChild(transpBar);
+
   if(data.sections&&data.sections.length){
     data.sections.forEach(function(sec,secIdx){
       var chords=parseChordString(sec.chords||'');
@@ -2466,7 +2502,7 @@ function renderSongDetail(data){
       playIcon.textContent='\u25b6';
       playIcon.style.cssText='opacity:.4;font-size:8px';
       nameRow.appendChild(nameSpan);nameRow.appendChild(playIcon);
-      nameRow.onclick=(function(si){return function(){previewSectionChords(si);};})(secIdx);
+      nameRow.onclick=(function(si,s){return function(){previewSectionChords(si);updateCOFFromSong(s);};})(secIdx,sec);
       section.appendChild(nameRow);
       var chordsDiv=document.createElement('div');
       chordsDiv.className='song-section-chords';
@@ -2571,6 +2607,65 @@ function playSongChord(raw){
   document.querySelectorAll('.song-chord-chip').forEach(function(el){
     el.classList.toggle('active',el.textContent===raw);
   });
+}
+
+
+function transposeSongDetail(interval){
+  if(!window._songDetailData)return;
+  var data=window._songDetailData;
+  if(!data.sections)return;
+  /* Transpose all sections */
+  data.sections.forEach(function(sec,secIdx){
+    var chords=parseChordString(sec.chords||'');
+    var newChords=chords.map(function(c){
+      var newSemi=mod(c.semi+interval);
+      var EN2=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+      return EN2[newSemi]+(c.qual||'');
+    }).join(' ');
+    sec.chords=newChords;
+    /* Update chips in DOM */
+    var div=document.getElementById('sec-chords-'+secIdx);
+    if(div){
+      div.innerHTML='';
+      var newParsed=parseChordString(newChords);
+      newParsed.forEach(function(c){
+        var chip=document.createElement('span');
+        chip.className='song-chord-chip';
+        chip.textContent=c.raw;
+        chip.onclick=(function(chord,chipEl){return function(e){
+          e.stopPropagation();
+          playSongChord(chord);
+          document.querySelectorAll('.song-chord-chip').forEach(function(el){el.classList.remove('active');});
+          chipEl.classList.add('active');
+        };})(c.raw,chip);
+        div.appendChild(chip);
+      });
+    }
+  });
+}
+
+function updateCOFFromSong(sec){
+  if(!sec||!sec.chords)return;
+  var chords=parseChordString(sec.chords);
+  if(!chords.length)return;
+  /* Build a temp custom prog from section */
+  var seq=chords.map(function(c){
+    var type=qualToType(c.qual);
+    var enrich=c.qual&&ENRICH_SUF[c.qual]!==undefined?c.qual:type;
+    return{semi:c.semi,type:type,enrich:enrich,label:enrichLabel(c.semi,enrich),iv:ENRICH_IV[enrich]||[0,4,7]};
+  });
+  /* Show on circle without saving */
+  window._songTmpProg={name:sec.name,sequence:seq};
+  /* Temporarily use this for COF display */
+  var savedIdx=customProg.idx;
+  var savedProgs=customProgs.slice();
+  customProgs.push(window._songTmpProg);
+  customProg.idx=customProgs.length-1;
+  st.viewMode='prog';
+  drawCOF();
+  /* Restore (don't save) */
+  customProgs=savedProgs;
+  customProg.idx=savedIdx;
 }
 
 /* ── INIT ── */
