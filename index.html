@@ -456,6 +456,14 @@ body.light .listen-title{}
 .song-play-btn{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:10px;cursor:pointer;font-family:'Inter Tight',sans-serif;margin-bottom:.75rem;transition:all .15s}
 .song-play-btn:hover{color:var(--tonic);border-color:var(--tonic)}
 .song-play-btn.playing{background:var(--tonic);color:#fff;border-color:var(--tonic)}
+
+/* ── YOUTUBE EMBED ── */
+.yt-section{margin-top:.75rem;padding-top:.625rem;border-top:1px solid var(--border)}
+.yt-label{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:.5rem}
+.yt-search-btn{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:10px;cursor:pointer;font-family:'Inter Tight',sans-serif;transition:all .15s;width:100%}
+.yt-search-btn:hover{color:var(--tonic);border-color:var(--tonic)}
+.yt-embed{width:100%;aspect-ratio:16/9;border-radius:6px;border:none;display:block;margin-top:.5rem}
+.yt-note{font-size:9px;color:var(--text3);margin-top:.375rem;font-family:'Inter Tight',sans-serif}
 </style>
 </head>
 <body class="light">
@@ -2688,6 +2696,38 @@ function renderSongDetail(data){
       panel.appendChild(section);
     });
   }
+
+  /* YouTube section */
+  var ytSection=document.createElement('div');
+  ytSection.className='yt-section';
+  var ytLabel=document.createElement('div');
+  ytLabel.className='yt-label';
+  ytLabel.textContent='Écouter le morceau';
+  ytSection.appendChild(ytLabel);
+  var ytSearchBtn=document.createElement('button');
+  ytSearchBtn.className='yt-search-btn';
+  ytSearchBtn.innerHTML='&#9654; Charger sur YouTube';
+  var ytQuery=encodeURIComponent((data.title||'')+' '+(data.artist||'')+' official');
+  ytSearchBtn.onclick=(function(q,title,artist,container){
+    return function(){
+      container.innerHTML='';
+      var lbl=document.createElement('div');lbl.className='yt-label';lbl.textContent='Écouter le morceau';container.appendChild(lbl);
+      /* Use YouTube no-cookie embed with search */
+      var iframe=document.createElement('iframe');
+      iframe.className='yt-embed';
+      iframe.setAttribute('allowfullscreen','');
+      iframe.setAttribute('allow','autoplay; encrypted-media');
+      /* YouTube search embed - searches for the track */
+      iframe.src='https://www.youtube.com/embed?listType=search&list='+q+'&autoplay=1';
+      container.appendChild(iframe);
+      var note=document.createElement('div');
+      note.className='yt-note';
+      note.textContent='Résultats YouTube pour: '+decodeURIComponent(q).replace(/\+/g,' ');
+      container.appendChild(note);
+    };
+  })(ytQuery, data.title, data.artist, ytSection);
+  ytSection.appendChild(ytSearchBtn);
+  panel.appendChild(ytSection);
 }
 
 function importSongSection(sec){
