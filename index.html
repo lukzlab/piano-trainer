@@ -937,6 +937,8 @@ function drawCOF(){
         } else {
           st.root=s;
           scaleState.activeDeg=-1;scaleState.activeEnrich='';scaleState.activeInv=0;
+          /* Minor ring click -> switch to minor scale */
+          if(rt==='min'&&st.scale==='major'){st.scale='minor';buildScaleBtns();}
           buildRootBtns();
           /* If song detail is active, transpose song to new root */
           if(window._songDetailData&&document.getElementById('song-detail-panel').style.display!=='none'){
@@ -2587,12 +2589,15 @@ function renderSongDetail(data){
         var chip=document.createElement('span');
         chip.className='song-chord-chip';
         chip.textContent=c.raw;
-        chip.onclick=(function(chord,chipEl){return function(e){
+        var chordType=qualToType(c.qual);
+        chip.dataset.semi=c.semi;
+        chip.dataset.type=chordType;
+        chip.onclick=(function(chord,semi,type,chipEl){return function(e){
           e.stopPropagation();
-          playSongChord(chord);
+          playSongChordWithType(chord,semi,type);
           document.querySelectorAll('.song-chord-chip').forEach(function(el){el.classList.remove('active');});
           chipEl.classList.add('active');
-        };})(c.raw,chip);
+        };})(c.raw,c.semi,chordType,chip);
         chordsDiv.appendChild(chip);
       });
       section.appendChild(chordsDiv);
@@ -2663,6 +2668,22 @@ function previewSectionChords(idx){
   }
 }
 
+
+function playSongChordWithType(raw,semi,type){
+  var chords=parseChordString(raw);
+  if(!chords.length)return;
+  var c=chords[0];
+  c.semi=semi; /* Use passed semi directly */
+  var enrichId=c.qual&&ENRICH_SUF[c.qual]!==undefined?c.qual:type;
+  var midis=getInvertedMidis(semi,enrichId,type,0);
+  var chSet={};midis.forEach(function(m){chSet[m]=true;});
+  paintPiano(chSet);
+  document.getElementById('piano-sub').textContent=raw+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');
+  window._songChordHighlight={semi:semi,type:type};
+  drawCOF();
+  var ctx=_getCtx();
+  _playChord(midis,ctx.currentTime+0.05,true);
+}
 
 function playSongChord(raw){
   var chords=parseChordString(raw);
