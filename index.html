@@ -33,29 +33,7 @@ body.light{
   --logo-font:'Instrument Serif',serif;
   --ui-font:'Inter Tight',sans-serif;
 }
-body.dark{
-  --bg:#191613;--bg2:#241f1a;--bg3:#0f0c08;
-  --surface:#1f1b17;--surface2:#241f1a;
-  --border:rgba(240,232,218,0.10);--border2:rgba(240,232,218,0.22);
-  --text:#efe6d4;--text2:rgba(239,230,212,0.60);--text3:rgba(239,230,212,0.36);
-  --accent:#b05c32;--accent2:rgba(176,92,50,0.45);--accent-bg:rgba(176,92,50,0.13);
-  --tonic:#b05c32;--tonic-light:rgba(176,92,50,0.45);--tonic-bg:rgba(176,92,50,0.13);
-  --scale-bg:rgba(201,93,59,0.08);
-  --purple:#c95d3b;--purple-bg:rgba(201,93,59,0.13);--purple-border:rgba(201,93,59,0.45);
-  --maj-bg:#1A2818;--maj-txt:#70A868;
-  --min-bg:#281A10;--min-txt:#C07048;
-  --dim-bg:#20181E;--dim-txt:#9878A8;
-  --aug-bg:#241C10;--aug-txt:#C09840;
-  --prog-active-bg:rgba(201,93,59,0.10);--prog-active-border:rgba(201,93,59,0.30);
-  --nav-bg:#191613;--nav-border:rgba(240,232,218,0.10);
-  --piano-bg:#0f0c08;--piano-white:#efe6d4;--piano-black:#0f0c08;
-  --piano-border:#3a3128;--piano-border-black:#080604;
-  --enrich-active-bg:#b05c32;--enrich-active-txt:#efe6d4;--enrich-active-border:rgba(201,93,59,0.45);
-  --cof-bg:#191613;--cof-border:rgba(240,232,218,0.10);
-  --tonic-scale:#c4aa80;
-  --logo-font:'Syne',sans-serif;
-  --ui-font:'Inter Tight',sans-serif;
-}
+
 
 
 /* ── THÈME GRAPHITE ── */
@@ -394,13 +372,13 @@ body.light .listen-title{}
 .key-dot{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;pointer-events:none;z-index:3}
 .bk .key-dot{top:4px;width:5px;height:5px}
 
-body.dark .nl, body.graphite .nl { color: var(--text2); }
-body.dark .nl.active, body.graphite .nl.active { color: var(--tonic); border-bottom-color: var(--tonic); }
-body.dark .scbtn, body.graphite .scbtn { color: var(--text2); }
-body.dark .scbtn.active, body.graphite .scbtn.active { color: var(--tonic); border-bottom-color: var(--tonic); }
-body.dark .mtbtn, body.graphite .mtbtn { color: var(--text2); }
-body.dark .mtbtn.active, body.graphite .mtbtn.active { color: var(--tonic); border-bottom-color: var(--tonic); }
-body.dark .ctrl-label, body.graphite .ctrl-label { color: var(--text3); }
+ body.graphite .nl { color: var(--text2); }
+ body.graphite .nl.active { color: var(--tonic); border-bottom-color: var(--tonic); }
+ body.graphite .scbtn { color: var(--text2); }
+ body.graphite .scbtn.active { color: var(--tonic); border-bottom-color: var(--tonic); }
+ body.graphite .mtbtn { color: var(--text2); }
+ body.graphite .mtbtn.active { color: var(--tonic); border-bottom-color: var(--tonic); }
+ body.graphite .ctrl-label { color: var(--text3); }
 
 /* ── INTERCALAIRES ── */
 .tabs-bar{display:flex;align-items:flex-end;gap:0;border-bottom:1px solid var(--border);padding:0 1.5rem}
@@ -666,7 +644,7 @@ body.dark .ctrl-label, body.graphite .ctrl-label { color: var(--text3); }
 /* ── THÈME DUAL MODE ── */
 function initTheme(){
   var saved=localStorage.getItem('piano_trainer_theme');
-  if(!saved||['light','dark','graphite'].indexOf(saved)<0){
+  if(!saved||['light','graphite'].indexOf(saved)<0){
     saved='light';
     localStorage.setItem('piano_trainer_theme','light');
   }
@@ -686,9 +664,8 @@ function applyTheme(){}
 
 function toggleTheme(){
   var cur=document.body.className;
-  /* Ensure cur is valid */
-  if(['light','dark','graphite'].indexOf(cur)<0)cur='light';
-  var next=cur==='light'?'graphite':cur==='graphite'?'dark':'light';
+  if(['light','graphite'].indexOf(cur)<0)cur='light';
+  var next=cur==='light'?'graphite':'light';
   document.body.className=next;
   localStorage.setItem('piano_trainer_theme',next);
   _updateThemeBtn(next);
@@ -937,8 +914,9 @@ function drawCOF(){
         } else {
           st.root=s;
           scaleState.activeDeg=-1;scaleState.activeEnrich='';scaleState.activeInv=0;
-          /* Minor ring click -> switch to minor scale */
-          if(rt==='min'&&st.scale==='major'){st.scale='minor';buildScaleBtns();}
+          /* Ring click -> switch scale type */
+          if(rt==='min'&&(st.scale==='major'||st.scale==='lydian'||st.scale==='mixo')){st.scale='minor';buildScaleBtns();}
+          else if(rt==='maj'&&(st.scale==='minor'||st.scale==='dorian'||st.scale==='phrygian'||st.scale==='harmonic'||st.scale==='melodic')){st.scale='major';buildScaleBtns();}
           buildRootBtns();
           /* If song detail is active, transpose song to new root */
           if(window._songDetailData&&document.getElementById('song-detail-panel').style.display!=='none'){
