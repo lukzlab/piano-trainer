@@ -2704,29 +2704,32 @@ function renderSongDetail(data){
   ytLabel.className='yt-label';
   ytLabel.textContent='Écouter le morceau';
   ytSection.appendChild(ytLabel);
-  var ytSearchBtn=document.createElement('button');
-  ytSearchBtn.className='yt-search-btn';
-  ytSearchBtn.innerHTML='&#9654; Charger sur YouTube';
-  var ytQuery=encodeURIComponent((data.title||'')+' '+(data.artist||'')+' official');
-  ytSearchBtn.onclick=(function(q,title,artist,container){
+  var ytBtn=document.createElement('button');
+  ytBtn.className='yt-search-btn';
+  ytBtn.innerHTML='&#9654; Charger le morceau';
+  ytBtn.onclick=(function(title,artist,container){
     return function(){
-      container.innerHTML='';
-      var lbl=document.createElement('div');lbl.className='yt-label';lbl.textContent='Écouter le morceau';container.appendChild(lbl);
-      /* Use YouTube no-cookie embed with search */
-      var iframe=document.createElement('iframe');
-      iframe.className='yt-embed';
-      iframe.setAttribute('allowfullscreen','');
-      iframe.setAttribute('allow','autoplay; encrypted-media');
-      /* YouTube search embed - searches for the track */
-      iframe.src='https://www.youtube.com/embed?listType=search&list='+q+'&autoplay=1';
-      container.appendChild(iframe);
-      var note=document.createElement('div');
-      note.className='yt-note';
-      note.textContent='Résultats YouTube pour: '+decodeURIComponent(q).replace(/\+/g,' ');
-      container.appendChild(note);
+      ytBtn.innerHTML='Recherche...';ytBtn.disabled=true;
+      fetch('/api/youtube?q='+encodeURIComponent(title+' '+artist+' official audio'))
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d.error){container.appendChild(Object.assign(document.createElement('div'),{className:'yt-note',textContent:'Introuvable : '+d.error}));return;}
+          /* Audio-only embed via youtube-nocookie */
+          var iframe=document.createElement('iframe');
+          iframe.className='yt-embed';
+          iframe.style.cssText='width:100%;height:80px;border-radius:6px;border:none;display:block;margin-top:.5rem';
+          iframe.setAttribute('allow','autoplay;encrypted-media');
+          iframe.src='https://www.youtube-nocookie.com/embed/'+d.videoId+'?autoplay=1&controls=1&modestbranding=1&rel=0&showinfo=0';
+          ytBtn.style.display='none';
+          container.appendChild(iframe);
+          var note=document.createElement('div');note.className='yt-note';
+          note.textContent=d.title+' · '+d.channel;
+          container.appendChild(note);
+        })
+        .catch(function(e){ytBtn.innerHTML='&#9654; Charger le morceau';ytBtn.disabled=false;});
     };
-  })(ytQuery, data.title, data.artist, ytSection);
-  ytSection.appendChild(ytSearchBtn);
+  })(data.title||'',data.artist||'',ytSection);
+  ytSection.appendChild(ytBtn);
   panel.appendChild(ytSection);
 }
 
