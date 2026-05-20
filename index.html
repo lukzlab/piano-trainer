@@ -1649,6 +1649,8 @@ async function importSearch(){
     var clean=text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
     var s=clean.indexOf('{');var e=clean.lastIndexOf('}');
     if(s>=0&&e>s)clean=clean.substring(s,e+1);
+    /* Clean common JSON issues: smart quotes, trailing commas */
+    clean=clean.replace(/,\s*([}\]])/g,'$1');
     var parsed=JSON.parse(clean);
     if(isArtistSearch&&parsed.songs){
       importResults=parsed.songs.map(function(s){
@@ -2434,6 +2436,8 @@ async function fetchSongDetail(title, artist){
     var clean=text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
     var s=clean.indexOf('{');var e=clean.lastIndexOf('}');
     if(s>=0&&e>s)clean=clean.substring(s,e+1);
+    /* Clean common JSON issues: smart quotes, trailing commas */
+    clean=clean.replace(/,\s*([}\]])/g,'$1');
     var parsed=JSON.parse(clean);
     renderSongDetail(parsed);
   }catch(err){
