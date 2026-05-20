@@ -2647,7 +2647,6 @@ function previewSectionChords(idx){
 
 
 function playSongChord(raw){
-  /* Parse the chord and show on piano + play */
   var chords=parseChordString(raw);
   if(!chords.length)return;
   var c=chords[0];
@@ -2658,6 +2657,9 @@ function playSongChord(raw){
   var chSet={};midis.forEach(function(m){chSet[m]=true;});
   paintPiano(chSet);
   document.getElementById('piano-sub').textContent=raw+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');
+  /* Highlight chord root on COF - temporarily set as tonic */
+  window._songChordHighlight=c.semi;
+  drawCOFWithChordHighlight(c.semi);
   /* Play sound */
   var ctx=_getCtx();
   _playChord(midis,ctx.currentTime+0.05,true);
@@ -2665,6 +2667,49 @@ function playSongChord(raw){
   document.querySelectorAll('.song-chord-chip').forEach(function(el){
     el.classList.toggle('active',el.textContent===raw);
   });
+}
+
+function drawCOFWithChordHighlight(semi){
+  /* Redraw COF with this semi highlighted as active chord root */
+  var saved=st.root;
+  /* We just redraw - the COF already shows song sections
+     Add a pulsing marker on the chord root segment */
+  var svg=document.getElementById('cof');
+  /* Remove previous chord highlight */
+  var old=svg.getElementById('chord-highlight');
+  if(old)old.parentNode.removeChild(old);
+  /* Find position of this note on the outer ring */
+  var COF_MAJ2=[0,7,2,9,4,11,6,1,8,3,10,5];
+  var idx=COF_MAJ2.indexOf(semi);
+  if(idx<0){
+    /* Try minor ring */
+    var COF_MIN2=[9,4,11,6,1,8,3,10,5,0,7,2];
+    idx=COF_MIN2.indexOf(semi);
+    if(idx<0)return;
+    /* Minor ring position */
+    var angle=idx*30;
+    var R=(95+52)/2;
+    var rad=(angle-90)*Math.PI/180;
+    var x=160+R*Math.cos(rad),y=160+R*Math.sin(rad);
+  } else {
+    var angle=idx*30;
+    var R=(148+96)/2;
+    var rad=(angle-90)*Math.PI/180;
+    var x=160+R*Math.cos(rad),y=160+R*Math.sin(rad);
+  }
+  /* Draw a ring around the note */
+  var g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.id='chord-highlight';
+  var circle=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  circle.setAttribute('cx',x);
+  circle.setAttribute('cy',y);
+  circle.setAttribute('r','14');
+  circle.setAttribute('fill','none');
+  circle.setAttribute('stroke','var(--tonic)');
+  circle.setAttribute('stroke-width','2');
+  circle.setAttribute('opacity','0.8');
+  g.appendChild(circle);
+  svg.appendChild(g);
 }
 
 
