@@ -897,7 +897,7 @@ function drawCOF(){
       if(isProgView){
         var seq=pm[ring.type+'_'+semi]||0;
         var hl2=window._songChordHighlight;
-        var isChordHL2=hl2&&hl2.semi===semi&&((hl2.type==='maj'&&ring.type==='maj')||(hl2.type!=='maj'&&ring.type==='min'));
+        var isChordHL2=hl2&&hl2.semi===semi&&((hl2.type==='maj'&&ring.type==='maj')||((hl2.type==='min'||hl2.type==='dim')&&ring.type==='min'));
         var hasHL2=!!hl2;
         var isFirstProg=(seq===1);
         if(isChordHL2){fill='var(--tonic)';stroke='var(--tonic)';sw='0';tc='#fff';fw='700';}
@@ -920,7 +920,8 @@ function drawCOF(){
       } else {
         var hl=window._songChordHighlight;
         var isChordHL=hl&&hl.semi===semi&&(
-          (hl.type==='maj'&&ring.type==='maj')||(hl.type!=='maj'&&ring.type==='min')
+          (hl.type==='maj'&&ring.type==='maj')||
+          ((hl.type==='min'||hl.type==='dim')&&ring.type==='min')
         );
         var hasHL=!!hl;
         if(isChordHL){fill='var(--tonic)';stroke='var(--tonic)';sw='0';tc='#fff';fw='700';}
