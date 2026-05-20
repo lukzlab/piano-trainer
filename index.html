@@ -919,7 +919,29 @@ function drawCOF(){
       }
       var p=sel('path',{d:arcPath(ring.rI,ring.rO,a0,a1),fill:fill,stroke:stroke,'stroke-width':sw,cursor:'pointer','data-type':ring.type,'data-semi':semi});
       (function(s,rt){p.addEventListener('click',function(){
-        if(buildMode){bldClickNote(s,rt);}else{st.root=s;scaleState.activeDeg=-1;scaleState.activeEnrich='';scaleState.activeInv=0;buildRootBtns();updateAll();autoSoundTrigger();}
+        if(buildMode){
+          bldClickNote(s,rt);
+        } else {
+          st.root=s;
+          scaleState.activeDeg=-1;scaleState.activeEnrich='';scaleState.activeInv=0;
+          buildRootBtns();
+          /* If song detail is active, transpose song to new root */
+          if(window._songDetailData&&document.getElementById('song-detail-panel').style.display!=='none'){
+            var origSemi=window._songOrigSemi||0;
+            var interval=mod(s-origSemi);
+            /* Update transpose buttons */
+            var EN2=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+            document.querySelectorAll('.song-transp-btn').forEach(function(b){
+              b.classList.toggle('active',b.textContent===EN2[s]);
+            });
+            window._songCurrentSemi=s;
+            transposeSongDetail(interval);
+            window._songOrigSemi=s;/* Update origin so next transpose is relative */
+          } else {
+            updateAll();
+            autoSoundTrigger();
+          }
+        }
       });})(semi,ring.type);
       svg.appendChild(p);
       var mp=pxy((ring.rI+ring.rO)/2,i*30);
@@ -1010,7 +1032,15 @@ function navigateCircle(dir){
     var newIdx=((currentIdx+dir)%12+12)%12;
     st.root=COF_MAJ[newIdx];
     scaleState.activeDeg=-1;scaleState.activeEnrich='';stdProg.activeStep=-1;
-    buildRootBtns();updateAll();autoSoundTrigger();
+    buildRootBtns();
+    if(window._songDetailData&&document.getElementById('song-detail-panel').style.display!=='none'){
+      var iv2=mod(COF_MAJ[newIdx]-(window._songOrigSemi||0));
+      transposeSongDetail(iv2);window._songOrigSemi=COF_MAJ[newIdx];
+      document.querySelectorAll('.song-transp-btn').forEach(function(b){
+        var EN2=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+        b.classList.toggle('active',b.textContent===EN2[COF_MAJ[newIdx]]);
+      });
+    } else {updateAll();autoSoundTrigger();}
   } else {
     var currentIdx=COF_MAJ.indexOf(mod(st.root));
     if(currentIdx<0)currentIdx=0;
@@ -2482,7 +2512,20 @@ function renderSongDetail(data){
   });
   panel.appendChild(transpBar);
 
+  /* Update root and COF from song key */
+  window._activeSongSection=0;
+  if(data.key){
+    var keyRoot=data.key.split(' ')[0];
+    var kmap={'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11};
+    if(kmap[keyRoot]!==undefined){
+      st.root=kmap[keyRoot];
+      window._songOrigSemi=kmap[keyRoot];
+      window._songCurrentSemi=kmap[keyRoot];
+    }
+  }
   if(data.sections&&data.sections.length){
+    /* Show first section on COF after render */
+    setTimeout(function(){updateCOFFromSong(data.sections[0]);},0);
     data.sections.forEach(function(sec,secIdx){
       var chords=parseChordString(sec.chords||'');
       var section=document.createElement('div');
