@@ -2506,7 +2506,7 @@ function renderSongDetail(data){
       playIcon.textContent='\u25b6';
       playIcon.style.cssText='opacity:.4;font-size:8px';
       nameRow.appendChild(nameSpan);nameRow.appendChild(playIcon);
-      nameRow.onclick=(function(si,s){return function(){previewSectionChords(si);updateCOFFromSong(s);};})(secIdx,sec);
+      nameRow.onclick=(function(si,s){return function(){window._activeSongSection=si;previewSectionChords(si);updateCOFFromSong(s);};})(secIdx,sec);
       section.appendChild(nameRow);
       var chordsDiv=document.createElement('div');
       chordsDiv.className='song-section-chords';
@@ -2646,28 +2646,37 @@ function transposeSongDetail(interval){
       });
     }
   });
+  /* Update COF with currently active section */
+  if(data.sections&&data.sections.length){
+    var si=window._activeSongSection||0;
+    updateCOFFromSong(data.sections[si]);
+  }
 }
 
 function updateCOFFromSong(sec){
   if(!sec||!sec.chords)return;
   var chords=parseChordString(sec.chords);
   if(!chords.length)return;
+  /* Set root to first chord of section */
+  st.root=chords[0].semi;
   /* Build a temp custom prog from section */
   var seq=chords.map(function(c){
     var type=qualToType(c.qual);
     var enrich=c.qual&&ENRICH_SUF[c.qual]!==undefined?c.qual:type;
     return{semi:c.semi,type:type,enrich:enrich,label:enrichLabel(c.semi,enrich),iv:ENRICH_IV[enrich]||[0,4,7]};
   });
-  /* Show on circle without saving */
+  /* Push temp prog, display, then restore */
   window._songTmpProg={name:sec.name,sequence:seq};
-  /* Temporarily use this for COF display */
-  var savedIdx=customProg.idx;
   var savedProgs=customProgs.slice();
+  var savedIdx=customProg.idx;
   customProgs.push(window._songTmpProg);
   customProg.idx=customProgs.length-1;
+  customProg.activeStep=-1;
   st.viewMode='prog';
+  buildRootBtns();
   drawCOF();
-  /* Restore (don't save) */
+  paintPiano(null);
+  /* Restore immediately after draw */
   customProgs=savedProgs;
   customProg.idx=savedIdx;
 }
