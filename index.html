@@ -464,7 +464,21 @@ body.light .listen-title{}
 .yt-search-btn:hover{color:var(--tonic);border-color:var(--tonic)}
 .yt-embed{width:100%;aspect-ratio:16/9;border-radius:6px;border:none;display:block;margin-top:.5rem}
 .yt-note{font-size:9px;color:var(--text3);margin-top:.375rem;font-family:'Inter Tight',sans-serif}
+
+/* ── BACKING TRACK ── */
+.bt-bar{display:flex;align-items:center;gap:8px;padding:.5rem 0;border-top:1px solid var(--border);flex-wrap:wrap}
+.bt-btn{width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;background:var(--surface);color:var(--text2);border:1px solid var(--border);transition:all .15s}
+.bt-btn:hover{border-color:var(--accent);color:var(--accent)}
+.bt-btn.playing{background:var(--purple);color:#fff;border-color:var(--purple)}
+body.graphite .bt-btn.playing{background:var(--tonic);border-color:var(--tonic)}
+.bt-style-btn{font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .1s}
+.bt-style-btn.active{background:var(--accent-bg);color:var(--accent);border-color:var(--accent2);font-weight:500}
+.bt-vol{-webkit-appearance:none;appearance:none;width:60px;height:3px;border-radius:2px;background:var(--border2);outline:none;cursor:pointer;flex-shrink:0}
+.bt-vol::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--accent);cursor:pointer}
+.bt-label{font-size:8px;color:var(--text3);font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.bt-status{font-size:8px;color:var(--text3);font-family:'JetBrains Mono',monospace;flex-shrink:0;min-width:60px}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
 </head>
 <body class="light">
 
@@ -657,6 +671,17 @@ body.light .listen-title{}
             <button class="metro-sig-btn active" onclick="metroSetSig(4,this)">4/4</button>
             <button class="metro-sig-btn" onclick="metroSetSig(3,this)">3/4</button>
           </div>
+        <!-- ── BACKING TRACK ── -->
+        <div class="bt-bar" id="bt-bar">
+          <button class="bt-btn" id="bt-play-btn" onclick="btToggle()" title="Backing Track">&#9836;</button>
+          <span class="bt-label">backing</span>
+          <button class="bt-style-btn active" onclick="btSetStyle('pad',this)">Pad</button>
+          <button class="bt-style-btn" onclick="btSetStyle('jazz',this)">Jazz</button>
+          <button class="bt-style-btn" onclick="btSetStyle('bossa',this)">Bossa</button>
+          <button class="bt-style-btn" onclick="btSetStyle('funk',this)">Funk</button>
+          <input class="bt-vol" id="bt-vol" type="range" min="0" max="100" value="60" oninput="btSetVol(this.value)" title="Volume">
+          <span class="bt-status" id="bt-status">prêt</span>
+        </div>
           <input class="audio-tempo" id="metro-vol" type="range" min="1" max="10" value="5" oninput="metroSetVol(this.value)" title="Volume métronome" style="width:50px">
           <select id="metro-sound" onchange="metroSetSound(this.value)" style="font-size:9px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'JetBrains Mono',monospace;cursor:pointer">
             <option value="triangle">Triangle</option>
@@ -3137,6 +3162,243 @@ function openSongPlayback(){
   document.getElementById('practice-overlay').classList.add('open');
   _practiceRender();
   _practiceBuildDots();
+}
+
+
+/* ══════════════════════════════════════════════
+   MODULE BACKING TRACK — Tone.js + Samples
+   ══════════════════════════════════════════════ */
+var _bt={
+  playing:false,
+  style:'pad',
+  vol:0.6,
+  sampler:null,
+  bass:null,
+  ready:false,
+  loading:false,
+  part:null,
+  bassPart:null,
+  loop:null
+};
+
+function _btMidiToNote(midi){
+  var names=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  return names[midi%12]+(Math.floor(midi/12)-1);
+}
+
+function _btLoadSamplers(cb){
+  if(_bt.ready){cb();return;}
+  if(_bt.loading)return;
+  _bt.loading=true;
+  document.getElementById('bt-status').textContent='chargement...';
+
+  var pianoLoaded=false, bassLoaded=false;
+  function checkReady(){
+    if(pianoLoaded&&bassLoaded){
+      _bt.ready=true;_bt.loading=false;
+      document.getElementById('bt-status').textContent='prêt';
+      cb();
+    }
+  }
+
+  _bt.sampler=new Tone.Sampler({
+    urls:{
+      'A3':'A3.mp3','C4':'C4.mp3','D#4':'Ds4.mp3','F#4':'Fs4.mp3',
+      'A4':'A4.mp3','C5':'C5.mp3','D#5':'Ds5.mp3','F#5':'Fs5.mp3',
+      'A2':'A2.mp3','C3':'C3.mp3','D#3':'Ds3.mp3','F#3':'Fs3.mp3'
+    },
+    baseUrl:'https://tonejs.github.io/audio/salamander/',
+    onload:function(){pianoLoaded=true;checkReady();}
+  }).toDestination();
+  _bt.sampler.volume.value=-6;
+
+  _bt.bass=new Tone.Sampler({
+    urls:{
+      'A1':'As1.mp3','C2':'C2.mp3','D#2':'Ds2.mp3','F#2':'Fs2.mp3',
+      'A2':'As2.mp3','C3':'C3.mp3'
+    },
+    baseUrl:'https://tonejs.github.io/audio/bass-electric/',
+    onload:function(){bassLoaded=true;checkReady();}
+  }).toDestination();
+  _bt.bass.volume.value=-3;
+}
+
+function btToggle(){
+  if(_bt.playing){btStop();return;}
+  Tone.start();
+  _btLoadSamplers(function(){btStart();});
+}
+
+function btStart(){
+  if(_bt.playing)return;
+  _bt.playing=true;
+  var btn=document.getElementById('bt-play-btn');
+  btn.innerHTML='&#9646;&#9646;';btn.classList.add('playing');
+  document.getElementById('bt-status').textContent=_bt.style;
+  _btSchedule();
+}
+
+function btStop(){
+  _bt.playing=false;
+  Tone.Transport.stop();
+  Tone.Transport.cancel();
+  var btn=document.getElementById('bt-play-btn');
+  btn.innerHTML='&#9836;';btn.classList.remove('playing');
+  document.getElementById('bt-status').textContent='prêt';
+}
+
+function btSetStyle(style,btn){
+  _bt.style=style;
+  document.querySelectorAll('.bt-style-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  if(_bt.playing){btStop();Tone.start();_btLoadSamplers(function(){btStart();});}
+}
+
+function btSetVol(val){
+  _bt.vol=parseInt(val)/100;
+  if(_bt.sampler)_bt.sampler.volume.value=Tone.gainToDb(_bt.vol*0.7);
+  if(_bt.bass)_bt.bass.volume.value=Tone.gainToDb(_bt.vol*0.9);
+}
+
+function _btGetChords(){
+  /* Build chord list from current progression or scale */
+  var chords=[];
+  if(st.viewMode==='prog'){
+    if(customProg.idx>=0){
+      customProgs[customProg.idx].sequence.forEach(function(s){
+        var iv=ENRICH_IV[s.enrich]||[0,4,7];
+        var base=48;for(var m=48;m<=60;m++){if(mod(m)===s.semi){base=m;break;}}
+        chords.push({root:base,notes:iv.map(function(x){return base+x;})});
+      });
+    } else {
+      var sc=getSC();var prog=PROGS[stdProg.idx];
+      if(sc.ch){
+        prog.degs.forEach(function(d,i){
+          if(d>=sc.iv.length)return;
+          var rn=mod(st.root+sc.iv[d]);var bt=sc.ch[d];
+          var iv=ENRICH_IV[stdProg.enrichPerStep[i]||bt]||[0,4,7];
+          var base=48;for(var m=48;m<=60;m++){if(mod(m)===rn){base=m;break;}}
+          chords.push({root:base,notes:iv.map(function(x){return base+x;})});
+        });
+      }
+    }
+  } else {
+    /* Scale: I-IV-V-I pattern */
+    var sc=getSC();
+    if(sc.ch){
+      var pattern=[0,3,4,0];
+      pattern.forEach(function(d){
+        if(d>=sc.iv.length)return;
+        var rn=mod(st.root+sc.iv[d]);var bt=sc.ch[d];
+        var iv=ENRICH_IV[bt]||[0,4,7];
+        var base=48;for(var m=48;m<=60;m++){if(mod(m)===rn){base=m;break;}}
+        chords.push({root:base,notes:iv.map(function(x){return base+x;})});
+      });
+    }
+  }
+  if(!chords.length){
+    /* Fallback: C major triad */
+    chords=[{root:48,notes:[48,52,55]}];
+  }
+  return chords;
+}
+
+function _btSchedule(){
+  var chords=_btGetChords();
+  var bpm=_audioBpm;
+  Tone.Transport.bpm.value=bpm;
+  Tone.Transport.cancel();
+
+  var beatsPerChord=4;
+  var totalBeats=chords.length*beatsPerChord;
+
+  /* Build events based on style */
+  var events=[];
+
+  if(_bt.style==='pad'){
+    /* Whole chord held for 4 beats */
+    chords.forEach(function(c,ci){
+      events.push({time:ci*beatsPerChord+'n',chord:c,dur:'3n',vel:0.5});
+    });
+  } else if(_bt.style==='jazz'){
+    /* Comping: chord on beat 2 and 4 */
+    chords.forEach(function(c,ci){
+      var base=ci*beatsPerChord;
+      events.push({time:(base+1)+'n',chord:c,dur:'8n',vel:0.45});
+      events.push({time:(base+3)+'n',chord:c,dur:'8n',vel:0.4});
+      /* Walking bass on each beat */
+      for(var b=0;b<4;b++){
+        events.push({time:(base+b)+'n',bass:c.root-12,dur:'4n',vel:0.6});
+      }
+    });
+  } else if(_bt.style==='bossa'){
+    /* Bossa: 3+3+2 pattern over 8 eighth notes */
+    chords.forEach(function(c,ci){
+      var base=ci*8; /* in 8th notes */
+      [0,3,6].forEach(function(t){
+        events.push({time:base+'i8+'+t+'i8',chord:c,dur:'8n.',vel:0.42});
+      });
+      /* Bass on 1 and 3 */
+      events.push({time:ci*beatsPerChord+'n',bass:c.root-12,dur:'4n',vel:0.55});
+      events.push({time:(ci*beatsPerChord+2)+'n',bass:c.root-12+7,dur:'4n',vel:0.5});
+    });
+  } else if(_bt.style==='funk'){
+    /* Funk: short stabs on offbeats */
+    chords.forEach(function(c,ci){
+      var base=ci*beatsPerChord;
+      [0.5,1,2.5,3].forEach(function(t){
+        events.push({time:(base+t)+'n',chord:c,dur:'16n',vel:0.55});
+      });
+      /* Bass: root + fifth pattern */
+      events.push({time:base+'n',bass:c.root-12,dur:'8n',vel:0.7});
+      events.push({time:(base+0.5)+'n',bass:c.root-12,dur:'16n',vel:0.5});
+      events.push({time:(base+2)+'n',bass:c.root-12+7,dur:'8n',vel:0.65});
+    });
+  }
+
+  /* Simple approach: use Tone.Part */
+  var now=Tone.now()+0.1;
+  var secPerBeat=60/bpm;
+
+  function playEvents(){
+    events.forEach(function(e){
+      var t;
+      /* Parse time */
+      if(typeof e.time==='string'&&e.time.indexOf('n')>=0){
+        var beats=parseFloat(e.time);
+        t=now+beats*secPerBeat;
+      } else {
+        t=now+(parseFloat(e.time)||0)*secPerBeat;
+      }
+      var dur=e.dur==='3n'?3*secPerBeat:
+               e.dur==='4n'?secPerBeat:
+               e.dur==='8n'?secPerBeat/2:
+               e.dur==='8n.'?secPerBeat*0.75:
+               e.dur==='16n'?secPerBeat/4:secPerBeat;
+      if(e.chord&&_bt.sampler&&_bt.ready){
+        e.chord.notes.forEach(function(midi,i){
+          var note=_btMidiToNote(midi);
+          try{_bt.sampler.triggerAttackRelease(note,dur,Math.max(t+i*0.01,Tone.now()));}catch(err){}
+        });
+      }
+      if(e.bass&&_bt.bass&&_bt.ready){
+        var note=_btMidiToNote(e.bass);
+        try{_bt.bass.triggerAttackRelease(note,dur,Math.max(t,Tone.now()));}catch(err){}
+      }
+    });
+  }
+
+  playEvents();
+
+  /* Loop */
+  var loopDur=chords.length*beatsPerChord*secPerBeat*1000;
+  function scheduleLoop(){
+    if(!_bt.playing)return;
+    now=Tone.now()+0.05;
+    playEvents();
+    _bt._loopTimer=setTimeout(scheduleLoop,loopDur-100);
+  }
+  _bt._loopTimer=setTimeout(scheduleLoop,loopDur-100);
 }
 
 /* ── INIT ── */
