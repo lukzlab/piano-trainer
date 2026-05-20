@@ -872,7 +872,7 @@ function drawCOF(){
   var svg=document.getElementById('cof');svg.innerHTML='';
   var sc=getSC();var tonic=mod(st.root);var notes=getNotes();
   var pm={};
-  var isProgView=(st.viewMode==='prog');
+  var isProgView=(st.viewMode==='prog')&&!window._songChordHighlight;
   if(isProgView){
     if(customProg.idx>=0){
       customProgs[customProg.idx].sequence.forEach(function(s,i){var k=s.type+'_'+s.semi;if(!pm[k])pm[k]=i+1;});
@@ -896,7 +896,8 @@ function drawCOF(){
       var fill,stroke,sw,tc,fw;
       if(isProgView){
         var seq=pm[ring.type+'_'+semi]||0;
-        if(seq){
+        var isChordHL2=(window._songChordHighlight!==undefined&&semi===window._songChordHighlight);
+        if(seq||isChordHL2){
           fill='var(--tonic)';stroke='var(--tonic)';sw='0';tc='#fff';fw='700';
         } else {
           fill='var(--cof-bg)';stroke='var(--cof-border)';sw='0.6';tc='var(--text2)';fw='400';
@@ -913,7 +914,9 @@ function drawCOF(){
         else if(inA||inB){fill=ring.type==='maj'?'var(--cof-bg)':'var(--bg2)';stroke='var(--border)';sw='0.5';tc='var(--text2)';fw='400';}
         else{fill=ring.type==='maj'?'var(--cof-bg)':'var(--bg2)';stroke='var(--cof-border)';sw='0.5';tc='var(--text3)';fw='300';}
       } else {
-        if(isTonic&&role===ring.type){fill='var(--tonic)';stroke='var(--tonic)';sw='0';tc='#fff';fw='700';}
+        var isChordHL=(window._songChordHighlight!==undefined&&semi===window._songChordHighlight);
+        if(isChordHL){fill='var(--tonic)';stroke='var(--tonic)';sw='0';tc='#fff';fw='700';}
+        else if(isTonic&&role===ring.type){fill='var(--tonic)';stroke='var(--tonic)';sw='0';tc='#fff';fw='700';}
         else if(isInRing&&!isTonic){fill='var(--tonic-bg)';stroke='var(--cof-border)';sw='0.6';tc='var(--tonic)';fw='500';}
         else{fill='var(--cof-bg)';stroke='var(--cof-border)';sw='0.6';tc='var(--text2)';fw='400';}
       }
@@ -2448,6 +2451,9 @@ function closeSongDetail(){
   panel.style.display='none';
   mainPanel.style.display='block';
   _songDetailActive=false;
+  window._songChordHighlight=undefined;
+  window._songDetailData=null;
+  updateAll();
 }
 
 async function fetchSongDetail(title, artist){
@@ -2670,46 +2676,8 @@ function playSongChord(raw){
 }
 
 function drawCOFWithChordHighlight(semi){
-  /* Redraw COF with this semi highlighted as active chord root */
-  var saved=st.root;
-  /* We just redraw - the COF already shows song sections
-     Add a pulsing marker on the chord root segment */
-  var svg=document.getElementById('cof');
-  /* Remove previous chord highlight */
-  var old=svg.getElementById('chord-highlight');
-  if(old)old.parentNode.removeChild(old);
-  /* Find position of this note on the outer ring */
-  var COF_MAJ2=[0,7,2,9,4,11,6,1,8,3,10,5];
-  var idx=COF_MAJ2.indexOf(semi);
-  if(idx<0){
-    /* Try minor ring */
-    var COF_MIN2=[9,4,11,6,1,8,3,10,5,0,7,2];
-    idx=COF_MIN2.indexOf(semi);
-    if(idx<0)return;
-    /* Minor ring position */
-    var angle=idx*30;
-    var R=(95+52)/2;
-    var rad=(angle-90)*Math.PI/180;
-    var x=160+R*Math.cos(rad),y=160+R*Math.sin(rad);
-  } else {
-    var angle=idx*30;
-    var R=(148+96)/2;
-    var rad=(angle-90)*Math.PI/180;
-    var x=160+R*Math.cos(rad),y=160+R*Math.sin(rad);
-  }
-  /* Draw a ring around the note */
-  var g=document.createElementNS('http://www.w3.org/2000/svg','g');
-  g.id='chord-highlight';
-  var circle=document.createElementNS('http://www.w3.org/2000/svg','circle');
-  circle.setAttribute('cx',x);
-  circle.setAttribute('cy',y);
-  circle.setAttribute('r','14');
-  circle.setAttribute('fill','none');
-  circle.setAttribute('stroke','var(--tonic)');
-  circle.setAttribute('stroke-width','2');
-  circle.setAttribute('opacity','0.8');
-  g.appendChild(circle);
-  svg.appendChild(g);
+  window._songChordHighlight=semi;
+  drawCOF();
 }
 
 
@@ -2804,6 +2772,9 @@ window.addEventListener('load',function(){
   updateAll();
 });
 window.addEventListener('resize',function(){buildPiano();paintPiano(null);});
+/* Expose for console debugging */
+window._drawCOF=function(){drawCOF();};
+window._highlightChord=function(semi){window._songChordHighlight=semi;drawCOF();};
 
 </script>
 </body>
