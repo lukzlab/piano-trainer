@@ -872,7 +872,7 @@ function drawCOF(){
   var svg=document.getElementById('cof');svg.innerHTML='';
   var sc=getSC();var tonic=mod(st.root);var notes=getNotes();
   var pm={};
-  var isProgView=(st.viewMode==='prog')&&!window._songChordHighlight;
+  var isProgView=(st.viewMode==='prog');
   if(isProgView){
     if(customProg.idx>=0){
       customProgs[customProg.idx].sequence.forEach(function(s,i){var k=s.type+'_'+s.semi;if(!pm[k])pm[k]=i+1;});
@@ -896,12 +896,16 @@ function drawCOF(){
       var fill,stroke,sw,tc,fw;
       if(isProgView){
         var seq=pm[ring.type+'_'+semi]||0;
-        var isChordHL2=(window._songChordHighlight!==undefined&&semi===window._songChordHighlight);
-        if(seq||isChordHL2){
-          fill='var(--tonic)';stroke='var(--tonic)';sw='0';tc='#fff';fw='700';
-        } else {
-          fill='var(--cof-bg)';stroke='var(--cof-border)';sw='0.6';tc='var(--text2)';fw='400';
-        }
+        var hl2=window._songChordHighlight;
+        var isChordHL2=hl2&&hl2.semi===semi&&((hl2.type==='maj'&&ring.type==='maj')||(hl2.type!=='maj'&&ring.type==='min'));
+        var hasHL2=!!hl2;
+        var isFirstProg=(seq===1);
+        if(isChordHL2){fill='var(--tonic)';stroke='var(--tonic)';sw='0';tc='#fff';fw='700';}
+        else if(isFirstProg&&hasHL2){fill='var(--tonic-bg)';stroke='var(--tonic)';sw='1.5';tc='var(--tonic)';fw='600';}
+        else if(isFirstProg&&!hasHL2){fill='var(--tonic)';stroke='var(--tonic)';sw='0';tc='#fff';fw='700';}
+        else if(seq&&!hasHL2){fill='var(--tonic-bg)';stroke='var(--cof-border)';sw='0.6';tc='var(--tonic)';fw='500';}
+        else if(seq&&hasHL2){fill='var(--tonic-bg)';stroke='var(--cof-border)';sw='0.6';tc='var(--tonic)';fw='500';}
+        else{fill='var(--cof-bg)';stroke='var(--cof-border)';sw='0.6';tc='var(--text2)';fw='400';}
       } else if(buildMode){
         fill='var(--cof-bg)';stroke='var(--cof-border)';sw='0.6';tc='var(--text2)';fw='400';
       } else if(compareScale){
@@ -914,8 +918,13 @@ function drawCOF(){
         else if(inA||inB){fill=ring.type==='maj'?'var(--cof-bg)':'var(--bg2)';stroke='var(--border)';sw='0.5';tc='var(--text2)';fw='400';}
         else{fill=ring.type==='maj'?'var(--cof-bg)':'var(--bg2)';stroke='var(--cof-border)';sw='0.5';tc='var(--text3)';fw='300';}
       } else {
-        var isChordHL=(window._songChordHighlight!==undefined&&semi===window._songChordHighlight);
+        var hl=window._songChordHighlight;
+        var isChordHL=hl&&hl.semi===semi&&(
+          (hl.type==='maj'&&ring.type==='maj')||(hl.type!=='maj'&&ring.type==='min')
+        );
+        var hasHL=!!hl;
         if(isChordHL){fill='var(--tonic)';stroke='var(--tonic)';sw='0';tc='#fff';fw='700';}
+        else if(isTonic&&role===ring.type&&hasHL){fill='var(--tonic-bg)';stroke='var(--tonic)';sw='1.5';tc='var(--tonic)';fw='600';}
         else if(isTonic&&role===ring.type){fill='var(--tonic)';stroke='var(--tonic)';sw='0';tc='#fff';fw='700';}
         else if(isInRing&&!isTonic){fill='var(--tonic-bg)';stroke='var(--cof-border)';sw='0.6';tc='var(--tonic)';fw='500';}
         else{fill='var(--cof-bg)';stroke='var(--cof-border)';sw='0.6';tc='var(--text2)';fw='400';}
@@ -1222,9 +1231,10 @@ function renderScalePanel(header,body){
           var chSet={};midis.forEach(function(m){chSet[m]=true;});paintPiano(chSet);
           var notesStr=midis.map(function(m){return EN[mod(m)];}).join(' - ');
           document.getElementById('piano-sub').textContent=chordNameDeg(idx,'')+' : '+notesStr;
+          window._songChordHighlight={semi:rn,type:sc.ch[idx]};drawCOF();
           if(_autoSound&&!_audioPlaying){var ctx=_getCtx();_playChord(midis,ctx.currentTime+0.05,true);}
         }
-        else{paintPiano(null);document.getElementById('piano-sub').textContent='3 octaves · tonique en rouge';}
+        else{paintPiano(null);document.getElementById('piano-sub').textContent='3 octaves · tonique en rouge';window._songChordHighlight=null;drawCOF();}
         renderMainPanel();
       };})(i,row);
       dg.appendChild(row);
@@ -1280,9 +1290,10 @@ function renderStdProgPanel(header,body,prog){
         var midis=getInvertedMidis(rn,enrichId,baseType,0);
         var chSet={};midis.forEach(function(m){chSet[m]=true;});paintPiano(chSet);
         document.getElementById('piano-sub').textContent=chordNameDeg(degIdx,enrichId)+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');
+        window._songChordHighlight={semi:rn,type:baseType};drawCOF();
         if(_autoSound&&!_audioPlaying){var ctx=_getCtx();_playChord(midis,ctx.currentTime+0.05,true);}
       }
-      else{paintPiano(null);document.getElementById('piano-sub').textContent='3 octaves · tonique en rouge';}
+      else{paintPiano(null);document.getElementById('piano-sub').textContent='3 octaves · tonique en rouge';window._songChordHighlight=null;drawCOF();}
       renderMainPanel();
     };})(i,d,t,row);
     dg.appendChild(row);
@@ -2664,7 +2675,7 @@ function playSongChord(raw){
   paintPiano(chSet);
   document.getElementById('piano-sub').textContent=raw+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');
   /* Highlight chord root on COF - temporarily set as tonic */
-  window._songChordHighlight=c.semi;
+  window._songChordHighlight={semi:c.semi,type:qualToType(c.qual)};
   drawCOFWithChordHighlight(c.semi);
   /* Play sound */
   var ctx=_getCtx();
@@ -2675,8 +2686,8 @@ function playSongChord(raw){
   });
 }
 
-function drawCOFWithChordHighlight(semi){
-  window._songChordHighlight=semi;
+function drawCOFWithChordHighlight(semi,type){
+  window._songChordHighlight={semi:semi,type:type||'maj'};
   drawCOF();
 }
 
