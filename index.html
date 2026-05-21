@@ -105,7 +105,7 @@ body.graphite .logo{font-weight:700;letter-spacing:.04em}
 .import-btn:hover{opacity:.85}
 
 /* PAGE */
-.page{padding:0 1rem;display:flex;flex-direction:column;gap:0;max-width:1100px;margin:0 auto}
+.page{padding:0 1rem;display:flex;flex-direction:column;gap:0;width:100%}
 .card{border-radius:0;padding:.875rem 1rem;border:none;border-bottom:1px solid var(--border);background:transparent}
 .ctrl-label{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:.25rem;font-family:'JetBrains Mono',monospace}
 
@@ -121,9 +121,10 @@ body.light .rbtn.active{background:#1A1814;border-color:#1A1814}
 .mtbtn.active{color:var(--tonic);border-bottom:1px solid var(--tonic);font-weight:500}
 
 /* GRID */
-.main-grid{display:grid;grid-template-columns:1fr 310px;gap:0;align-items:start;border-top:1px solid var(--border)}
-.left-col,.right-col{display:flex;flex-direction:column;gap:0}
-.right-col{border-left:1px solid var(--border)}
+.main-grid{display:grid;grid-template-columns:1fr 260px;gap:0;align-items:stretch;border-top:1px solid var(--border);height:calc(100vh - 36px);overflow:hidden;width:100%}
+.left-col{display:flex;flex-direction:column;gap:0;height:100%;overflow:hidden;min-width:0}
+.right-col{display:flex;flex-direction:column;gap:0}
+.right-col{border-left:1px solid var(--border);height:100%;overflow-y:auto;flex-shrink:0;width:280px}
 .cof-hint{font-size:10px;color:var(--text3);text-align:center;margin-top:.375rem;transition:color .2s}
 .cof-hint.build{color:var(--tonic);font-weight:500}
 
@@ -497,7 +498,7 @@ body.graphite .bt-btn.playing{background:var(--tonic);border-color:var(--tonic)}
 .drawer-active{font-size:9px;color:var(--tonic);font-family:'JetBrains Mono',monospace;font-weight:500}
 .drawer-chevron{font-size:14px;color:var(--text3);transition:transform .2s;display:block}
 .drawer-chevron.open{transform:rotate(180deg)}
-.drawer-panel{display:none;position:fixed;top:0;left:44px;right:320px;background:var(--surface);border-bottom:1px solid var(--border);padding:.5rem 1rem;flex-direction:row;gap:1.5rem;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.1);align-items:flex-start;flex-wrap:wrap}
+.drawer-panel{position:fixed;top:36px;left:160px;right:0;background:var(--surface);border-bottom:1px solid var(--border);padding:.5rem 1.25rem;flex-direction:row;gap:1.25rem;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.1);align-items:flex-start;flex-wrap:wrap;display:none}
 .drawer-panel.open{display:flex}
 .drawer-section{display:flex;flex-direction:column;gap:.25rem;min-width:140px}
 .drawer-section-title{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:8px}
@@ -510,9 +511,9 @@ body.graphite .bt-btn.playing{background:var(--tonic);border-color:var(--tonic)}
 
 /* ── SIDEBAR LAYOUT ── */
 body{margin:0;overflow:hidden}
-.app-shell{display:flex;height:100vh;width:100vw;overflow:hidden}
-.sidebar{width:44px;min-width:44px;background:var(--nav-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:.5rem 0;gap:.125rem;z-index:100;transition:width .2s;overflow:hidden;flex-shrink:0}
-.sidebar.expanded{width:200px;min-width:200px;align-items:flex-start;padding:.5rem 0;overflow-y:auto;overflow-x:hidden}
+.app-shell{display:flex;height:100vh;width:100vw;overflow:hidden;position:fixed;inset:0}
+.sidebar{width:44px;min-width:44px;background:var(--nav-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:.5rem 0;gap:.125rem;z-index:100;transition:width .2s;overflow:hidden;flex-shrink:0;height:100vh}
+.sidebar.expanded{width:160px;min-width:160px;align-items:flex-start;padding:.5rem 0;overflow-y:auto;overflow-x:hidden}
 .sidebar-logo{display:flex;align-items:center;gap:8px;padding:.25rem 8px .625rem;border-bottom:1px solid var(--border);width:100%;box-sizing:border-box;margin-bottom:.25rem;flex-shrink:0;min-height:44px}
 .sidebar-logo-icon{flex-shrink:0}
 .sidebar-logo-text{white-space:nowrap;opacity:0;transition:opacity .15s;overflow:hidden}
@@ -528,38 +529,43 @@ body{margin:0;overflow:hidden}
 .sidebar-tooltip{position:absolute;left:52px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-size:11px;color:var(--text);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .1s;z-index:200;font-family:'Inter Tight',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .sidebar:not(.expanded) .sidebar-item:hover .sidebar-tooltip{opacity:1}
 .sidebar-spacer{flex:1}
-.sidebar-toggle{display:flex;align-items:center;justify-content:center;padding:.5rem 0;cursor:pointer;color:var(--text2);font-size:16px;width:44px;min-width:44px;box-sizing:border-box;border:none;background:transparent;flex-shrink:0}
-.sidebar.expanded .sidebar-toggle{width:100%;border-top:1px solid var(--border);margin-top:.25rem}
+.sidebar-toggle{display:flex;align-items:center;justify-content:center;padding:.625rem 0;cursor:pointer;color:var(--text2);font-size:14px;width:100%;box-sizing:border-box;border:none;background:transparent;flex-shrink:0;border-top:1px solid var(--border);margin-top:.25rem}
 .sidebar-toggle:hover{color:var(--text)}
 .sidebar-divider{width:28px;height:1px;background:var(--border);margin:.25rem auto}
 .sidebar.expanded .sidebar-divider{width:calc(100% - 20px);margin:.25rem 10px}
 /* Main content area */
-.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;height:100vh}
 /* Remove old nav */
 nav{display:none}
 /* Adjust page */
-.page{padding:0;overflow-y:auto;height:calc(100vh - 0px)}
+.page{padding:0;overflow-y:hidden;flex:1;display:flex;flex-direction:column}
 /* Tabs now at top of page */
 .tabs-bar{padding:0 1rem;background:var(--nav-bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
 
 /* ── SIDEBAR SECTIONS ── */
 .sidebar-section{width:100%;box-sizing:border-box}
-.sidebar-section-title{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-family:'JetBrains Mono',monospace;padding:.5rem 10px .25rem;white-space:nowrap;overflow:hidden;display:none}
-.sidebar.expanded .sidebar-section-title{display:block}
-.sidebar-scale-list{display:none;flex-direction:column;gap:0;padding:0 6px}
-.sidebar.expanded .sidebar-scale-list{display:flex}
+.sidebar-section-title{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-family:'JetBrains Mono',monospace;padding:.375rem .75rem .25rem;display:block;border-bottom:1px solid var(--border);margin-bottom:.125rem}
+.sidebar-scale-list{display:flex;flex-direction:column;gap:0;padding:4px 0}
 .sidebar-scale-item{font-size:11px;padding:3px 6px;border-radius:4px;cursor:pointer;color:var(--text3);font-family:'Inter Tight',sans-serif;white-space:nowrap;border:none;background:transparent;text-align:left;transition:all .1s;width:100%}
 .sidebar-scale-item:hover{color:var(--text);background:var(--bg2)}
 .sidebar-scale-item.active{color:var(--tonic);font-weight:500}
-.sidebar-prog-list{display:none;flex-direction:column;gap:0;padding:0 6px;max-height:200px;overflow-y:auto}
-.sidebar.expanded .sidebar-prog-list{display:flex}
+.sidebar-prog-list{display:flex;flex-direction:column;gap:0;padding:4px 0;max-height:40vh;overflow-y:auto}
 .sidebar.expanded .sidebar-prog-actions{display:flex!important}
 .sidebar-prog-cat{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);font-family:'JetBrains Mono',monospace;padding:.375rem 6px .125rem}
 .sidebar-prog-item{font-size:11px;padding:3px 6px;border-radius:4px;cursor:pointer;color:var(--text3);font-family:'JetBrains Mono',monospace;white-space:nowrap;border:none;background:transparent;text-align:left;transition:all .1s;width:100%}
 .sidebar-prog-item:hover{color:var(--text);background:var(--bg2)}
 .sidebar-prog-item.active{color:var(--tonic);font-weight:500}
 /* Audio bar above COF */
-.audio-top-bar{display:flex;align-items:center;gap:6px;padding:.3rem .875rem;border-bottom:1px solid var(--border);background:var(--nav-bg);flex-wrap:nowrap;overflow-x:auto}
+.audio-top-bar{display:flex;align-items:center;gap:6px;padding:.25rem .875rem;border-bottom:1px solid var(--border);background:var(--nav-bg);flex-wrap:nowrap;overflow-x:auto;flex-shrink:0;height:36px;box-sizing:border-box}
+
+/* ── SIDEBAR SUBMENUS ── */
+.sb-expandable{justify-content:space-between}
+.sidebar-arrow{font-size:10px;color:var(--text3);transition:transform .2s;margin-left:auto;flex-shrink:0;opacity:0}
+.sidebar.expanded .sidebar-arrow{opacity:1}
+.sidebar-item.open .sidebar-arrow{transform:rotate(90deg)}
+.sb-submenu{display:none;position:fixed;left:160px;top:auto;background:var(--surface);border:1px solid var(--border);border-radius:0 6px 6px 0;box-shadow:4px 0 16px rgba(0,0,0,.1);z-index:300;min-width:160px;max-height:60vh;overflow-y:auto;flex-direction:column}
+.sb-submenu.open{display:flex}
+.sidebar:not(.expanded) .sb-submenu{left:44px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
 </head>
@@ -568,7 +574,7 @@ nav{display:none}
 <div class="load-bar-wrap" id="load-bar-wrap"><div class="load-bar" id="load-bar"></div></div>
 <div class="app-shell">
   <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
+  <aside class="sidebar expanded" id="sidebar">
     <!-- Logo -->
     <div class="sidebar-logo">
       <div class="sidebar-logo-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -600,53 +606,52 @@ nav{display:none}
       </div>
     </div>
     <!-- Items -->
-    <button class="sidebar-item active" id="sb-explorer" onclick="sbActivate('explorer',this)">
-      <span class="sidebar-icon">&#9685;</span>
-      <span class="sidebar-label">Explorer</span>
-      <span class="sidebar-tooltip">Explorer</span>
+    <!-- Gammes avec sous-menu -->
+    <button class="sidebar-item sb-expandable active" id="sb-scales-btn" onclick="sbToggleSub('scales',this)">
+      <span class="sidebar-icon">&#9676;</span>
+      <span class="sidebar-label">Gammes</span>
+      <span class="sidebar-arrow" id="sb-scales-arrow">&#8250;</span>
     </button>
-    <button class="sidebar-item" id="sb-practice" onclick="sbActivate('practice',this);openPracticeMode()">
+    <div class="sb-submenu" id="sb-scales-sub">
+      <div class="sidebar-section-title">Gammes</div>
+      <div class="sidebar-scale-list" id="sb-scale-list"></div>
+    </div>
+    <!-- Progressions avec sous-menu -->
+    <button class="sidebar-item sb-expandable" id="sb-progs-btn" onclick="sbToggleSub('progs',this)">
+      <span class="sidebar-icon">&#9642;</span>
+      <span class="sidebar-label">Progressions</span>
+      <span class="sidebar-arrow" id="sb-progs-arrow">&#8250;</span>
+    </button>
+    <div class="sb-submenu" id="sb-progs-sub">
+      <div class="sidebar-section-title">Progressions</div>
+      <div class="sidebar-prog-list" id="sb-prog-list"></div>
+      <div style="display:flex;gap:4px;padding:4px 8px">
+        <button onclick="randomProg()" style="font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;flex:1">Aléat.</button>
+        <button onclick="startBuild()" style="font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid var(--tonic);background:transparent;color:var(--tonic);cursor:pointer;flex:1">Créer</button>
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <button class="sidebar-item" id="sb-practice" onclick="openPracticeMode()">
       <span class="sidebar-icon">&#9654;</span>
       <span class="sidebar-label">Practice</span>
-      <span class="sidebar-tooltip">Practice</span>
     </button>
-    <button class="sidebar-item" id="sb-listen" onclick="sbActivate('listen',this);openListenMode()">
+    <button class="sidebar-item" id="sb-listen" onclick="openListenMode()">
       <span class="sidebar-icon">&#9834;</span>
       <span class="sidebar-label">Écouter</span>
-      <span class="sidebar-tooltip">Écouter</span>
     </button>
     <div class="sidebar-divider"></div>
     <button class="sidebar-item" id="sb-import" onclick="openImportModal()">
       <span class="sidebar-icon">&#8659;</span>
       <span class="sidebar-label">Importer</span>
-      <span class="sidebar-tooltip">Importer</span>
     </button>
     <button class="sidebar-item" id="sb-compare" onclick="toggleCompare()">
       <span class="sidebar-icon">&#8853;</span>
       <span class="sidebar-label">Comparer</span>
-      <span class="sidebar-tooltip">Comparer</span>
     </button>
     <button class="sidebar-item" id="sb-fiches" onclick="togglePeda()">
       <span class="sidebar-icon">&#9432;</span>
       <span class="sidebar-label">Fiches</span>
-      <span class="sidebar-tooltip">Fiches</span>
     </button>
-    <div class="sidebar-divider"></div>
-    <!-- Gammes in sidebar -->
-    <div class="sidebar-section" id="sb-scales-section">
-      <div class="sidebar-section-title">Gammes</div>
-      <div class="sidebar-scale-list" id="sb-scale-list"></div>
-    </div>
-    <div class="sidebar-divider"></div>
-    <!-- Progressions in sidebar -->
-    <div class="sidebar-section" id="sb-progs-section">
-      <div class="sidebar-section-title">Progressions</div>
-      <div class="sidebar-prog-list" id="sb-prog-list"></div>
-      <div style="display:none;gap:4px;padding:4px 6px" id="sb-prog-actions" class="sidebar-prog-actions">
-        <button onclick="randomProg()" style="font-size:9px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;flex:1">Aléatoire</button>
-        <button onclick="startBuild()" style="font-size:9px;padding:2px 8px;border-radius:4px;border:1px solid var(--tonic);background:transparent;color:var(--tonic);cursor:pointer;flex:1">Construire</button>
-      </div>
-    </div>
     <div class="sidebar-spacer"></div>
     <button class="sidebar-item" id="sb-theme" onclick="toggleTheme()">
       <span class="sidebar-icon">&#9680;</span>
@@ -654,7 +659,7 @@ nav{display:none}
       <span class="sidebar-tooltip" id="sb-theme-tip">Thème</span>
     </button>
     <!-- Toggle expand -->
-    <button class="sidebar-toggle" onclick="sidebarToggle()" title="Labels" id="sb-toggle-btn">&#8614;</button>
+    <button class="sidebar-toggle" onclick="sidebarToggle()" title="Labels" id="sb-toggle-btn">&#8612;</button>
   </aside>
   <!-- MAIN CONTENT -->
   <div class="main-content">
@@ -779,12 +784,12 @@ nav{display:none}
   </div>
   <div class="main-grid">
     <div class="left-col">
-      <div style="padding:.75rem 1rem;display:flex;flex-direction:column;align-items:center">
+      <div style="padding:.25rem .5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;min-height:0;overflow:hidden">
         <svg id="cof" viewBox="-40 -10 400 340" style="width:100%;max-width:500px;display:block"></svg>
-        <div style="font-size:8px;color:var(--text3);letter-spacing:.08em;margin-top:.25rem;font-family:'Inter Tight',sans-serif">fig. 1 — Cercle des quintes, tonalités majeures et leurs relatifs mineurs</div>
-        <div class="cof-hint" id="cof-hint" style="display:none"></div>
+        
+        
       </div>
-      <div style="padding:.75rem 1rem;border-top:1px solid var(--border)">
+      <div style="padding:.25rem .5rem .125rem;border-top:1px solid var(--border);flex-shrink:0">
         <div class="piano-header">
           <span style="font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-family:'Inter Tight',sans-serif">fig. 2</span>
           <span class="piano-title" id="piano-title" style="font-size:11px;font-family:'Inter Tight',sans-serif;font-weight:400;letter-spacing:.05em">C Majeure sur trois octaves</span>
@@ -1342,8 +1347,8 @@ function buildPiano(){
   var pw=document.getElementById('pw');pw.innerHTML='';
   var whites=[],nw=0;
   for(var m=MIDI_START;m<=MIDI_END;m++)if(!isB(m)){whites.push(m);nw++;}
-  var totalW=pw.parentElement.offsetWidth-14||580;
-  var ww=Math.floor(totalW/nw),wh=84,bw=Math.max(5,Math.floor(ww*.56));
+  var totalW=pw.parentElement.offsetWidth||580;
+  var ww=Math.floor(totalW/nw),wh=Math.min(120,Math.max(70,Math.round(ww*4.5))),bw=Math.max(5,Math.floor(ww*.56));
   if(ww<4)ww=4;pw.style.height=wh+'px';
   for(var i=0;i<whites.length;i++){
     var midi=whites[i],x=i*ww,sm=mod(midi);
@@ -3682,10 +3687,34 @@ function _drawerUpdateLabels(){
 }
 
 /* ── BACKING RYTHMIQUE ── */
-var _rh={playing:false,style:'rock',vol:0.7,timer:null};
+var _rh={playing:false,style:'rock',vol:0.7,timer:null,players:null,ready:false,loading:false};
 
 function rhToggle(){
-  if(_rh.playing){rhStop();}else{rhStart();}
+  if(_rh.playing){rhStop();return;}
+  Tone.start();
+  _rhLoadSamples(function(){rhStart();});
+}
+
+function _rhLoadSamples(cb){
+  if(_rh.ready){cb();return;}
+  if(_rh.loading)return;
+  _rh.loading=true;
+  _loadStart();
+  /* Use Tone.Players with free drum samples from Tone.js CDN */
+  _rh.players=new Tone.Players({
+    kick:'https://tonejs.github.io/audio/berklee/gong_1.mp3',
+    snare:'https://tonejs.github.io/audio/berklee/gong_2.mp3',
+    hihat:'https://tonejs.github.io/audio/berklee/gong_3.mp3',
+    clap:'https://tonejs.github.io/audio/berklee/gong_4.mp3',
+    rim:'https://tonejs.github.io/audio/berklee/gong_5.mp3'
+  },{
+    onload:function(){
+      _rh.ready=true;_rh.loading=false;
+      _loadEnd();
+      cb();
+    }
+  }).toDestination();
+  _rh.players.volume.value=Tone.gainToDb(_rh.vol);
 }
 function rhStop(){
   _rh.playing=false;
@@ -3749,10 +3778,9 @@ function _rhKick(when){
 
 function _rhSchedule(){
   if(!_rh.playing)return;
-  var ctx=_getCtx();
   var bps=_audioBpm/60;
   var beat=1/bps;
-  var now=ctx.currentTime+0.05;
+  var now=Tone.now()+0.05;
   var patterns={
     rock:[
       {t:0,f:'kick'},{t:1,f:'snare'},{t:2,f:'kick'},{t:3,f:'snare'},
@@ -3760,47 +3788,47 @@ function _rhSchedule(){
       {t:2,f:'hihat'},{t:2.5,f:'hihat'},{t:3,f:'hihat'},{t:3.5,f:'hihat'}
     ],
     bossa:[
-      {t:0,f:'kick'},{t:2,f:'kick'},{t:2.5,f:'kick'},
-      {t:0,f:'rim'},{t:1.5,f:'rim'},{t:3,f:'rim'},
-      {t:0.5,f:'hihat'},{t:1,f:'hihat'},{t:1.5,f:'hihat'},{t:2.5,f:'hihat'},{t:3,f:'hihat'},{t:3.5,f:'hihat'}
+      {t:0,f:'kick'},{t:1.5,f:'kick'},{t:2,f:'kick'},{t:3,f:'kick'},
+      {t:1,f:'clap'},{t:3,f:'clap'},
+      {t:0,f:'hihat'},{t:0.75,f:'hihat'},{t:1.5,f:'hihat'},{t:2.25,f:'hihat'},{t:3,f:'hihat'},{t:3.75,f:'hihat'}
     ],
     funk:[
       {t:0,f:'kick'},{t:0.5,f:'kick'},{t:2,f:'kick'},{t:2.75,f:'kick'},
-      {t:1,f:'snare'},{t:3,f:'snare'},{t:3.5,f:'snare'},
+      {t:1,f:'snare'},{t:1.5,f:'clap'},{t:3,f:'snare'},{t:3.5,f:'clap'},
       {t:0,f:'hihat'},{t:0.25,f:'hihat'},{t:0.5,f:'hihat'},{t:0.75,f:'hihat'},
-      {t:1,f:'hihat'},{t:1.25,f:'hihat'},{t:1.5,f:'hihat'},{t:1.75,f:'hihat'},
-      {t:2,f:'hihat'},{t:2.25,f:'hihat'},{t:2.5,f:'hihat'},{t:2.75,f:'hihat'},
-      {t:3,f:'hihat'},{t:3.25,f:'hihat'},{t:3.5,f:'hihat'},{t:3.75,f:'hihat'}
+      {t:1,f:'hihat'},{t:1.5,f:'hihat'},{t:2,f:'hihat'},{t:2.5,f:'hihat'},
+      {t:3,f:'hihat'},{t:3.5,f:'hihat'}
     ],
     shuffle:[
-      {t:0,f:'kick'},{t:2,f:'kick'},
+      {t:0,f:'kick'},{t:1.5,f:'kick'},{t:2,f:'kick'},
       {t:1,f:'snare'},{t:3,f:'snare'},
       {t:0,f:'hihat'},{t:0.67,f:'hihat'},{t:1,f:'hihat'},{t:1.67,f:'hihat'},
       {t:2,f:'hihat'},{t:2.67,f:'hihat'},{t:3,f:'hihat'},{t:3.67,f:'hihat'}
     ],
     brushes:[
-      {t:0,f:'brush'},{t:0.5,f:'brush'},{t:1,f:'brush'},{t:1.5,f:'brush'},
-      {t:2,f:'brush'},{t:2.5,f:'brush'},{t:3,f:'brush'},{t:3.5,f:'brush'},
-      {t:1,f:'rimsoft'},{t:3,f:'rimsoft'}
+      {t:0,f:'rim'},{t:1,f:'rim'},{t:2,f:'rim'},{t:3,f:'rim'},
+      {t:0.5,f:'hihat'},{t:1.5,f:'hihat'},{t:2.5,f:'hihat'},{t:3.5,f:'hihat'},
+      {t:1,f:'clap'},{t:3,f:'clap'}
     ]
   };
   var pat=patterns[_rh.style]||patterns.rock;
   var barDur=4*beat;
   pat.forEach(function(e){
     var t=now+e.t*beat;
-    if(e.f==='kick')_rhKick(t);
-    else if(e.f==='snare')_rhNoise(t,0.12,0.55,1800);
-    else if(e.f==='hihat')_rhNoise(t,0.04,0.3,8000);
-    else if(e.f==='rim')_rhClick(t,800,0.03,0.4);
-    else if(e.f==='brush')_rhNoise(t,0.08,0.18,3000);
-    else if(e.f==='rimsoft')_rhNoise(t,0.06,0.25,1200);
+    if(_rh.players&&_rh.players.has(e.f)){
+      try{_rh.players.player(e.f).start(t);}catch(err){}
+    } else {
+      /* Fallback synth */
+      if(e.f==='kick')_rhKick(t);
+      else _rhNoise(t,0.05,0.3,4000);
+    }
   });
   _rh.timer=setTimeout(_rhSchedule,Math.round(barDur*1000)-50);
 }
 
 
 /* ── SIDEBAR ── */
-var _sidebarExpanded=false;
+var _sidebarExpanded=true;
 
 function sidebarToggle(){
   _sidebarExpanded=!_sidebarExpanded;
@@ -3808,7 +3836,7 @@ function sidebarToggle(){
   sb.classList.toggle('expanded',_sidebarExpanded);
   /* Also update drawer position */
   var dp=document.getElementById('drawer-panel');
-  if(dp)dp.style.left=_sidebarExpanded?'200px':'44px';
+  if(dp)dp.style.left=_sidebarExpanded?'160px':'44px';
   var btn=document.getElementById('sb-toggle-btn');
   if(btn)btn.innerHTML=_sidebarExpanded?'&#8612;':'&#8614;';
   sbBuildScales();sbBuildProgs();
@@ -3901,6 +3929,39 @@ function _syncAudioBtn(){
   if(d)d.textContent=_audioBpm;
 }
 
+
+function sbToggleSub(id, btn){
+  var sub=document.getElementById('sb-'+id+'-sub');
+  if(!sub)return;
+  var isOpen=sub.classList.contains('open');
+  /* Close all submenus */
+  document.querySelectorAll('.sb-submenu').forEach(function(s){s.classList.remove('open');});
+  document.querySelectorAll('.sidebar-item').forEach(function(b){b.classList.remove('open','active');});
+  if(!isOpen){
+    /* Position flyout next to button */
+    if(btn){
+      var rect=btn.getBoundingClientRect();
+      sub.style.top=rect.top+'px';
+      sub.style.left=(_sidebarExpanded?160:44)+'px';
+    }
+    sub.classList.add('open');
+    if(btn)btn.classList.add('open','active');
+    if(id==='scales')sbBuildScales();
+    if(id==='progs')sbBuildProgs();
+    if(id==='progs'&&st.viewMode!=='prog'){st.viewMode='prog';updateAll();}
+    if(id==='scales'&&st.viewMode!=='scale'){st.viewMode='scale';updateAll();}
+  }
+}
+/* Close submenus on outside click */
+document.addEventListener('click',function(e){
+  var inSidebar=e.target.closest('#sidebar');
+  var inSub=e.target.closest('.sb-submenu');
+  if(!inSidebar&&!inSub){
+    document.querySelectorAll('.sb-submenu').forEach(function(s){s.classList.remove('open');});
+    document.querySelectorAll('.sidebar-item').forEach(function(b){b.classList.remove('open');});
+  }
+});
+
 /* ── INIT ── */
 window.addEventListener('load',function(){
   initTheme();
@@ -3912,6 +3973,9 @@ window.addEventListener('load',function(){
   /* Build sidebar lists - CSS hides them until expanded */
   sbBuildScales();
   sbBuildProgs();
+  /* Mark scales as active by default */
+  var scBtn=document.getElementById('sb-scales-btn');
+  if(scBtn)scBtn.classList.add('active');
 });
 window.addEventListener('resize',function(){buildPiano();paintPiano(null);});
 /* Expose for console debugging */
