@@ -577,6 +577,14 @@ nav{display:none}
 .yt-float-body{position:relative;padding-top:56.25%;background:#000}
 .yt-float-body iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
 .yt-float-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-family:'Inter Tight',sans-serif}
+
+/* ── YT STYLE BUTTONS ── */
+.yt-style-group{display:flex;gap:3px;align-items:center}
+.yt-style-btn{font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .1s;line-height:1.4}
+.yt-style-btn:hover{color:var(--text2);border-color:var(--text3)}
+.yt-style-btn.active{color:var(--tonic);border-color:var(--tonic);font-weight:500}
+.yt-launch-btn{font-size:10px;padding:2px 9px;border-radius:4px;border:1px solid var(--tonic);background:transparent;color:var(--tonic);cursor:pointer;font-family:'Inter Tight',sans-serif;font-weight:500;transition:all .1s;display:flex;align-items:center;gap:4px;flex-shrink:0}
+.yt-launch-btn:hover{background:var(--tonic-bg)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
 </head>
@@ -788,8 +796,19 @@ nav{display:none}
       <span class="auto-sound-lbl">auto</span>
     </label>
     <span class="drawer-sep"></span>
-    <button class="bt-btn" id="bt-play-btn" onclick="btToggle()" title="Backing">&#9836;</button>
-    
+    <button class="bt-btn" id="bt-play-btn" onclick="btToggle()" title="Backing harmonique">&#9836;</button>
+    <span class="drawer-sep"></span>
+    <!-- YouTube backing styles -->
+    <span class="drawer-label">Backing</span>
+    <div class="yt-style-group" id="yt-style-group">
+      <button class="yt-style-btn active" onclick="ytSetStyle('pad',this)">Pad</button>
+      <button class="yt-style-btn" onclick="ytSetStyle('jazz',this)">Jazz</button>
+      <button class="yt-style-btn" onclick="ytSetStyle('bossa',this)">Bossa</button>
+      <button class="yt-style-btn" onclick="ytSetStyle('funk',this)">Funk</button>
+      <button class="yt-style-btn" onclick="ytSetStyle('rock',this)">Rock</button>
+      <button class="yt-style-btn" onclick="ytSetStyle('blues',this)">Blues</button>
+    </div>
+    <button class="yt-launch-btn" onclick="openYouTubeBacking()" title="Lancer le backing YouTube">&#9654; YT</button>
     <div style="flex:1"></div>
     <button style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:transparent;color:var(--text3);cursor:pointer;font-family:'Inter Tight',sans-serif" onclick="drawerToggle()">&#9881;</button>
   </div>
@@ -885,12 +904,7 @@ nav{display:none}
               <span class="drawer-label">Vol</span>
               <input class="bt-vol" id="bt-vol" type="range" min="0" max="100" value="60" oninput="btSetVol(this.value)">
             </div>
-            <div class="drawer-row" style="margin-top:.25rem">
-              <button class="bt-style-btn" onclick="openYouTubeBacking()" style="display:flex;align-items:center;gap:4px;color:var(--text2);border-color:var(--border)">
-                <span style="color:#ff0000;font-size:12px">&#9654;</span> YouTube backing
-              </button>
-              <span class="drawer-label" id="yt-backing-style" style="color:var(--text3)"></span>
-            </div>
+
           </div>
 
         </div>
@@ -4074,6 +4088,18 @@ function closeYtFloat(){
   var iframe=document.getElementById('yt-float-iframe');
   if(iframe)iframe.src='';
   if(floatEl)floatEl.classList.remove('open');
+}
+
+
+/* ── YT STYLE SELECTOR ── */
+function ytSetStyle(style, btn){
+  _bt.style=style;
+  document.querySelectorAll('.yt-style-btn').forEach(function(b){b.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  /* Also sync drawer style buttons */
+  document.querySelectorAll('.bt-style-btn').forEach(function(b){
+    b.classList.toggle('active',b.textContent.toLowerCase()===style);
+  });
 }
 
 /* ── INIT ── */
