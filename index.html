@@ -146,7 +146,7 @@ body.light .rbtn.active{background:#1A1814;border-color:#1A1814}
 .pleg-dot{width:10px;height:10px;border-radius:2px;display:inline-block;border:1px solid rgba(0,0,0,.15)}
 
 /* ── AUDIO PLAYER ── */
-.audio-bar{display:flex;align-items:center;gap:8px;padding:.5rem 0;border-top:1px solid var(--border);margin-top:.5rem}
+.audio-bar{display:none}
 .audio-play-btn{width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;background:var(--tonic);color:#fff;transition:all .15s}
 .audio-play-btn:hover{opacity:.85}
 .audio-play-btn.playing{background:var(--accent)}
@@ -466,7 +466,7 @@ body.light .listen-title{}
 .yt-note{font-size:9px;color:var(--text3);margin-top:.375rem;font-family:'Inter Tight',sans-serif}
 
 /* ── BACKING TRACK ── */
-.bt-bar{display:flex;align-items:center;gap:8px;padding:.5rem 0;border-top:1px solid var(--border);flex-wrap:wrap}
+.bt-bar{display:none}
 .bt-btn{width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;background:var(--surface);color:var(--text2);border:1px solid var(--border);transition:all .15s}
 .bt-btn:hover{border-color:var(--accent);color:var(--accent)}
 .bt-btn.playing{background:var(--purple);color:#fff;border-color:var(--purple)}
@@ -485,6 +485,29 @@ body.graphite .bt-btn.playing{background:var(--tonic);border-color:var(--tonic)}
 /* Inline mini loader for bt-status and import */
 .load-dots::after{content:'...';animation:dots 1s steps(3,end) infinite}
 @keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
+
+/* ── DRAWER ── */
+.drawer-bar{display:flex;align-items:center;justify-content:space-between;padding:.375rem .875rem;border-top:1px solid var(--border);cursor:pointer;user-select:none;transition:background .15s;margin-top:.5rem}
+.drawer-bar:hover{background:var(--bg2)}
+.drawer-bar-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.drawer-bar-right{display:flex;align-items:center}
+.drawer-bpm{font-size:12px;font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace}
+.drawer-bpm-unit{font-size:8px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.drawer-sep{width:1px;height:14px;background:var(--border);flex-shrink:0}
+.drawer-mode{font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.drawer-active{font-size:9px;color:var(--tonic);font-family:'JetBrains Mono',monospace;font-weight:500}
+.drawer-chevron{font-size:14px;color:var(--text3);transition:transform .2s;display:block}
+.drawer-chevron.open{transform:rotate(180deg)}
+.drawer-panel{display:none;border-top:1px solid var(--border);padding:.75rem .875rem;display:none;flex-direction:column;gap:.625rem}
+.drawer-panel.open{display:flex}
+.drawer-section{display:flex;flex-direction:column;gap:.375rem}
+.drawer-section-title{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:8px}
+.drawer-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.drawer-label{font-size:8px;color:var(--text3);font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.drawer-select{font-size:9px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'JetBrains Mono',monospace;cursor:pointer}
+/* Rhythm style buttons */
+.rh-style-btn{font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .1s}
+.rh-style-btn.active{background:var(--accent-bg);color:var(--accent);border-color:var(--accent2);font-weight:500}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
 </head>
@@ -662,43 +685,97 @@ body.graphite .bt-btn.playing{background:var(--tonic);border-color:var(--tonic)}
           <span class="pleg"><span class="pleg-dot" style="background:var(--tonic)"></span>Tonique / Accord actif</span>
           <span class="pleg"><span class="pleg-dot" style="background:var(--tonic-light)"></span>Notes de la gamme</span>
         </div>
-        <!-- ── AUDIO BAR ── -->
-        <div class="audio-bar" id="audio-bar">
-          <button class="audio-play-btn" id="audio-play-btn" onclick="audioToggle()" title="Jouer">&#9654;</button>
-          <span class="audio-label" id="audio-mode-label">Gamme</span>
-          <input class="audio-tempo" id="audio-tempo" type="range" min="60" max="180" value="120" oninput="audioUpdateBpm(this.value)">
-          <span class="audio-bpm" id="audio-bpm-label">120</span>
-          <span class="audio-label">BPM</span>
-          <label class="auto-sound-tog" id="auto-sound-tog" onclick="toggleAutoSound()" title="Auto-son">
-            <span class="auto-sound-slider"></span>
-            <span class="auto-sound-lbl">auto</span>
-          </label>
-          <span style="width:1px;height:16px;background:var(--border);flex-shrink:0"></span>
-          <button class="metro-btn" id="metro-btn" onclick="metroToggle()" title="Métronome">&#9711;</button>
-          <div class="metro-sig" id="metro-sig">
-            <button class="metro-sig-btn" onclick="metroSetSig(2,this)">2/4</button>
-            <button class="metro-sig-btn active" onclick="metroSetSig(4,this)">4/4</button>
-            <button class="metro-sig-btn" onclick="metroSetSig(3,this)">3/4</button>
+        <!-- ── DRAWER BAR ── -->
+        <!-- Compact always-visible bar -->
+        <div class="drawer-bar" id="drawer-bar" onclick="drawerToggle()">
+          <div class="drawer-bar-left">
+            <button class="audio-play-btn" id="audio-play-btn" onclick="event.stopPropagation();audioToggle()" title="Jouer">&#9654;</button>
+            <span class="drawer-bpm" id="drawer-bpm-label">120</span>
+            <span class="drawer-bpm-unit">BPM</span>
+            <span class="drawer-sep"></span>
+            <span class="drawer-mode" id="drawer-mode-label">Gamme</span>
+            <span class="drawer-active" id="drawer-bt-label"></span>
+            <span class="drawer-active" id="drawer-rh-label"></span>
           </div>
-        <!-- ── BACKING TRACK ── -->
-        <div class="bt-bar" id="bt-bar">
-          <button class="bt-btn" id="bt-play-btn" onclick="btToggle()" title="Backing Track">&#9836;</button>
-          <span class="bt-label">backing</span>
-          <button class="bt-style-btn active" onclick="btSetStyle('pad',this)">Pad</button>
-          <button class="bt-style-btn" onclick="btSetStyle('jazz',this)">Jazz</button>
-          <button class="bt-style-btn" onclick="btSetStyle('bossa',this)">Bossa</button>
-          <button class="bt-style-btn" onclick="btSetStyle('funk',this)">Funk</button>
-          <input class="bt-vol" id="bt-vol" type="range" min="0" max="100" value="60" oninput="btSetVol(this.value)" title="Volume">
-          <span class="bt-status" id="bt-status">prêt</span>
+          <div class="drawer-bar-right">
+            <span class="drawer-chevron" id="drawer-chevron">&#8964;</span>
+          </div>
         </div>
-          <input class="audio-tempo" id="metro-vol" type="range" min="1" max="10" value="5" oninput="metroSetVol(this.value)" title="Volume métronome" style="width:50px">
-          <select id="metro-sound" onchange="metroSetSound(this.value)" style="font-size:9px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'JetBrains Mono',monospace;cursor:pointer">
-            <option value="triangle">Triangle</option>
-            <option value="woodblock">Woodblock</option>
-            <option value="noise">Click</option>
-            <option value="bell">Cloche</option>
-            <option value="perc">Percussion</option>
-          </select>
+        <!-- Drawer panel -->
+        <div class="drawer-panel" id="drawer-panel">
+          <!-- Section: Lecture -->
+          <div class="drawer-section">
+            <div class="drawer-section-title">Lecture</div>
+            <div class="drawer-row">
+              <span class="drawer-label">Tempo</span>
+              <input class="audio-tempo" id="audio-tempo" type="range" min="60" max="180" value="120" oninput="audioUpdateBpm(this.value)">
+              <span class="audio-bpm" id="audio-bpm-label">120</span>
+              <span class="drawer-label">BPM</span>
+            </div>
+            <div class="drawer-row">
+              <span class="drawer-label">Mesure</span>
+              <div class="metro-sig" id="metro-sig">
+                <button class="metro-sig-btn" onclick="metroSetSig(2,this)">2/4</button>
+                <button class="metro-sig-btn active" onclick="metroSetSig(4,this)">4/4</button>
+                <button class="metro-sig-btn" onclick="metroSetSig(3,this)">3/4</button>
+              </div>
+              <label class="auto-sound-tog" id="auto-sound-tog" onclick="toggleAutoSound()" title="Auto-son">
+                <span class="auto-sound-slider"></span>
+                <span class="auto-sound-lbl">auto</span>
+              </label>
+            </div>
+          </div>
+          <!-- Section: Métronome -->
+          <div class="drawer-section">
+            <div class="drawer-section-title">
+              Métronome
+              <button class="metro-btn" id="metro-btn" onclick="metroToggle()" title="Métronome">&#9711;</button>
+            </div>
+            <div class="drawer-row">
+              <span class="drawer-label">Timbre</span>
+              <select id="metro-sound" onchange="metroSetSound(this.value)" class="drawer-select">
+                <option value="triangle">Triangle</option>
+                <option value="woodblock">Woodblock</option>
+                <option value="noise">Click</option>
+                <option value="bell">Cloche</option>
+                <option value="perc">Percussion</option>
+              </select>
+              <span class="drawer-label">Vol</span>
+              <input class="bt-vol" id="metro-vol" type="range" min="1" max="10" value="5" oninput="metroSetVol(this.value)">
+            </div>
+          </div>
+          <!-- Section: Backing harmonique -->
+          <div class="drawer-section">
+            <div class="drawer-section-title">
+              Backing harmonique
+              <button class="bt-btn" id="bt-play-btn" onclick="btToggle()" title="Backing Track">&#9836;</button>
+              <span class="bt-status" id="bt-status"></span>
+            </div>
+            <div class="drawer-row">
+              <button class="bt-style-btn active" onclick="btSetStyle('pad',this)">Pad</button>
+              <button class="bt-style-btn" onclick="btSetStyle('jazz',this)">Jazz</button>
+              <button class="bt-style-btn" onclick="btSetStyle('bossa',this)">Bossa</button>
+              <button class="bt-style-btn" onclick="btSetStyle('funk',this)">Funk</button>
+              <span class="drawer-label">Vol</span>
+              <input class="bt-vol" id="bt-vol" type="range" min="0" max="100" value="60" oninput="btSetVol(this.value)">
+            </div>
+          </div>
+          <!-- Section: Backing rythmique -->
+          <div class="drawer-section">
+            <div class="drawer-section-title">
+              Backing rythmique
+              <button class="bt-btn" id="rh-play-btn" onclick="rhToggle()" title="Rythme">&#9620;</button>
+            </div>
+            <div class="drawer-row">
+              <button class="rh-style-btn active" onclick="rhSetStyle('rock',this)">Rock</button>
+              <button class="rh-style-btn" onclick="rhSetStyle('bossa',this)">Bossa</button>
+              <button class="rh-style-btn" onclick="rhSetStyle('funk',this)">Funk</button>
+              <button class="rh-style-btn" onclick="rhSetStyle('shuffle',this)">Shuffle</button>
+              <button class="rh-style-btn" onclick="rhSetStyle('brushes',this)">Brushes</button>
+              <span class="drawer-label">Vol</span>
+              <input class="bt-vol" id="rh-vol" type="range" min="0" max="100" value="70" oninput="rhSetVol(this.value)">
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2025,6 +2102,7 @@ function audioStop(){
 function audioUpdateBpm(val){
   _audioBpm=parseInt(val);
   document.getElementById('audio-bpm-label').textContent=val;
+  var dl=document.getElementById('drawer-bpm-label');if(dl)dl.textContent=val;
   if(_metroPlaying){metroStop();metroToggle();}
 }
 
@@ -3257,6 +3335,7 @@ function btStart(){
   var btn=document.getElementById('bt-play-btn');
   btn.innerHTML='&#9646;&#9646;';btn.classList.add('playing');
   document.getElementById('bt-status').textContent=_bt.style;
+  _drawerUpdateLabels();
   _btSchedule();
 }
 
@@ -3266,7 +3345,8 @@ function btStop(){
   Tone.Transport.cancel();
   var btn=document.getElementById('bt-play-btn');
   btn.innerHTML='&#9836;';btn.classList.remove('playing');
-  document.getElementById('bt-status').textContent='prêt';
+  document.getElementById('bt-status').textContent='';
+  _drawerUpdateLabels();
 }
 
 function btSetStyle(style,btn){
@@ -3458,6 +3538,144 @@ function _loadError(){
   var bar=document.getElementById('load-bar');
   if(bar){bar.style.background='#e05050';bar.style.width='100%';}
   setTimeout(_loadEnd,600);
+}
+
+
+/* ── DRAWER ── */
+var _drawerOpen=false;
+function drawerToggle(){
+  _drawerOpen=!_drawerOpen;
+  document.getElementById('drawer-panel').classList.toggle('open',_drawerOpen);
+  var ch=document.getElementById('drawer-chevron');
+  if(ch)ch.classList.toggle('open',_drawerOpen);
+}
+
+function _drawerUpdateLabels(){
+  var bpmEl=document.getElementById('drawer-bpm-label');
+  if(bpmEl)bpmEl.textContent=_audioBpm;
+  var modeEl=document.getElementById('drawer-mode-label');
+  if(modeEl)modeEl.textContent=document.getElementById('audio-mode-label')?document.getElementById('audio-mode-label').textContent:'';
+  var btEl=document.getElementById('drawer-bt-label');
+  if(btEl)btEl.textContent=_bt.playing?'♬ '+_bt.style:'';
+  var rhEl=document.getElementById('drawer-rh-label');
+  if(rhEl)rhEl.textContent=_rh.playing?'⚡ '+_rh.style:'';
+}
+
+/* ── BACKING RYTHMIQUE ── */
+var _rh={playing:false,style:'rock',vol:0.7,timer:null};
+
+function rhToggle(){
+  if(_rh.playing){rhStop();}else{rhStart();}
+}
+function rhStop(){
+  _rh.playing=false;
+  if(_rh.timer)clearTimeout(_rh.timer);
+  var btn=document.getElementById('rh-play-btn');
+  if(btn){btn.innerHTML='&#9620;';btn.classList.remove('playing');}
+  _drawerUpdateLabels();
+}
+function rhStart(){
+  _rh.playing=true;
+  var btn=document.getElementById('rh-play-btn');
+  if(btn){btn.innerHTML='&#9646;&#9646;';btn.classList.add('playing');}
+  _rhSchedule();
+  _drawerUpdateLabels();
+}
+function rhSetStyle(style,btn){
+  _rh.style=style;
+  document.querySelectorAll('.rh-style-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  if(_rh.playing){rhStop();rhStart();}
+  _drawerUpdateLabels();
+}
+function rhSetVol(val){_rh.vol=parseInt(val)/100;}
+
+function _rhClick(when,freq,dur,vol){
+  var ctx=_getCtx();
+  var type=freq>400?'square':'triangle';
+  var osc=ctx.createOscillator();osc.type=type;osc.frequency.value=freq;
+  var gain=ctx.createGain();
+  gain.gain.setValueAtTime(0,when);
+  gain.gain.linearRampToValueAtTime(vol*_rh.vol,when+0.002);
+  gain.gain.exponentialRampToValueAtTime(0.001,when+dur);
+  osc.connect(gain);gain.connect(ctx.destination);
+  osc.start(when);osc.stop(when+dur+0.01);
+}
+
+function _rhNoise(when,dur,vol,freq){
+  var ctx=_getCtx();
+  var buf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*dur),ctx.sampleRate);
+  var d=buf.getChannelData(0);
+  for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+  var src2=ctx.createBufferSource();src2.buffer=buf;
+  var filter=ctx.createBiquadFilter();filter.type='bandpass';filter.frequency.value=freq||2000;filter.Q.value=0.5;
+  var gain=ctx.createGain();gain.gain.setValueAtTime(vol*_rh.vol,when);gain.gain.exponentialRampToValueAtTime(0.001,when+dur);
+  src2.connect(filter);filter.connect(gain);gain.connect(ctx.destination);
+  src2.start(when);src2.stop(when+dur+0.01);
+}
+
+function _rhKick(when){
+  var ctx=_getCtx();
+  var osc=ctx.createOscillator();osc.type='sine';
+  osc.frequency.setValueAtTime(160,when);
+  osc.frequency.exponentialRampToValueAtTime(40,when+0.08);
+  var gain=ctx.createGain();
+  gain.gain.setValueAtTime(0,when);
+  gain.gain.linearRampToValueAtTime(0.9*_rh.vol,when+0.003);
+  gain.gain.exponentialRampToValueAtTime(0.001,when+0.15);
+  osc.connect(gain);gain.connect(ctx.destination);
+  osc.start(when);osc.stop(when+0.2);
+}
+
+function _rhSchedule(){
+  if(!_rh.playing)return;
+  var ctx=_getCtx();
+  var bps=_audioBpm/60;
+  var beat=1/bps;
+  var now=ctx.currentTime+0.05;
+  var patterns={
+    rock:[
+      {t:0,f:'kick'},{t:1,f:'snare'},{t:2,f:'kick'},{t:3,f:'snare'},
+      {t:0,f:'hihat'},{t:0.5,f:'hihat'},{t:1,f:'hihat'},{t:1.5,f:'hihat'},
+      {t:2,f:'hihat'},{t:2.5,f:'hihat'},{t:3,f:'hihat'},{t:3.5,f:'hihat'}
+    ],
+    bossa:[
+      {t:0,f:'kick'},{t:2,f:'kick'},{t:2.5,f:'kick'},
+      {t:0,f:'rim'},{t:1.5,f:'rim'},{t:3,f:'rim'},
+      {t:0.5,f:'hihat'},{t:1,f:'hihat'},{t:1.5,f:'hihat'},{t:2.5,f:'hihat'},{t:3,f:'hihat'},{t:3.5,f:'hihat'}
+    ],
+    funk:[
+      {t:0,f:'kick'},{t:0.5,f:'kick'},{t:2,f:'kick'},{t:2.75,f:'kick'},
+      {t:1,f:'snare'},{t:3,f:'snare'},{t:3.5,f:'snare'},
+      {t:0,f:'hihat'},{t:0.25,f:'hihat'},{t:0.5,f:'hihat'},{t:0.75,f:'hihat'},
+      {t:1,f:'hihat'},{t:1.25,f:'hihat'},{t:1.5,f:'hihat'},{t:1.75,f:'hihat'},
+      {t:2,f:'hihat'},{t:2.25,f:'hihat'},{t:2.5,f:'hihat'},{t:2.75,f:'hihat'},
+      {t:3,f:'hihat'},{t:3.25,f:'hihat'},{t:3.5,f:'hihat'},{t:3.75,f:'hihat'}
+    ],
+    shuffle:[
+      {t:0,f:'kick'},{t:2,f:'kick'},
+      {t:1,f:'snare'},{t:3,f:'snare'},
+      {t:0,f:'hihat'},{t:0.67,f:'hihat'},{t:1,f:'hihat'},{t:1.67,f:'hihat'},
+      {t:2,f:'hihat'},{t:2.67,f:'hihat'},{t:3,f:'hihat'},{t:3.67,f:'hihat'}
+    ],
+    brushes:[
+      {t:0,f:'brush'},{t:0.5,f:'brush'},{t:1,f:'brush'},{t:1.5,f:'brush'},
+      {t:2,f:'brush'},{t:2.5,f:'brush'},{t:3,f:'brush'},{t:3.5,f:'brush'},
+      {t:1,f:'rimsoft'},{t:3,f:'rimsoft'}
+    ]
+  };
+  var pat=patterns[_rh.style]||patterns.rock;
+  var barDur=4*beat;
+  pat.forEach(function(e){
+    var t=now+e.t*beat;
+    if(e.f==='kick')_rhKick(t);
+    else if(e.f==='snare')_rhNoise(t,0.12,0.55,1800);
+    else if(e.f==='hihat')_rhNoise(t,0.04,0.3,8000);
+    else if(e.f==='rim')_rhClick(t,800,0.03,0.4);
+    else if(e.f==='brush')_rhNoise(t,0.08,0.18,3000);
+    else if(e.f==='rimsoft')_rhNoise(t,0.06,0.25,1200);
+  });
+  _rh.timer=setTimeout(_rhSchedule,Math.round(barDur*1000)-50);
 }
 
 /* ── INIT ── */
