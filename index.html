@@ -3470,11 +3470,14 @@ function btStart(){
 
 function btStop(){
   _bt.playing=false;
-  Tone.Transport.stop();
-  Tone.Transport.cancel();
+  if(_bt._loopTimer){clearTimeout(_bt._loopTimer);_bt._loopTimer=null;}
+  /* Stop all Tone nodes */
+  if(_bt.sampler){try{_bt.sampler.releaseAll();}catch(e){}}
+  if(_bt.bass){try{_bt.bass.releaseAll();}catch(e){}}
   var btn=document.getElementById('bt-play-btn');
-  btn.innerHTML='&#9836;';btn.classList.remove('playing');
-  document.getElementById('bt-status').textContent='';
+  if(btn){btn.innerHTML='&#9836;';btn.classList.remove('playing');}
+  var st2=document.getElementById('bt-status');
+  if(st2)st2.textContent='';
   _drawerUpdateLabels();
 }
 
@@ -3715,33 +3718,42 @@ function _rhLoadSamples(cb){
   _rh.loading=true;
   _loadStart();
   /* Use Tone.Players with free drum samples from Tone.js CDN */
-  /* Use salamander piano low notes pitched as drums */
+  /* Free drum samples from nbrosowsky tonejs-instruments */
+  var base='https://cdn.jsdelivr.net/gh/nbrosowsky/tonejs-instruments@master/samples/';
   _rh.players=new Tone.Players({
-    kick:'https://tonejs.github.io/audio/salamander/A1.mp3',
-    snare:'https://tonejs.github.io/audio/salamander/A2.mp3',
-    hihat:'https://tonejs.github.io/audio/salamander/A5.mp3',
-    clap:'https://tonejs.github.io/audio/salamander/A6.mp3',
-    rim:'https://tonejs.github.io/audio/salamander/A2.mp3'
+    kick:base+'bass-electric/A1.mp3',
+    snare:base+'harmonium/A3.mp3',
+    hihat:base+'harmonium/A5.mp3',
+    clap:base+'harmonium/A4.mp3',
+    rim:base+'harmonium/C3.mp3'
   },{
     onload:function(){
       _rh.ready=true;_rh.loading=false;
-      /* Tune samples to sound like drums */
       try{
-        _rh.players.player('kick').playbackRate=0.3;
-        _rh.players.player('snare').playbackRate=1.8;
-        _rh.players.player('hihat').playbackRate=4.0;
-        _rh.players.player('clap').playbackRate=3.0;
-        _rh.players.player('rim').playbackRate=2.5;
+        _rh.players.player('kick').playbackRate=0.4;
+        _rh.players.player('snare').playbackRate=2.5;
+        _rh.players.player('hihat').playbackRate=6.0;
+        _rh.players.player('clap').playbackRate=4.0;
+        _rh.players.player('rim').playbackRate=3.0;
       }catch(e){}
       _loadEnd();
       cb();
+    },
+    onerror:function(){
+      /* Fallback to synth drums */
+      _rh.ready=true;_rh.loading=false;_rh.players=null;
+      _loadEnd();cb();
     }
   }).toDestination();
   _rh.players.volume.value=Tone.gainToDb(_rh.vol);
 }
 function rhStop(){
   _rh.playing=false;
-  if(_rh.timer)clearTimeout(_rh.timer);
+  if(_rh.timer){clearTimeout(_rh.timer);_rh.timer=null;}
+  /* Stop all playing samples instantly */
+  if(_rh.players){
+    try{_rh.players.stopAll();}catch(e){}
+  }
   var btn=document.getElementById('rh-play-btn');
   if(btn){btn.innerHTML='&#9620;';btn.classList.remove('playing');}
   _drawerUpdateLabels();
