@@ -477,11 +477,20 @@ body.graphite .bt-btn.playing{background:var(--tonic);border-color:var(--tonic)}
 .bt-vol::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--accent);cursor:pointer}
 .bt-label{font-size:8px;color:var(--text3);font-family:'JetBrains Mono',monospace;flex-shrink:0}
 .bt-status{font-size:8px;color:var(--text3);font-family:'JetBrains Mono',monospace;flex-shrink:0;min-width:60px}
+
+/* ── LOADING BAR ── */
+.load-bar-wrap{position:fixed;top:0;left:0;right:0;height:2px;z-index:9999;pointer-events:none;opacity:0;transition:opacity .3s}
+.load-bar-wrap.visible{opacity:1}
+.load-bar{height:100%;width:0%;background:var(--tonic);transition:width .3s ease;border-radius:0 1px 1px 0}
+/* Inline mini loader for bt-status and import */
+.load-dots::after{content:'...';animation:dots 1s steps(3,end) infinite}
+@keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
 </head>
 <body class="light">
 
+<div class="load-bar-wrap" id="load-bar-wrap"><div class="load-bar" id="load-bar"></div></div>
 <nav>
   <div style="display:flex;align-items:center;gap:8px">
     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1790,6 +1799,7 @@ async function importSearch(){
   } else {
     prompt='Tu es un expert en théorie musicale. Pour le morceau "'+query+'", donne-moi la structure harmonique complète.\n\nRéponds UNIQUEMENT en JSON valide, sans markdown, sans backticks:\n{\n  "title": "Titre exact",\n  "artist": "Artiste",\n  "key": "C major",\n  "bpm": 120,\n  "sections": [\n    {"name": "Intro", "chords": "C G Am F", "bars": 4, "note": "description"},\n    {"name": "Couplet", "chords": "Am F C G", "bars": 8, "note": "description"},\n    {"name": "Refrain", "chords": "F C G Am", "bars": 8, "note": "description"}\n  ]\n}\n\nInclus toutes les vraies sections: Intro, Couplet, Pre-Refrain, Refrain, Bridge, Solo, Outro. Accords séparés par espaces, notation anglaise.';
   }
+  _loadStart();
   try{
     var response=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt})});
     if(!response.ok)throw new Error('HTTP '+response.status);
@@ -1798,6 +1808,7 @@ async function importSearch(){
     if(data.choices&&data.choices[0]&&data.choices[0].message)text=data.choices[0].message.content;
     else if(data.content&&data.content[0])text=data.content[0].text;
     if(!text)throw new Error('Pas de réponse');
+    _loadEnd();
     var parsed=robustJSONParse(text);
     if(isArtistSearch&&parsed.songs){
       importResults=parsed.songs.map(function(s){
@@ -2592,6 +2603,7 @@ async function fetchSongDetail(title, artist){
     +'\n}'
     +'\n\nInclus toutes les sections réelles du morceau (Intro, Couplet, Pre-Refrain, Refrain, Bridge, Solo, Outro). Les accords dans "chords" séparés par des espaces, notation anglaise.';
 
+  _loadStart();
   try{
     var response=await fetch('/api/claude',{
       method:'POST',
@@ -2604,9 +2616,11 @@ async function fetchSongDetail(title, artist){
     if(data.choices&&data.choices[0]&&data.choices[0].message)text=data.choices[0].message.content;
     else if(data.content&&data.content[0])text=data.content[0].text;
     if(!text)throw new Error('Pas de réponse');
+    _loadEnd();
     var parsed=robustJSONParse(text);
     renderSongDetail(parsed);
   }catch(err){
+    _loadError();
     panel.innerHTML='<button class="song-detail-back" onclick="closeSongDetail()">← Retour</button>'
       +'<div class="song-error">Erreur : '+err.message+'</div>';
   }
@@ -2735,9 +2749,11 @@ function renderSongDetail(data){
   ytBtn.onclick=(function(title,artist,container){
     return function(){
       ytBtn.innerHTML='Recherche...';ytBtn.disabled=true;
+      _loadStart();
       fetch('/api/youtube?q='+encodeURIComponent(title+' '+artist+' official audio'))
         .then(function(r){return r.json();})
         .then(function(d){
+          _loadEnd();
           if(d.error){container.appendChild(Object.assign(document.createElement('div'),{className:'yt-note',textContent:'Introuvable : '+d.error}));return;}
           /* Audio-only embed via youtube-nocookie */
           var iframe=document.createElement('iframe');
@@ -2751,7 +2767,7 @@ function renderSongDetail(data){
           note.textContent=d.title+' · '+d.channel;
           container.appendChild(note);
         })
-        .catch(function(e){ytBtn.innerHTML='&#9654; Charger le morceau';ytBtn.disabled=false;});
+        .catch(function(e){_loadError();ytBtn.innerHTML='&#9654; Charger le morceau';ytBtn.disabled=false;});
     };
   })(data.title||'',data.artist||'',ytSection);
   ytSection.appendChild(ytBtn);
@@ -3191,12 +3207,14 @@ function _btLoadSamplers(cb){
   if(_bt.loading)return;
   _bt.loading=true;
   document.getElementById('bt-status').textContent='chargement...';
+  _loadStart();
 
   var pianoLoaded=false, bassLoaded=false;
   function checkReady(){
     if(pianoLoaded&&bassLoaded){
       _bt.ready=true;_bt.loading=false;
       document.getElementById('bt-status').textContent='prêt';
+      _loadEnd();
       cb();
     }
   }
@@ -3403,6 +3421,43 @@ function _btSchedule(){
     _bt._loopTimer=setTimeout(scheduleLoop,loopDur-100);
   }
   _bt._loopTimer=setTimeout(scheduleLoop,loopDur-100);
+}
+
+
+/* ── LOADING BAR ── */
+var _loadProgress=0;
+var _loadTimer=null;
+
+function _loadStart(){
+  var wrap=document.getElementById('load-bar-wrap');
+  var bar=document.getElementById('load-bar');
+  if(!wrap||!bar)return;
+  _loadProgress=0;
+  wrap.classList.add('visible');
+  bar.style.width='0%';
+  bar.style.transition='width .3s ease';
+  /* Animate to 80% quickly then wait */
+  setTimeout(function(){bar.style.width='30%';},50);
+  setTimeout(function(){bar.style.width='60%';},300);
+  setTimeout(function(){bar.style.width='80%';},700);
+}
+
+function _loadEnd(){
+  var wrap=document.getElementById('load-bar-wrap');
+  var bar=document.getElementById('load-bar');
+  if(!wrap||!bar)return;
+  bar.style.width='100%';
+  setTimeout(function(){
+    wrap.classList.remove('visible');
+    bar.style.transition='none';
+    bar.style.width='0%';
+  },400);
+}
+
+function _loadError(){
+  var bar=document.getElementById('load-bar');
+  if(bar){bar.style.background='#e05050';bar.style.width='100%';}
+  setTimeout(_loadEnd,600);
 }
 
 /* ── INIT ── */
