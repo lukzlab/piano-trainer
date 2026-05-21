@@ -874,6 +874,12 @@ nav{display:none}
               <span class="drawer-label">Vol</span>
               <input class="bt-vol" id="bt-vol" type="range" min="0" max="100" value="60" oninput="btSetVol(this.value)">
             </div>
+            <div class="drawer-row" style="margin-top:.25rem">
+              <button class="bt-style-btn" onclick="openYouTubeBacking()" style="display:flex;align-items:center;gap:4px;color:var(--text2);border-color:var(--border)">
+                <span style="color:#ff0000;font-size:12px">&#9654;</span> YouTube backing
+              </button>
+              <span class="drawer-label" id="yt-backing-style" style="color:var(--text3)"></span>
+            </div>
           </div>
           <!-- Section: Backing rythmique -->
           <div class="drawer-section">
@@ -3996,6 +4002,39 @@ document.addEventListener('click',function(e){
     document.querySelectorAll('.sidebar-item').forEach(function(b){b.classList.remove('open');});
   }
 });
+
+
+/* ── YOUTUBE BACKING TRACK ── */
+var _ytBackingStyles={
+  'pad':'piano',
+  'jazz':'jazz piano trio',
+  'bossa':'bossa nova',
+  'funk':'funk groove'
+};
+
+var _ytGenres={
+  'major':'major',
+  'minor':'minor',
+  'harmonic':'harmonic minor',
+  'melodic':'melodic minor',
+  'dorian':'dorian',
+  'phrygian':'phrygian',
+  'lydian':'lydian',
+  'mixo':'mixolydian',
+  'penta_maj':'major pentatonic',
+  'penta_min':'minor pentatonic',
+  'blues':'blues'
+};
+
+function openYouTubeBacking(){
+  var EN2=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+  var root=EN2[st.root]||'C';
+  var genre=_ytGenres[st.scale]||'major';
+  var style=_ytBackingStyles[_bt.style]||'piano';
+  var bpm=_audioBpm;
+  var q=root+' '+genre+' backing track '+style+' '+bpm+' bpm';
+  window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(q),'_blank');
+}
 
 /* ── INIT ── */
 /* Aliases for sidebar buttons */
