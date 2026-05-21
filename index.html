@@ -789,7 +789,7 @@ nav{display:none}
     </label>
     <span class="drawer-sep"></span>
     <button class="bt-btn" id="bt-play-btn" onclick="btToggle()" title="Backing">&#9836;</button>
-    <button class="bt-btn" id="rh-play-btn" onclick="rhToggle()" title="Rythme">&#9620;</button>
+    
     <div style="flex:1"></div>
     <button style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:transparent;color:var(--text3);cursor:pointer;font-family:'Inter Tight',sans-serif" onclick="drawerToggle()">&#9881;</button>
   </div>
@@ -892,22 +892,7 @@ nav{display:none}
               <span class="drawer-label" id="yt-backing-style" style="color:var(--text3)"></span>
             </div>
           </div>
-          <!-- Section: Backing rythmique -->
-          <div class="drawer-section">
-            <div class="drawer-section-title">
-              Backing rythmique
-              <button class="bt-btn" id="rh-play-btn" onclick="rhToggle()" title="Rythme">&#9620;</button>
-            </div>
-            <div class="drawer-row">
-              <button class="rh-style-btn active" onclick="rhSetStyle('rock',this)">Rock</button>
-              <button class="rh-style-btn" onclick="rhSetStyle('bossa',this)">Bossa</button>
-              <button class="rh-style-btn" onclick="rhSetStyle('funk',this)">Funk</button>
-              <button class="rh-style-btn" onclick="rhSetStyle('shuffle',this)">Shuffle</button>
-              <button class="rh-style-btn" onclick="rhSetStyle('brushes',this)">Brushes</button>
-              <span class="drawer-label">Vol</span>
-              <input class="bt-vol" id="rh-vol" type="range" min="0" max="100" value="70" oninput="rhSetVol(this.value)">
-            </div>
-          </div>
+
         </div>
       </div>
     </div>
@@ -4043,7 +4028,18 @@ function openYouTubeBacking(){
   var genre=_ytGenres[st.scale]||'major';
   var style=_ytBackingStyles[_bt.style]||'piano';
   var bpm=_audioBpm;
-  var q=root+' '+genre+' backing track '+style+' '+bpm+' bpm';
+  /* Vary query to get different results each time */
+  var bpmRange=Math.round(bpm/10)*10; /* Round to nearest 10 */
+  var variants=[
+    root+' '+genre+' backing track '+style+' '+bpmRange+' bpm',
+    root+' '+genre+' jam track '+style,
+    style+' backing track '+root+' '+genre+' '+bpmRange+'bpm',
+    root+' '+genre+' play along '+style+' piano',
+    genre+' backing track '+root+' '+style+' live'
+  ];
+  var q=variants[Math.floor(Math.random()*variants.length)];
+  /* Also randomize result index via pageToken workaround - add random order param */
+  var extra=Math.random()>0.5?'&order=date':'&order=relevance';
   /* Show floating player */
   var floatEl=document.getElementById('yt-float');
   var titleEl=document.getElementById('yt-float-title');
@@ -4055,7 +4051,7 @@ function openYouTubeBacking(){
   if(floatEl)floatEl.classList.add('open');
   _loadStart();
   /* Search via YouTube API proxy */
-  fetch('/api/youtube?q='+encodeURIComponent(q))
+  fetch('/api/youtube?q='+encodeURIComponent(q)+(extra||''))
     .then(function(r){return r.json();})
     .then(function(d){
       _loadEnd();
