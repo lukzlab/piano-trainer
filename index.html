@@ -643,6 +643,284 @@ body.graphite .rp-desc,body.graphite .harmony-card{border-left-color:rgba(245,15
 body.graphite .panel-title{color:#e9e7df}
 
 
+
+/* ── WHEEL TEXT CLASSES ── */
+.wheel-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.20em;fill:rgba(233,231,223,0.40);text-transform:uppercase}
+.wheel-tonality{font-family:'Inter Tight',sans-serif;font-size:22px;font-weight:500;fill:#e9e7df}
+.wheel-roman{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.08em}
+.wheel-major{font-family:'Inter Tight',sans-serif;font-size:18px;font-weight:500}
+.wheel-minor{font-family:'Inter Tight',sans-serif;font-size:13px;font-weight:400}
+.wheel-label-active{fill:#1a160d}
+.wheel-label-dim{fill:rgba(233,231,223,0.70)}
+.wheel-label-ghost{fill:rgba(233,231,223,0.28)}
+.wheel-relative-hi{fill:#f59e0b}
+/* Light theme overrides */
+body.light .wheel-label-dim{fill:rgba(40,20,10,0.70)}
+body.light .wheel-label-ghost{fill:rgba(40,20,10,0.35)}
+body.light .wheel-relative-hi{fill:var(--tonic)}
+body.light .wheel-tonality{fill:var(--text)}
+body.light .wheel-eyebrow{fill:var(--text3)}
+</style>
+
+<div class="load-bar-wrap" id="load-bar-wrap"><div class="load-bar" id="load-bar"></div></div>
+<div class="app-shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar expanded" id="sidebar">
+    <!-- Logo -->
+    <div class="sidebar-logo" onclick="sidebarToggle()" style="cursor:pointer" title="Déplier/replier le menu">
+      <div class="sidebar-logo-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="14" cy="14" r="12" stroke="var(--accent)" stroke-width="1.2" fill="var(--surface)"/>
+          <path d="M14 2 A12 12 0 0 1 20 3.6 L17.5 8 A6 6 0 0 0 14 7 Z" fill="var(--tonic)"/>
+          <path d="M20 3.6 A12 12 0 0 1 24.4 8 L20 10.5 A6 6 0 0 0 17.5 8 Z" fill="var(--accent2)"/>
+          <path d="M24.4 8 A12 12 0 0 1 26 14 L21 14 A6 6 0 0 0 20 10.5 Z" fill="var(--surface2)"/>
+          <path d="M26 14 A12 12 0 0 1 24.4 20 L20 17.5 A6 6 0 0 0 21 14 Z" fill="var(--surface2)"/>
+          <path d="M24.4 20 A12 12 0 0 1 20 24.4 L17.5 20 A6 6 0 0 0 20 17.5 Z" fill="var(--surface2)"/>
+          <path d="M20 24.4 A12 12 0 0 1 14 26 L14 21 A6 6 0 0 0 17.5 20 Z" fill="var(--surface2)"/>
+          <path d="M14 26 A12 12 0 0 1 8 24.4 L10.5 20 A6 6 0 0 0 14 21 Z" fill="var(--surface2)"/>
+          <path d="M8 24.4 A12 12 0 0 1 3.6 20 L8 17.5 A6 6 0 0 0 10.5 20 Z" fill="var(--surface2)"/>
+          <path d="M3.6 20 A12 12 0 0 1 2 14 L7 14 A6 6 0 0 0 8 17.5 Z" fill="var(--surface2)"/>
+          <path d="M2 14 A12 12 0 0 1 3.6 8 L8 10.5 A6 6 0 0 0 7 14 Z" fill="var(--surface2)"/>
+          <path d="M3.6 8 A12 12 0 0 1 8 3.6 L10.5 8 A6 6 0 0 0 8 10.5 Z" fill="var(--surface2)"/>
+          <path d="M8 3.6 A12 12 0 0 1 14 2 L14 7 A6 6 0 0 0 10.5 8 Z" fill="var(--accent2)"/>
+        </svg>
+      </div>
+      <div class="sidebar-logo-text">
+        <div style="font-size:7px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);font-family:'JetBrains Mono',monospace">CAHIER DE</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text);letter-spacing:-.02em;font-family:'Inter Tight',sans-serif">PIANO <span style="color:var(--accent)">LAB</span></div>
+      </div>
+    </div>
+    <!-- Items -->
+    <div class="sb-section-hdr">Explorer</div>
+    <!-- Gammes avec sous-menu -->
+    <button class="sidebar-item sb-expandable active" id="sb-scales-btn" onclick="sbToggleSub('scales',this)">
+      <span class="sidebar-icon">&#9676;</span>
+      <span class="sidebar-label">Gammes</span>
+      <span class="sidebar-arrow" id="sb-scales-arrow">&#8250;</span>
+    </button>
+    <div class="sb-submenu" id="sb-scales-sub">
+      <div class="sidebar-section-title">Gammes</div>
+      <div class="sidebar-scale-list" id="sb-scale-list"></div>
+    </div>
+    <!-- Progressions avec sous-menu -->
+    <button class="sidebar-item sb-expandable" id="sb-progs-btn" onclick="sbToggleSub('progs',this)">
+      <span class="sidebar-icon">&#9642;</span>
+      <span class="sidebar-label">Progressions</span>
+      <span class="sidebar-arrow" id="sb-progs-arrow">&#8250;</span>
+    </button>
+    <div class="sb-submenu" id="sb-progs-sub">
+      <div class="sidebar-section-title">Progressions</div>
+      <div class="sidebar-prog-list" id="sb-prog-list"></div>
+      <div style="display:flex;gap:4px;padding:4px 8px">
+        <button onclick="randomProg()" style="font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;flex:1">Aléat.</button>
+        <button onclick="startBuild()" style="font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid var(--tonic);background:transparent;color:var(--tonic);cursor:pointer;flex:1">Créer</button>
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <button class="sidebar-item" id="sb-practice" onclick="openPracticeMode()">
+      <span class="sidebar-icon">&#9654;</span>
+      <span class="sidebar-label">Practice</span>
+    </button>
+    <button class="sidebar-item" id="sb-listen" onclick="openListenMode()">
+      <span class="sidebar-icon">&#9834;</span>
+      <span class="sidebar-label">Écouter</span>
+    </button>
+    <div class="sidebar-divider"></div>
+    <div class="sb-section-hdr">Entrée</div>
+    <button class="sidebar-item" id="sb-import" onclick="openImportModal()">
+      <span class="sidebar-icon">&#8659;</span>
+      <span class="sidebar-label">Importer</span>
+    </button>
+    <button class="sidebar-item" id="sb-compare" onclick="toggleCompare()">
+      <span class="sidebar-icon">&#8853;</span>
+      <span class="sidebar-label">Comparer</span>
+    </button>
+    <button class="sidebar-item" id="sb-fiches" onclick="togglePeda()">
+      <span class="sidebar-icon">&#9432;</span>
+      <span class="sidebar-label">Fiches</span>
+    </button>
+    <div class="sidebar-spacer"></div>
+    <button class="sidebar-item" id="sb-theme" onclick="toggleTheme()">
+      <span class="sidebar-icon">&#9680;</span>
+      <span class="sidebar-label" id="sb-theme-label">Light</span>
+    </button>
+    <button class="sidebar-toggle" onclick="sidebarToggle()" title="Labels" id="sb-toggle-btn">&#8612;</button>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <!-- Audio top bar -->
+    <div class="audio-top-bar" id="audio-top-bar">
+      <button class="audio-play-btn" id="audio-play-btn" onclick="audioToggle()" title="Jouer">&#9654;</button>
+      <span class="atb-label">BPM</span>
+      <span class="drawer-bpm" id="audio-bpm-label">120</span>
+      <input class="audio-tempo" id="audio-tempo" type="range" min="60" max="180" value="120" oninput="audioUpdateBpm(this.value)">
+      <span class="drawer-sep"></span>
+      <button class="atb-icon-btn" onclick="metroToggle()" id="metro-btn" title="Métronome">&#9711;</button>
+      <input class="audio-tempo" id="metro-vol" type="range" min="1" max="10" value="5" oninput="metroSetVol(this.value)" style="width:50px">
+      <span class="drawer-sep"></span>
+      <span class="atb-label">STYLE</span>
+      <select class="atb-select" id="yt-style-select" onchange="ytSetStyleSelect(this.value)">
+        <option value="pad">Pad</option>
+        <option value="jazz" selected>Jazz</option>
+        <option value="bossa">Bossa</option>
+        <option value="funk">Funk</option>
+        <option value="rock">Rock</option>
+        <option value="blues">Blues</option>
+        <option value="latin">Latin</option>
+        <option value="rnb">R&amp;B</option>
+      </select>
+      <button class="yt-launch-btn" onclick="openYouTubeBacking()">&#9654; YT</button>
+      <div style="flex:1"></div>
+      <button class="bt-btn" id="bt-play-btn" onclick="btToggle()" title="Backing">&#9836;</button>
+      <button style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:transparent;color:var(--text3);cursor:pointer;font-family:'Inter Tight',sans-serif" onclick="drawerToggle()">&#9881;</button>
+    </div>
+
+    <!-- Drawer panel -->
+    <div class="drawer-panel" id="drawer-panel">
+      <button onclick="drawerToggle()" style="position:absolute;top:6px;right:8px;font-size:10px;padding:2px 6px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;border-radius:3px">✕</button>
+      <div class="drawer-section">
+        <div class="drawer-section-title">Lecture</div>
+        <div class="drawer-row">
+          <span class="drawer-label">Tempo</span>
+          <input class="audio-tempo" id="audio-tempo-2" type="range" min="60" max="180" value="120" oninput="audioUpdateBpm(this.value)">
+          <span class="audio-bpm" id="audio-bpm-label-2">120</span>
+        </div>
+        <div class="drawer-row">
+          <span class="drawer-label">Mesure</span>
+          <div class="metro-sig" id="metro-sig">
+            <button class="metro-sig-btn" onclick="metroSetSig(2,this)">2/4</button>
+            <button class="metro-sig-btn active" onclick="metroSetSig(4,this)">4/4</button>
+            <button class="metro-sig-btn" onclick="metroSetSig(3,this)">3/4</button>
+          </div>
+          <label class="auto-sound-tog" id="auto-sound-tog" onclick="toggleAutoSound()" title="Auto-son">
+            <span class="auto-sound-slider"></span>
+            <span class="auto-sound-lbl">auto</span>
+          </label>
+        </div>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-title">Métronome <button class="metro-btn" id="metro-btn-2" onclick="metroToggle()">&#9711;</button></div>
+        <div class="drawer-row">
+          <span class="drawer-label">Timbre</span>
+          <select id="metro-sound" onchange="metroSetSound(this.value)" class="drawer-select">
+            <option value="triangle">Triangle</option>
+            <option value="woodblock">Woodblock</option>
+            <option value="noise">Click</option>
+            <option value="bell">Cloche</option>
+            <option value="perc">Percussion</option>
+          </select>
+          <span class="drawer-label">Vol</span>
+          <input class="bt-vol" id="metro-vol-2" type="range" min="1" max="10" value="5" oninput="metroSetVol(this.value)">
+        </div>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-title">Backing harmonique <button class="bt-btn" id="bt-play-btn-2" onclick="btToggle()">&#9836;</button> <span class="bt-status" id="bt-status"></span></div>
+        <div class="drawer-row">
+          <button class="bt-style-btn active" onclick="btSetStyle('pad',this)">Pad</button>
+          <button class="bt-style-btn" onclick="btSetStyle('jazz',this)">Jazz</button>
+          <button class="bt-style-btn" onclick="btSetStyle('bossa',this)">Bossa</button>
+          <button class="bt-style-btn" onclick="btSetStyle('funk',this)">Funk</button>
+          <span class="drawer-label">Vol</span>
+          <input class="bt-vol" id="bt-vol" type="range" min="0" max="100" value="60" oninput="btSetVol(this.value)">
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden scale/prog tabs for JS compat -->
+    <div style="display:none" id="tabs-bar">
+      <div class="scale-btns" id="scale-btns"></div>
+      <div id="tabcontent-gamme"></div>
+      <div id="tabcontent-prog"></div>
+      <div id="tab-gamme"></div>
+      <div id="tab-prog"></div>
+    </div>
+
+    <div class="main-grid">
+      <div class="left-col">
+        <div style="padding:.25rem;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;min-height:0;overflow:hidden;position:relative">
+          <!-- Nav arrows -->
+          <button class="cof-nav-btn" id="cof-nav-left" onclick="navCOF(-1)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);z-index:10">&#8249;</button>
+          <button class="cof-nav-btn" id="cof-nav-right" onclick="navCOF(1)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:10">&#8250;</button>
+          <svg id="cof" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block;min-height:0"></svg>
+          <!-- Legend -->
+          <div style="display:flex;align-items:center;gap:16px;padding:.25rem 0;flex-wrap:wrap;justify-content:center">
+            <span style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase"><span style="width:7px;height:7px;border-radius:50%;background:var(--tonic);flex-shrink:0;display:inline-block"></span>Tonique I</span>
+            <span style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase"><span style="width:7px;height:7px;border-radius:50%;background:var(--tonic-light);flex-shrink:0;display:inline-block"></span>Degrés IV · V</span>
+            <span style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase"><span style="width:7px;height:7px;border-radius:50%;background:var(--tonic-bg);flex-shrink:0;display:inline-block"></span>Relatifs ii · iii · vi</span>
+            <span style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase"><span style="width:7px;height:7px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);flex-shrink:0;display:inline-block"></span>Hors gamme</span>
+          </div>
+        </div>
+        <!-- Piano -->
+        <div style="padding:.375rem 1.5rem .375rem;border-top:1px solid var(--border);flex-shrink:0">
+          <div class="piano-header" style="margin-bottom:.125rem">
+            <span style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);font-family:'JetBrains Mono',monospace">fig. 2</span>
+            <span id="piano-title" style="font-size:11px;font-weight:500;color:var(--text2);font-family:'Inter Tight',sans-serif;letter-spacing:.02em">C Majeure</span>
+            <span style="font-size:9px;color:var(--text3);font-family:'Inter Tight',sans-serif">3 octaves · tonique en rouge</span>
+          </div>
+          <div class="piano-wrap"><div class="piano88" id="pw"></div></div>
+          <div class="piano-legend" style="margin-top:.125rem;flex-wrap:wrap">
+            <span class="legend-item"><span class="legend-dot" style="background:var(--tonic)"></span><span style="font-size:10px;color:var(--text3)">Tonique / Accord actif</span></span>
+            <span class="legend-item"><span class="legend-dot" style="background:var(--tonic-scale)"></span><span style="font-size:10px;color:var(--text3)">Notes de la gamme</span></span>
+          </div>
+          <div style="font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px" id="piano-sub"></div>
+        </div>
+        <!-- Drawer bar (compact) -->
+        <div class="drawer-bar" id="drawer-bar" onclick="drawerToggle()">
+          <div class="drawer-bar-left">
+            <button class="audio-play-btn" id="audio-play-btn-compact" onclick="event.stopPropagation();audioToggle()">&#9654;</button>
+            <span class="drawer-bpm" id="drawer-bpm-label">120</span>
+            <span class="drawer-bpm-unit">BPM</span>
+          </div>
+          <div class="drawer-bar-right">
+            <span class="drawer-chevron" id="drawer-chevron">&#8964;</span>
+          </div>
+        </div>
+      </div>
+      <div class="right-col" id="main-panel">
+        <div class="panel-header" id="panel-header"></div>
+        <div class="panel-body" id="panel-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PRACTICE MODE ── -->
+<div class="practice-overlay" id="practice-overlay">
+  <button class="practice-close" onclick="closePracticeMode()">✕ Fermer</button>
+  <div class="practice-title" id="practice-title">Practice</div>
+  <div class="practice-section-name" id="practice-section-name"></div>
+  <div class="practice-chord-display">
+    <div class="practice-chord-prev" id="practice-prev"></div>
+    <div class="practice-chord-current" id="practice-current">—</div>
+    <div class="practice-chord-next" id="practice-next"></div>
+  </div>
+  <div class="practice-beat" id="practice-beat"></div>
+  <div class="practice-controls">
+    <div class="practice-bpm-ctrl">
+      <button class="practice-bpm-btn" onclick="practiceChangeBpm(-5)">−</button>
+      <span class="practice-bpm-val" id="practice-bpm-val">120</span>
+      <button class="practice-bpm-btn" onclick="practiceChangeBpm(+5)">+</button>
+      <span class="practice-bpm-label">BPM</span>
+    </div>
+    <button class="practice-play-btn" id="practice-play-btn" onclick="practiceToggle()">&#9654;</button>
+    <div class="practice-bpm-ctrl">
+      <button class="practice-bpm-btn" onclick="practiceChangeSig(-1)">−</button>
+      <span class="practice-bpm-val" id="practice-sig-val">4/4</span>
+      <button class="practice-bpm-btn" onclick="practiceChangeSig(+1)">+</button>
+      <span class="practice-bpm-label">mesure</span>
+    </div>
+  </div>
+  <div class="practice-prog-dots" id="practice-prog-dots"></div>
+</div>
+
+<!-- ── MODE ÉCOUTE ── -->
+<div id="listen-panel" style="display:none"></div>
+<div id="import-modal" style="display:none"></div>
+<div id="song-detail-panel" style="display:none"></div>
+
+
+<script>
 /* ── THÈME DUAL MODE ── */
 function initTheme(){
   var saved=localStorage.getItem('piano_trainer_theme');
@@ -851,135 +1129,151 @@ function drawCOF(){
   var svg=document.getElementById('cof');
   if(!svg)return;
   svg.innerHTML='';
-  /* Responsive */
+  /* Responsive sizing */
   var cont=svg.parentElement;
-  if(cont){
-    var w=cont.clientWidth||500,h=cont.clientHeight||500;
-    var size=Math.min(w,h)-10;if(size<150)size=150;
-    svg.setAttribute('viewBox','0 0 600 600');
-    svg.style.width=size+'px';svg.style.height=size+'px';svg.style.maxWidth='none';
+  var w=cont?cont.clientWidth:500;
+  var h=cont?cont.clientHeight:500;
+  var size=Math.min(w,h);
+  if(size<150)size=150;
+  svg.setAttribute('viewBox','0 0 600 600');
+  svg.setAttribute('width',size);
+  svg.setAttribute('height',size);
+  svg.style.maxWidth='none';
+
+  var sc=getSC();
+  var notes=getNotes(); /* semitones in scale */
+  var tonic=mod(st.root);
+
+  /* Constants matching token spec */
+  var ROUT=280,RMID=200,RINNER=130,RCNTR=90;
+  var CX=300,CY=300;
+
+  /* Colors */
+  var C_TONIC='#f59e0b';
+  var C_LABEL_ON_TONIC='#1a160d';
+  var C_LABEL_WHITE='#e9e7df';
+  var C_LABEL_DIM='rgba(233,231,223,0.55)';
+  var C_LABEL_GHOST='rgba(233,231,223,0.25)';
+  var C_DEGREE='rgba(245,158,11,0.55)';
+  var C_RELATIVE='rgba(245,158,11,0.18)';
+  var C_SURFACE='#171a26';
+  var C_LINE='rgba(255,255,255,0.08)';
+  var C_LINE_STRONG='rgba(255,255,255,0.14)';
+  /* Light theme overrides */
+  if(!document.body.classList.contains('graphite')){
+    C_TONIC='var(--tonic)';
+    C_DEGREE='var(--tonic-bg)';
+    C_RELATIVE='var(--scale-bg)';
+    C_SURFACE='var(--surface2)';
+    C_LINE='var(--border)';
   }
 
-  var sc=getSC();var notes=getNotes();var tonic=mod(st.root);
-  var CX=300,CY=300,ROUT=280,RMID=200,RINNER=130,RCNTR=90;
-
-  var cssV=getComputedStyle(document.documentElement);
-  var C_TONIC=cssV.getPropertyValue('--wheel-tonic').trim()||'#f59e0b';
-  var C_DEGREE=cssV.getPropertyValue('--wheel-degree').trim()||'rgba(245,158,11,0.55)';
-  var C_RELATIVE=cssV.getPropertyValue('--wheel-relative').trim()||'rgba(245,158,11,0.18)';
-  var C_SURFACE=cssV.getPropertyValue('--wheel-surface').trim()||'#171a26';
-  var C_LINE=cssV.getPropertyValue('--wheel-line').trim()||'rgba(255,255,255,0.08)';
-
-  function polar(r,a){var rad=(a-90)*Math.PI/180;return[CX+r*Math.cos(rad),CY+r*Math.sin(rad)];}
-  function arc(rO,rI,a0,a1){
-    var p0o=polar(rO,a0),p1o=polar(rO,a1),p0i=polar(rI,a0),p1i=polar(rI,a1);
-    return 'M '+p0o[0]+' '+p0o[1]+' A '+rO+' '+rO+' 0 0 1 '+p1o[0]+' '+p1o[1]+' L '+p1i[0]+' '+p1i[1]+' A '+rI+' '+rI+' 0 0 0 '+p0i[0]+' '+p0i[1]+' Z';
+  /* Helpers */
+  function polar(r,a){
+    var rad=(a-90)*Math.PI/180;
+    return [CX+r*Math.cos(rad),CY+r*Math.sin(rad)];
   }
-  function ns(tag,attrs){
+  function arcPath(rO,rI,a0,a1){
+    var p0=polar(rO,a0),p1=polar(rO,a1);
+    var p2=polar(rI,a1),p3=polar(rI,a0);
+    return 'M '+p0[0]+' '+p0[1]+' A '+rO+' '+rO+' 0 0 1 '+p1[0]+' '+p1[1]
+      +' L '+p2[0]+' '+p2[1]+' A '+rI+' '+rI+' 0 0 0 '+p3[0]+' '+p3[1]+' Z';
+  }
+  function mk(tag,attrs){
     var el=document.createElementNS('http://www.w3.org/2000/svg',tag);
-    Object.keys(attrs).forEach(function(k){el.setAttribute(k,attrs[k]);});return el;
+    Object.keys(attrs).forEach(function(k){el.setAttribute(k,attrs[k]);});
+    return el;
   }
-  function txt(x,y,t,cls,extra){
-    var el=ns('text',Object.assign({'x':x,'y':y,'text-anchor':'middle'},extra||{}));
-    el.className.baseVal=cls||'';el.textContent=t;return el;
-  }
-
-  /* Build prog map for prog view */
-  var pm={};
-  var isProgView=(st.viewMode==='prog')&&!window._songChordHighlight;
-  if(isProgView){
-    if(customProg.idx>=0){
-      customProgs[customProg.idx].sequence.forEach(function(s,i){var k=s.semi;if(!pm[k])pm[k]=i+1;});
-    } else if(sc.ch){
-      PROGS[stdProg.idx].degs.forEach(function(d,i){
-        if(d<sc.iv.length){var r=mod(st.root+sc.iv[d]);if(!pm[r])pm[r]=i+1;}
-      });
-    }
+  function txt(x,y,label,cls,anchor){
+    var t=mk('text',{x:x,y:y,'text-anchor':anchor||'middle','dominant-baseline':'middle'});
+    t.setAttribute('class',cls||'');
+    t.textContent=label;
+    return t;
   }
 
-  /* Highlight chord */
+  /* COF order: C G D A E B F# Db Ab Eb Bb F */
+  var COF_ORDER=[0,7,2,9,4,11,6,1,8,3,10,5];
+  var COF_MAJ=['C','G','D','A','E','B','F#','Db','Ab','Eb','Bb','F'];
+  var COF_MIN=['Am','Em','Bm','F#m','C#m','G#m','D#m','Bbm','Fm','Cm','Gm','Dm'];
+
+  /* Determine segment role for each position */
+  function getRole(semi){
+    if(semi===tonic)return 'tonic';
+    /* IV = perfect 4th above tonic, V = perfect 5th above tonic */
+    if(semi===mod(tonic+5))return 'degree'; /* IV */
+    if(semi===mod(tonic+7))return 'degree'; /* V  */
+    return 'out';
+  }
+
+  /* Active chord highlight */
   var hl=window._songChordHighlight;
 
-  /* ── MAJ ring ── */
-  COF_MAJ.forEach(function(semi,i){
+  /* Draw outer (major) ring */
+  COF_ORDER.forEach(function(semi,i){
     var a0=i*30-15,a1=i*30+15;
-    var degIdx=notes.indexOf(semi);
-    var inScale=degIdx>=0;
-    var isTon=(semi===tonic);
-    var isHL=hl&&hl.semi===semi;
-    var fill;
-    if(isHL)                         fill=C_TONIC;
-    else if(isTon)                   fill=C_TONIC;
-    else if(isProgView&&pm[semi])    fill=C_DEGREE;
-    else if(inScale&&(degIdx===3||degIdx===4)) fill=C_DEGREE;
-    else if(inScale)                 fill=C_RELATIVE;
-    else                             fill=C_SURFACE;
-    svg.appendChild(ns('path',{d:arc(ROUT,RMID,a0,a1),fill:fill,stroke:C_LINE,'stroke-width':'1'}));
-  });
+    var role=getRole(semi);
+    var fill,labelCls;
+    if(hl&&hl.semi===semi){fill=C_TONIC;labelCls='wheel-label-active';}
+    else if(role==='tonic'){fill=C_TONIC;labelCls='wheel-label-active';}
+    else if(role==='degree'){fill=C_DEGREE;labelCls='wheel-label-dim';}
+    else{fill=C_SURFACE;labelCls='wheel-label-ghost';}
 
-  /* ── MIN ring ── */
-  COF_MIN.forEach(function(semi,i){
-    var a0=i*30-15,a1=i*30+15;
-    var majDegIdx=notes.indexOf(COF_MAJ[i]);
-    var inScale=majDegIdx>=0;
-    var isRelHi=inScale&&(majDegIdx===1||majDegIdx===2||majDegIdx===5);
-    var isHL=hl&&hl.semi===semi&&(hl.type==='min'||hl.type==='dim');
-    var fill=(isHL||isRelHi)?C_RELATIVE:C_SURFACE;
-    svg.appendChild(ns('path',{d:arc(RMID,RINNER,a0,a1),fill:fill,stroke:C_LINE,'stroke-width':'1'}));
-  });
+    var path=mk('path',{d:arcPath(ROUT,RMID,a0,a1),fill:fill,stroke:C_LINE,'stroke-width':'1'});
+    path.style.cursor='pointer';
+    path.onclick=(function(s){return function(){st.root=s;updateAll();drawCOF();};})(semi);
+    svg.appendChild(path);
 
-  /* ── Center circle ── */
-  svg.appendChild(ns('circle',{cx:CX,cy:CY,r:RCNTR,fill:C_SURFACE,stroke:C_LINE}));
-
-  /* ── MAJ labels ── */
-  COF_MAJ.forEach(function(semi,i){
-    var degIdx=notes.indexOf(semi);
-    var inScale=degIdx>=0;
-    var isTon=(semi===tonic);
-    var isHL=hl&&hl.semi===semi;
-    var isActive=isTon||(inScale&&(degIdx===3||degIdx===4))||(isProgView&&pm[semi])||isHL;
-    var labelCls='wheel-major '+(isActive?'wheel-label-active':'wheel-label-ghost');
-    var lp=polar((ROUT+RMID)/2,i*30);
     /* Roman numeral */
-    var rnums=['I','','II','','III','IV','','V','','VI','','VII'];
-    var rn=inScale?rnums[degIdx]:'';
-    if(rn){
-      var rp=polar((ROUT+RMID)/2,i*30);
-      var rnEl=ns('text',{'x':rp[0],'y':rp[1]-18,'text-anchor':'middle'});
-      rnEl.className.baseVal='wheel-roman '+(isActive?'wheel-label-active':'wheel-label-ghost');
-      rnEl.textContent=rn;svg.appendChild(rnEl);
+    var mp=polar((ROUT+RMID)/2,i*30);
+    if(role==='tonic'){svg.appendChild(txt(mp[0],mp[1]-14,'I','wheel-roman '+(role==='tonic'?'wheel-label-active':'wheel-label-ghost')));}
+    else if(role==='degree'){
+      var dIdx=notes.indexOf(semi);
+      var roman=['','II','III','IV','V','VI','VII'];
+      /* IV is index 3, V is index 4 in scale */
+      var rom=dIdx===3?'IV':dIdx===4?'V':'';
+      if(rom)svg.appendChild(txt(mp[0],mp[1]-14,rom,'wheel-roman '+labelCls));
     }
-    var mEl=ns('text',{'x':lp[0],'y':lp[1]+6,'text-anchor':'middle'});
-    mEl.className.baseVal=labelCls;mEl.textContent=COF_MAJ_L[i];svg.appendChild(mEl);
-    /* Prog step number */
-    if(isProgView&&pm[semi]){
-      var bp=polar(ROUT-14,i*30);
-      svg.appendChild(ns('circle',{cx:bp[0],cy:bp[1],r:'11',fill:C_TONIC}));
-      var sn=ns('text',{'x':bp[0],'y':bp[1],'text-anchor':'middle','dominant-baseline':'middle','font-size':'9','font-weight':'700',fill:'#1a160d'});
-      sn.textContent=pm[semi];svg.appendChild(sn);
-    }
+    svg.appendChild(txt(mp[0],mp[1]+6,COF_MAJ[i],'wheel-major '+(role==='tonic'?'wheel-label-active':role==='degree'?'wheel-label-dim':'wheel-label-ghost')));
   });
 
-  /* ── MIN labels ── */
-  COF_MIN.forEach(function(semi,i){
-    var majDegIdx=notes.indexOf(COF_MAJ[i]);
-    var inScale=majDegIdx>=0;
-    var isRelHi=inScale&&(majDegIdx===1||majDegIdx===2||majDegIdx===5);
-    var isHL=hl&&hl.semi===semi&&(hl.type==='min'||hl.type==='dim');
-    var cls='wheel-minor '+((isRelHi||isHL)?'wheel-relative-hi':'wheel-label-ghost');
-    var lp=polar((RMID+RINNER)/2,i*30);
-    var el=ns('text',{'x':lp[0],'y':lp[1]+5,'text-anchor':'middle'});
-    el.className.baseVal=cls;el.textContent=COF_MIN_L[i];svg.appendChild(el);
+  /* Draw inner (minor) ring */
+  /* For each COF position, the relative minor semitone */
+  var MIN_SEMI=[9,4,11,6,1,8,3,10,5,0,7,2];
+  /* Get diatonic minor chord roots from scale */
+  var minorRoots=[];
+  if(sc.ch){sc.ch.forEach(function(t2,i2){if(t2==='min'){minorRoots.push(mod(tonic+sc.iv[i2]));}});}
+
+  COF_ORDER.forEach(function(semi,i){
+    var a0=i*30-15,a1=i*30+15;
+    var minSemi=MIN_SEMI[i];
+    /* A minor segment is highlighted only if its root is a diatonic minor chord */
+    var isDiatonicMinor=minorRoots.indexOf(minSemi)>=0;
+    /* Only highlight the minor tonic if the scale IS minor (tonic chord is minor) */
+    var isMinorTonic=minSemi===tonic&&sc.ch&&sc.ch[0]==='min';
+    var fill,labelCls;
+    if(isMinorTonic){fill=C_TONIC;labelCls='wheel-label-active';}
+    else if(isDiatonicMinor){fill=C_RELATIVE;labelCls='wheel-relative-hi';}
+    else{fill=C_SURFACE;labelCls='wheel-label-ghost';}
+
+    var path=mk('path',{d:arcPath(RMID,RINNER,a0,a1),fill:fill,stroke:C_LINE,'stroke-width':'1'});
+    svg.appendChild(path);
+
+    var mp=polar((RMID+RINNER)/2,i*30);
+    svg.appendChild(txt(mp[0],mp[1]+4,COF_MIN[i],'wheel-minor '+(isDiatonicMinor?'wheel-relative-hi':isMinorTonic?'wheel-label-active':'wheel-label-ghost')));
   });
 
-  /* ── Center text ── */
-  var centerTxt=EN[st.root]+' '+sc.label;
-  var subTxt=isProgView?(customProg.idx>=0?customProgs[customProg.idx].name:PROGS[stdProg.idx].name):'';
-  var ey=ns('text',{'x':CX,'y':CY-8,'text-anchor':'middle'});
-  ey.className.baseVal='wheel-eyebrow';ey.textContent='Tonalité';svg.appendChild(ey);
-  var ct=ns('text',{'x':CX,'y':subTxt?CY+18:CY+24,'text-anchor':'middle'});
-  ct.className.baseVal='wheel-tonality';ct.textContent=centerTxt;svg.appendChild(ct);
-  if(subTxt){var st2=ns('text',{'x':CX,'y':CY+40,'text-anchor':'middle','font-size':'11',fill:'rgba(233,231,223,0.40)','font-family':'JetBrains Mono,monospace'});st2.textContent=subTxt;svg.appendChild(st2);}
+  /* Gap ring */
+  svg.appendChild(mk('circle',{cx:CX,cy:CY,r:RINNER-2,fill:'var(--bg,#0e1018)',stroke:C_LINE,'stroke-width':'1'}));
+
+  /* Center circle */
+  svg.appendChild(mk('circle',{cx:CX,cy:CY,r:RCNTR,fill:C_SURFACE,stroke:C_LINE,'stroke-width':'1'}));
+
+  /* Center text */
+  svg.appendChild(txt(CX,CY-10,'TONALITÉ','wheel-eyebrow'));
+  svg.appendChild(txt(CX,CY+18,EN[tonic]+' '+sc.label,'wheel-tonality'));
+
+  /* Outer border */
+  svg.appendChild(mk('circle',{cx:CX,cy:CY,r:ROUT+1,fill:'none',stroke:C_LINE,'stroke-width':'1'}));
 }
 
 function navigateCircle(dir){
@@ -1121,9 +1415,6 @@ function renderScalePanel(header,body){
     cleg.innerHTML='<span class="cleg"><span class="cleg-dot" style="background:#4A9A4A"></span>Notes communes aux deux gammes</span>';
     body.appendChild(cleg);
   }
-  var nw=document.createElement('div');nw.className='si-notes';
-  notes.forEach(function(n){var s=document.createElement('span');s.className='note-chip '+(n===tonic?'nc-tonic':'nc-note');s.textContent=EN[n];nw.appendChild(s);});
-  body.appendChild(nw);
   var lbl=document.createElement('div');lbl.className='ctrl-label';lbl.style.marginBottom='4px';lbl.textContent='Degres';body.appendChild(lbl);
   var dg=document.createElement('div');dg.className='deg-grid';
   if(sc.ch){
@@ -1517,7 +1808,8 @@ function validateBuild(){
 }
 
 function renderBuildCurrent(){
-  var wrap=document.getElementById('build-current');wrap.innerHTML='';
+  var wrap=document.getElementById('build-current');
+  if(!wrap)return;wrap.innerHTML='';
   if(!bld.currentNote){var h=document.createElement('div');h.style.cssText='font-size:10px;color:#C0BAA8;';h.textContent='Clique sur une note du cercle...';wrap.appendChild(h);return;}
   var n=bld.currentNote;
   var nm=document.createElement('div');nm.className='build-note-name';nm.textContent=enrichLabel(n.semi,bld.currentEnrich||n.type);wrap.appendChild(nm);
@@ -1533,7 +1825,8 @@ function renderBuildCurrent(){
 }
 
 function renderBuildSeq(){
-  var wrap=document.getElementById('build-seq');wrap.innerHTML='';
+  var wrap=document.getElementById('build-seq');
+  if(!wrap)return;wrap.innerHTML='';
   if(bld.sequence.length===0){var e=document.createElement('span');e.className='build-empty';e.textContent='Vide';wrap.appendChild(e);return;}
   bld.sequence.forEach(function(s,i){
     var chip=document.createElement('span');chip.className='build-step';
@@ -1544,7 +1837,8 @@ function renderBuildSeq(){
 
 /* ── PROGRESSIONS LISTE ── */
 function buildProgList(){
-  var qw=document.getElementById('prog-quick');qw.innerHTML='';
+  var qw=document.getElementById('prog-quick');
+  if(!qw)return;qw.innerHTML='';
   /* Vertical list with category labels */
   var cat='';
   PROGS.forEach(function(p,i){
@@ -1713,7 +2007,7 @@ async function importSearch(){
 }
 
 function showImportList(artist,results){
-  var res=document.getElementById('import-result');res.classList.add('visible');res.innerHTML='';
+  var res=document.getElementById('import-result');if(res)res.classList.add('visible');res.innerHTML='';
   var title=document.createElement('div');title.className='mr-song';title.textContent=artist+' — '+results.length+' morceaux trouvés';res.appendChild(title);
   var sub=document.createElement('div');sub.className='mr-key';sub.style.marginBottom='.5rem';sub.textContent="Clique sur un morceau pour l'importer";res.appendChild(sub);
   results.forEach(function(r,i){
@@ -1733,7 +2027,7 @@ function showImportList(artist,results){
 }
 
 function showImportResult(r){
-  var res=document.getElementById('import-result');res.classList.add('visible');res.innerHTML='';
+  var res=document.getElementById('import-result');if(res)res.classList.add('visible');res.innerHTML='';
   var sn=document.createElement('div');sn.className='mr-song';sn.textContent=r.title+(r.artist?' — '+r.artist:'');res.appendChild(sn);
   var sk=document.createElement('div');sk.className='mr-key';sk.textContent='Tonalité : '+r.key;res.appendChild(sk);
   var sc=document.createElement('div');sc.className='mr-chords';
@@ -2023,6 +2317,7 @@ function buildListenChoicesRoots(correct){
   wrong=wrong.sort(function(){return Math.random()-.5;}).slice(0,5);
   var choices=[correct].concat(wrong).sort(function(){return Math.random()-.5;});
   var wrap=document.getElementById('listen-choices');
+  if(!wrap)return;
   wrap.style.gridTemplateColumns='1fr 1fr 1fr';
   wrap.innerHTML='';
   choices.forEach(function(r){
@@ -2038,6 +2333,7 @@ function buildListenChoicesScales(correct){
     {id:'phrygian',l:'Phrygien'},{id:'lydian',l:'Lydien'},{id:'mixo',l:'Mixolydien'}
   ];
   var wrap=document.getElementById('listen-choices');
+  if(!wrap)return;
   wrap.style.gridTemplateColumns='1fr 1fr';
   wrap.innerHTML='';
   options.forEach(function(sc){
@@ -2053,6 +2349,7 @@ function buildListenChoicesProgs(correct){
   wrong=wrong.sort(function(){return Math.random()-.5;}).slice(0,3);
   var choices=[correct].concat(wrong).sort(function(){return Math.random()-.5;});
   var wrap=document.getElementById('listen-choices');
+  if(!wrap)return;
   wrap.style.gridTemplateColumns='1fr 1fr';
   wrap.innerHTML='';
   choices.forEach(function(i){
@@ -3798,6 +4095,17 @@ window._highlightChord=function(semi){window._songChordHighlight=semi;drawCOF();
     <iframe id="yt-float-iframe" allow="autoplay;encrypted-media" allowfullscreen></iframe>
   </div>
 </div>
+
+
+<!-- Hidden containers for JS functions -->
+<div id="prog-quick" style="display:none"></div>
+<div id="build-current" style="display:none"></div>
+<div id="build-seq" style="display:none"></div>
+<div id="import-result" style="display:none"></div>
+<div id="listen-choices" style="display:none"></div>
+<div id="listen-hint" style="display:none"></div>
+<div id="compare-panel" style="display:none"></div>
+<div id="peda-panel" style="display:none"></div>
 
 </body>
 </html>
