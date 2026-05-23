@@ -806,10 +806,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
       <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">☀ Light</button>
       <button style="display:flex;align-items:center;gap:5px;padding:4px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s" onmouseenter="this.style.background='var(--accent)';this.style.color='#fff';this.style.borderColor='var(--accent)'" onmouseleave="this.style.background='var(--surface)';this.style.color='var(--text2)';this.style.borderColor='var(--border2)'" onclick="drawerToggle()"><span style="font-size:14px;line-height:1">&#9881;</span><span style="font-size:10px;font-weight:500;line-height:1">Réglages</span></button>
       <span class="drawer-sep"></span>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;line-height:1">
-        <span id="topbar-clock" style="font-size:12px;font-family:'DM Mono',monospace;color:var(--text2);letter-spacing:.04em"></span>
-        <span id="topbar-update" style="font-size:11px;font-family:'DM Mono',monospace;color:#4caf82;letter-spacing:.02em" title="Dernière mise à jour GitHub"></span>
-      </div>
+      <span id="topbar-update" style="font-size:11px;font-family:'DM Mono',monospace;color:#4caf82;letter-spacing:.02em" title="Dernière mise à jour GitHub"></span>
     </div>
 
     <!-- Drawer panel -->
@@ -4550,15 +4547,6 @@ window.addEventListener('resize',function(){buildPiano();paintPiano(null);setTim
 /* Expose for console debugging */
 window._drawCOF=function(){drawCOF();};
 window._highlightChord=function(semi){window._songChordHighlight=semi;drawCOF();};
-
-/* ── TOPBAR CLOCK ── */
-function _tickClock(){
-  var el=document.getElementById('topbar-clock');
-  if(!el)return;
-  var n=new Date();
-  el.textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0')+':'+n.getSeconds().toString().padStart(2,'0');
-}
-setInterval(_tickClock,1000);_tickClock();
 
 /* ── GITHUB LAST UPDATE ── */
 (async function(){
