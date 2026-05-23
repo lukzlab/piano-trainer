@@ -564,6 +564,8 @@ nav{display:none}
 /* ── YOUTUBE FLOATING PLAYER ── */
 .yt-float{position:fixed;bottom:80px;right:16px;width:280px;background:var(--surface);border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:500;display:none;flex-direction:column;overflow:hidden}
 .yt-float.open{display:flex}
+.practice-overlay.open~* .yt-float,.yt-float.open{right:16px}
+body:has(.practice-overlay.open) .yt-float.open{right:auto;left:16px}
 .yt-float-header{display:flex;align-items:center;justify-content:space-between;padding:.375rem .625rem;border-bottom:1px solid var(--border);cursor:move}
 .yt-float-title{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
 .yt-float-close{font-size:12px;color:var(--text3);border:none;background:transparent;cursor:pointer;padding:0 2px;line-height:1}
@@ -4405,8 +4407,6 @@ function openYouTubeBacking(){
 
 function closeYtFloat(){
   var floatEl=document.getElementById('yt-float');
-  var iframe=document.getElementById('yt-float-iframe');
-  if(iframe)iframe.src='';
   if(floatEl)floatEl.classList.remove('open');
 }
 
