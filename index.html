@@ -805,6 +805,11 @@ body.peda-hidden .cof-arrow-lbl{display:none}
       <span class="drawer-sep"></span>
       <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">☀ Light</button>
       <button style="display:flex;align-items:center;gap:5px;padding:4px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s" onmouseenter="this.style.background='var(--accent)';this.style.color='#fff';this.style.borderColor='var(--accent)'" onmouseleave="this.style.background='var(--surface)';this.style.color='var(--text2)';this.style.borderColor='var(--border2)'" onclick="drawerToggle()"><span style="font-size:14px;line-height:1">&#9881;</span><span style="font-size:10px;font-weight:500;line-height:1">Réglages</span></button>
+      <span class="drawer-sep"></span>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;line-height:1">
+        <span id="topbar-clock" style="font-size:12px;font-family:'DM Mono',monospace;color:var(--text2);letter-spacing:.04em"></span>
+        <span id="topbar-update" style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.02em" title="Dernière mise à jour GitHub"></span>
+      </div>
     </div>
 
     <!-- Drawer panel -->
@@ -4545,6 +4550,30 @@ window.addEventListener('resize',function(){buildPiano();paintPiano(null);setTim
 /* Expose for console debugging */
 window._drawCOF=function(){drawCOF();};
 window._highlightChord=function(semi){window._songChordHighlight=semi;drawCOF();};
+
+/* ── TOPBAR CLOCK ── */
+function _tickClock(){
+  var el=document.getElementById('topbar-clock');
+  if(!el)return;
+  var n=new Date();
+  el.textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0')+':'+n.getSeconds().toString().padStart(2,'0');
+}
+setInterval(_tickClock,1000);_tickClock();
+
+/* ── GITHUB LAST UPDATE ── */
+(async function(){
+  try{
+    var r=await fetch('https://api.github.com/repos/lukzlab/piano-trainer/commits?per_page=1');
+    var data=await r.json();
+    var date=new Date(data[0].commit.author.date);
+    var el=document.getElementById('topbar-update');
+    if(el){
+      var d=date.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+      var t=date.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+      el.textContent='↑ '+d+' '+t;
+    }
+  }catch(e){}
+})();
 
 </script>
   </div>
