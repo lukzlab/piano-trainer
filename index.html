@@ -446,9 +446,15 @@ body.peda-hidden .harmony-note{display:none!important}
 .practice-prog-dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;max-width:400px}
 .practice-prog-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);cursor:pointer;transition:all .1s}
 .practice-prog-dot.active{background:var(--tonic);transform:scale(1.3)}
+body:has(.practice-overlay.open) #atb-left{display:none}
 .yt-alt-btn{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.03em;transition:all .15s;flex-shrink:0}
 .yt-alt-btn:hover{border-color:var(--accent);color:var(--accent)}
 .yt-alt-btn:disabled{opacity:.4;cursor:default;pointer-events:none}
+.practice-seq-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px 2px 5px;border-radius:10px;border:1px solid var(--border);background:var(--surface);font-size:10px;color:var(--text);font-family:'DM Sans',sans-serif;cursor:grab;user-select:none;transition:border-color .1s,background .1s}
+.practice-seq-pill:active{cursor:grabbing}
+.practice-seq-pill.drag-over{border-color:var(--accent);background:var(--tonic-bg)}
+.practice-seq-x{background:none;border:none;color:var(--text3);cursor:pointer;font-size:9px;padding:0 0 0 2px;line-height:1}
+.practice-seq-x:hover{color:var(--accent)}
 .yt-alt-item{display:block;width:100%;text-align:left;padding:5px 8px;margin-bottom:2px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:10px;cursor:pointer;transition:all .15s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3}
 .yt-alt-item:hover{border-color:var(--accent);color:var(--accent);background:var(--tonic-bg)}
 .practice-prog-dot.done{background:var(--tonic-bg)}
@@ -779,14 +785,15 @@ body.peda-hidden .cof-arrow-lbl{display:none}
   <div class="main-content">
     <!-- Audio top bar -->
     <div class="audio-top-bar" id="audio-top-bar">
+      <div id="atb-left" style="display:contents">
       <button class="audio-play-btn" id="audio-play-btn" onclick="audioToggle()" title="Jouer">&#9654;</button>
       <span class="atb-label">BPM</span>
       <span class="drawer-bpm" id="audio-bpm-label">120</span>
       <input class="audio-tempo" id="audio-tempo" type="range" min="60" max="180" value="120" oninput="audioUpdateBpm(this.value)">
       <span class="drawer-sep"></span>
-      <button class="atb-icon-btn" onclick="metroToggle()" id="metro-btn" title="Métronome">&#9711;</button>
+      <button class="atb-icon-btn metro-btn-all" onclick="metroToggle()" id="metro-btn" title="Métronome">&#9711;</button>
       <span class="atb-label">Métronome</span>
-      <input class="audio-tempo" id="metro-vol" type="range" min="1" max="10" value="5" oninput="metroSetVol(this.value)" style="width:50px">
+      <input class="audio-tempo" id="metro-vol" type="range" min="1" max="10" value="5" oninput="metroSetVol(this.value);_syncSlider('practice-metro-vol',this.value)" style="width:50px">
       <span class="drawer-sep"></span>
       <span class="atb-label">STYLE</span>
       <select class="atb-select" id="yt-style-select" onchange="ytSetStyleSelect(this.value)">
@@ -798,8 +805,10 @@ body.peda-hidden .cof-arrow-lbl{display:none}
         <option value="blues">Blues</option>
         <option value="latin">Latin</option>
         <option value="rnb">R&amp;B</option>
+        <option value="drums">Drums</option>
       </select>
       <button class="yt-launch-btn" onclick="openYouTubeBacking()">&#9654; Backing track YT</button>
+      </div>
       <div style="flex:1"></div>
       <label class="auto-sound-tog" onclick="toggleAutoSound()" title="Lecture du son auto">
         <span class="auto-sound-slider"></span>
@@ -975,6 +984,34 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     </div>
   </div>
   <div class="practice-prog-dots" id="practice-prog-dots"></div>
+  <div id="practice-seq-section" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);flex-shrink:0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase">Séquence</span>
+      <button onclick="_practiceResetSeq()" style="font-size:9px;padding:1px 6px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-family:'DM Mono',monospace" title="Réinitialiser">↺ reset</button>
+    </div>
+    <div id="practice-seq-list" style="display:flex;flex-wrap:wrap;gap:4px;min-height:22px"></div>
+  </div>
+  <div id="practice-tools" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:8px">
+      <button id="practice-metro-btn" class="atb-icon-btn metro-btn-all" onclick="metroToggle()" title="Métronome" style="flex-shrink:0">&#9711;</button>
+      <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;flex-shrink:0;letter-spacing:.06em">VOL</span>
+      <input type="range" min="1" max="10" value="5" id="practice-metro-vol" style="flex:1" oninput="metroSetVol(this.value);_syncSlider('metro-vol',this.value)">
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <select class="atb-select" id="practice-yt-style" style="flex:1;min-width:0" onchange="ytSetStyleSelect(this.value)">
+        <option value="pad">Pad</option>
+        <option value="jazz" selected>Jazz</option>
+        <option value="bossa">Bossa</option>
+        <option value="funk">Funk</option>
+        <option value="rock">Rock</option>
+        <option value="blues">Blues</option>
+        <option value="latin">Latin</option>
+        <option value="rnb">R&amp;B</option>
+        <option value="drums">Drums</option>
+      </select>
+      <button class="yt-launch-btn" onclick="openYouTubeBacking()" style="flex-shrink:0;white-space:nowrap">&#9654; Backing track</button>
+    </div>
+  </div>
   <div id="practice-yt-section" style="display:none;margin-top:12px;flex-shrink:0">
     <div style="position:relative;padding-top:56.25%;background:#000;border-radius:6px;overflow:hidden">
       <iframe id="practice-yt-iframe" style="position:absolute;inset:0;width:100%;height:100%;border:none" allow="autoplay" allowfullscreen></iframe>
@@ -2354,6 +2391,22 @@ function updateAll(){
   /* Show prog list panel only in prog mode */
   var panel=document.getElementById('prog-list-panel');
   if(panel)panel.style.display=(st.viewMode==='prog'?'block':'none');
+  _practiceRebuildIfOpen();
+}
+
+function _practiceRebuildIfOpen(){
+  var overlay=document.getElementById('practice-overlay');
+  if(!overlay||!overlay.classList.contains('open'))return;
+  if(_practiceState.source==='song')return;
+  var chords=_buildPracticeChords();
+  if(!chords.length)return;
+  var wasPlaying=_practiceState.playing;
+  if(wasPlaying)practiceStop();
+  _practiceState.chords=chords;
+  _practiceState.allChords=chords.slice();
+  _practiceState.idx=0;_practiceState.beat=0;
+  _practiceRender();_practiceBuildDots();_practiceBuildSeq();
+  if(wasPlaying)practiceStart();
 }
 
 /* ══════════════════════════════════════════════
@@ -2928,17 +2981,17 @@ function metroToggle(){
   _metroPlaying=true;
   _metroBeat=0;
   _metroNext=ctx.currentTime+0.05;
-  var btn=document.getElementById('metro-btn');
-  if(btn){btn.classList.add('active');btn.innerHTML='&#9679;';}
+  document.querySelectorAll('.metro-btn-all').forEach(function(b){b.classList.add('active');b.innerHTML='&#9679;';});
   _metroSchedule();
 }
 
 function metroStop(){
   _metroPlaying=false;
   if(_metroTimer)clearTimeout(_metroTimer);
-  var btn=document.getElementById('metro-btn');
-  if(btn){btn.classList.remove('active');btn.innerHTML='&#9711;';}
+  document.querySelectorAll('.metro-btn-all').forEach(function(b){b.classList.remove('active');b.innerHTML='&#9711;';});
 }
+
+function _syncSlider(id,val){var el=document.getElementById(id);if(el)el.value=val;}
 
 function metroSetSig(sig,btn){
   _metroSig=sig;
@@ -3551,7 +3604,8 @@ function robustJSONParse(text){
    ══════════════════════════════════════════════ */
 var _practiceState={
   playing:false,
-  chords:[],      /* [{label,semi,type,midis}] */
+  chords:[],      /* active sequence (can be reordered/filtered) */
+  allChords:[],   /* original full chord list, used for reset */
   idx:0,
   beat:0,
   sig:4,
@@ -3568,14 +3622,17 @@ function openPracticeMode(){
     return;
   }
   _practiceState.chords=chords;
+  _practiceState.allChords=chords.slice();
   _practiceState.idx=0;
   _practiceState.beat=0;
   _practiceState.bpm=_audioBpm;
   _practiceState.playing=false;
   document.documentElement.style.setProperty('--rp-width',(document.getElementById('main-panel').offsetWidth||280)+'px');
   document.getElementById('practice-overlay').classList.add('open');
+  _syncPracticeTools();
   _practiceRender();
   _practiceBuildDots();
+  _practiceBuildSeq();
   _ytPracticeCmd('playVideo');
 }
 
@@ -3768,8 +3825,11 @@ function openSongPlayback(){
   document.getElementById('practice-title').textContent=window._songDetailData.title;
   document.documentElement.style.setProperty('--rp-width',(document.getElementById('main-panel').offsetWidth||280)+'px');
   document.getElementById('practice-overlay').classList.add('open');
+  _syncPracticeTools();
+  _practiceState.allChords=_practiceState.chords.slice();
   _practiceRender();
   _practiceBuildDots();
+  _practiceBuildSeq();
 }
 
 
@@ -4362,7 +4422,12 @@ var _ytBackingStyles={
   'pad':'piano',
   'jazz':'jazz piano trio',
   'bossa':'bossa nova',
-  'funk':'funk groove'
+  'funk':'funk groove',
+  'rock':'rock guitar',
+  'blues':'blues guitar',
+  'latin':'latin',
+  'rnb':'R&B',
+  'drums':'drum backing track'
 };
 
 var _ytGenres={
@@ -4389,18 +4454,21 @@ function openYouTubeBacking(){
   var bpm=_audioBpm;
   var bpmRange=Math.round(bpm/10)*10;
   var variants=[
-    root+' '+genre+' backing track '+style+' '+bpmRange+' bpm',
+    root+' '+genre+' '+sigLabel+'backing track '+style+' '+bpmRange+' bpm',
     root+' '+genre+' jam track '+style,
-    style+' backing track '+root+' '+genre+' '+bpmRange+'bpm',
+    style+' '+sigLabel+'backing track '+root+' '+genre+' '+bpmRange+'bpm',
     root+' '+genre+' play along '+style+' piano',
-    genre+' backing track '+root+' '+style+' live'
+    genre+' '+sigLabel+'backing track '+root+' '+style+' live'
   ];
+  var sig=_practiceState.sig||4;
+  var sigLabel=sig===3?'3/4 ':sig===6?'6/8 ':sig===2?'2/4 ':'';
   _ytSearchCtx={root:root,genre:genre,style:style,bpm:bpmRange,variants:variants};
   var q=variants[Math.floor(Math.random()*variants.length)];
   var extra=Math.random()>0.5?'&order=date':'&order=relevance';
   /* Open practice overlay */
   document.documentElement.style.setProperty('--rp-width',(document.getElementById('main-panel').offsetWidth||280)+'px');
   document.getElementById('practice-overlay').classList.add('open');
+  _syncPracticeTools();
   /* Show YT section inside practice */
   var ytSection=document.getElementById('practice-yt-section');
   var iframe=document.getElementById('practice-yt-iframe');
@@ -4484,6 +4552,72 @@ function closeYtFloat(){
   if(floatEl)floatEl.classList.remove('open');
 }
 
+function _practiceBuildSeq(){
+  var list=document.getElementById('practice-seq-list');
+  if(!list)return;
+  list.innerHTML='';
+  _practiceState.chords.forEach(function(ch,i){
+    var pill=document.createElement('div');
+    pill.className='practice-seq-pill';
+    pill.draggable=true;
+    pill.dataset.idx=i;
+    var lbl=document.createElement('span');
+    lbl.textContent=ch.label;
+    var x=document.createElement('button');
+    x.className='practice-seq-x';
+    x.innerHTML='✕';
+    x.title='Retirer';
+    x.onclick=function(e){e.stopPropagation();practiceSeqRemove(i);};
+    pill.appendChild(lbl);pill.appendChild(x);
+    pill.addEventListener('dragstart',function(e){
+      e.dataTransfer.setData('text/plain',String(i));
+      pill.style.opacity='.4';
+    });
+    pill.addEventListener('dragend',function(){pill.style.opacity='';});
+    pill.addEventListener('dragover',function(e){e.preventDefault();pill.classList.add('drag-over');});
+    pill.addEventListener('dragleave',function(){pill.classList.remove('drag-over');});
+    pill.addEventListener('drop',function(e){
+      e.preventDefault();pill.classList.remove('drag-over');
+      var from=parseInt(e.dataTransfer.getData('text/plain'));
+      var to=parseInt(pill.dataset.idx);
+      if(from===to)return;
+      var arr=_practiceState.chords;
+      var moved=arr.splice(from,1)[0];
+      arr.splice(to,0,moved);
+      _practiceState.idx=Math.min(_practiceState.idx,arr.length-1);
+      _practiceBuildDots();_practiceBuildSeq();_practiceRender();
+    });
+    list.appendChild(pill);
+  });
+}
+
+function practiceSeqRemove(idx){
+  if(_practiceState.chords.length<=1)return;
+  _practiceState.chords.splice(idx,1);
+  if(_practiceState.idx>=_practiceState.chords.length)
+    _practiceState.idx=_practiceState.chords.length-1;
+  _practiceBuildDots();_practiceBuildSeq();_practiceRender();
+}
+
+function _practiceResetSeq(){
+  _practiceState.chords=_practiceState.allChords.slice();
+  _practiceState.idx=0;
+  _practiceBuildDots();_practiceBuildSeq();_practiceRender();
+}
+
+function _syncPracticeTools(){
+  var pmBtn=document.getElementById('practice-metro-btn');
+  if(pmBtn){
+    if(_metroPlaying){pmBtn.classList.add('active');pmBtn.innerHTML='&#9679;';}
+    else{pmBtn.classList.remove('active');pmBtn.innerHTML='&#9711;';}
+  }
+  var pv=document.getElementById('practice-metro-vol');
+  var mv=document.getElementById('metro-vol');
+  if(pv&&mv)pv.value=mv.value;
+  var ps=document.getElementById('practice-yt-style');
+  if(ps)ps.value=_bt.style;
+}
+
 function _ytPracticeCmd(cmd){
   var iframe=document.getElementById('practice-yt-iframe');
   if(iframe&&iframe.contentWindow){
@@ -4506,6 +4640,7 @@ function ytSetStyle(style, btn){
 
 function ytSetStyleSelect(val){
   _bt.style=val;
+  document.querySelectorAll('#yt-style-select,#practice-yt-style').forEach(function(el){el.value=val;});
 }
 
 
