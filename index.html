@@ -280,7 +280,10 @@ body.light .modal-title{font-family:'Instrument Serif',serif;font-weight:400;fon
 .mr-chord{font-size:11px;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace;font-weight:500;background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border)}
 .mr-chord.out{background:var(--tonic-bg);color:var(--tonic);border-color:var(--tonic-light)}
 .mr-note{font-size:10px;color:var(--text2);line-height:1.5}
-.modal-import-btn{padding:8px 20px;border-radius:8px;border:none;background:var(--tonic);color:#fff;font-size:12px;font-weight:500;cursor:pointer;align-self:flex-start}
+.modal-import-btn{padding:8px 20px;border-radius:8px;border:1px solid transparent;background:var(--tonic);color:#fff;font-size:12px;font-weight:500;cursor:pointer;transition:opacity .15s}
+.modal-import-btn:hover{opacity:.85}
+.modal-import-btn-sec{background:transparent;border-color:var(--border2);color:var(--text2)}
+.modal-import-btn-sec:hover{border-color:var(--accent);color:var(--accent);opacity:1}
 .modal-examples{display:flex;gap:6px;flex-wrap:wrap}
 .modal-ex{font-size:10px;padding:2px 8px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-family:'DM Mono',monospace}
 .modal-ex:hover{background:var(--accent-bg);color:var(--accent);border-color:var(--accent2)}
@@ -2423,7 +2426,11 @@ function showImportResult(r){
   r.chords.forEach(function(c){var sp=document.createElement('span');sp.className='mr-chord';sp.textContent=c.raw;sc.appendChild(sp);});
   res.appendChild(sc);
   if(r.note){var sn2=document.createElement('div');sn2.className='mr-note';sn2.textContent=r.note;res.appendChild(sn2);}
-  var ib=document.createElement('button');ib.className='modal-import-btn';ib.textContent='✓ Ajouter a mes progressions';ib.onclick=importToExplorer;res.appendChild(ib);
+  var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:2px';
+  var ib=document.createElement('button');ib.className='modal-import-btn';ib.textContent='✓ Ajouter à mes progressions';ib.onclick=importToExplorer;
+  var sb=document.createElement('button');sb.className='modal-import-btn modal-import-btn-sec';sb.textContent='Voir la structure';
+  sb.onclick=(function(title,artist){return function(){closeImportModal();openSongDetail(title,artist);};})(r.title,r.artist);
+  btnRow.appendChild(ib);btnRow.appendChild(sb);res.appendChild(btnRow);
 }
 
 function importToExplorer(){
