@@ -967,6 +967,28 @@ body.peda-hidden .cof-arrow-lbl{display:none}
 <!-- ── MODE ÉCOUTE ── -->
 <div id="song-detail-panel" style="display:none"></div>
 
+<!-- ── MODALE IMPORT ── -->
+<div id="import-overlay" class="modal-overlay" onclick="closeImportIfOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Rechercher un morceau</span>
+      <button class="modal-close" onclick="closeImportModal()">&#10005;</button>
+    </div>
+    <div class="modal-search-row">
+      <input id="import-query" class="modal-input" type="text" placeholder="Artiste ou titre — ex: Beatles, Bohemian Rhapsody…" onkeydown="if(event.key==='Enter')importSearch()">
+      <button id="import-btn" class="modal-search-btn" onclick="importSearch()">Rechercher</button>
+    </div>
+    <div id="import-status" class="modal-status"></div>
+    <div class="modal-examples">
+      <button class="modal-ex" onclick="importQuick('The Beatles')">The Beatles</button>
+      <button class="modal-ex" onclick="importQuick('Radiohead')">Radiohead</button>
+      <button class="modal-ex" onclick="importQuick('Hotel California Eagles')">Hotel California</button>
+      <button class="modal-ex" onclick="importQuick('Am F C G')">Am F C G</button>
+    </div>
+    <div id="import-result" class="modal-result"></div>
+  </div>
+</div>
+
 
 <script>
 /* ── THÈME DUAL MODE ── */
@@ -4540,7 +4562,6 @@ window._highlightChord=function(semi){window._songChordHighlight=semi;drawCOF();
 <div id="prog-quick" style="display:none"></div>
 <div id="build-current" style="display:none"></div>
 <div id="build-seq" style="display:none"></div>
-<div id="import-result" style="display:none"></div>
 <div id="listen-choices" style="display:none"></div>
 <div id="listen-hint" style="display:none"></div>
 <div id="compare-panel" style="display:none"></div>
