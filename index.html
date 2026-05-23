@@ -423,7 +423,7 @@ body.peda-hidden .harmony-note{display:none!important}
 .practice-btn{font-size:11px;padding:4px 12px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'DM Sans',sans-serif;transition:all .15s}
 .practice-btn:hover{border-color:var(--accent);color:var(--accent)}
 .practice-btn.active{background:var(--tonic);color:#fff;border-color:var(--tonic)}
-.practice-overlay{display:none;position:fixed;top:46px;right:0;bottom:0;width:280px;background:var(--surface);border-left:1px solid var(--border);z-index:150;flex-direction:column;padding:1rem .875rem;overflow-y:auto}
+.practice-overlay{display:none;position:fixed;top:46px;right:0;bottom:0;width:var(--rp-width,280px);background:var(--surface);border-left:1px solid var(--border);z-index:150;flex-direction:column;padding:1rem .875rem;overflow-y:auto}
 .practice-overlay.open{display:flex}
 .practice-close{align-self:flex-end;font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:.75rem}
 .practice-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:1rem;text-align:center}
@@ -970,6 +970,13 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     </div>
   </div>
   <div class="practice-prog-dots" id="practice-prog-dots"></div>
+  <div id="practice-yt-section" style="display:none;margin-top:12px;flex-shrink:0">
+    <div style="position:relative;padding-top:56.25%;background:#000;border-radius:6px;overflow:hidden">
+      <iframe id="practice-yt-iframe" style="position:absolute;inset:0;width:100%;height:100%;border:none" allow="autoplay" allowfullscreen></iframe>
+      <div id="practice-yt-loading" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:#fff;font-size:11px;font-family:'DM Sans',sans-serif">Chargement…</div>
+    </div>
+    <div id="practice-yt-title" style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:4px;letter-spacing:.04em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"></div>
+  </div>
 </div>
 
 <!-- ── MODALE IMPORT ── -->
@@ -3555,13 +3562,16 @@ function openPracticeMode(){
   _practiceState.beat=0;
   _practiceState.bpm=_audioBpm;
   _practiceState.playing=false;
+  document.documentElement.style.setProperty('--rp-width',(document.getElementById('main-panel').offsetWidth||280)+'px');
   document.getElementById('practice-overlay').classList.add('open');
   _practiceRender();
   _practiceBuildDots();
+  _ytPracticeCmd('playVideo');
 }
 
 function closePracticeMode(){
   practiceStop();
+  _ytPracticeCmd('pauseVideo');
   document.getElementById('practice-overlay').classList.remove('open');
 }
 
@@ -3746,6 +3756,7 @@ function openSongPlayback(){
   _practiceState.chords=allChords;
   _practiceState.idx=0;_practiceState.beat=0;
   document.getElementById('practice-title').textContent=window._songDetailData.title;
+  document.documentElement.style.setProperty('--rp-width',(document.getElementById('main-panel').offsetWidth||280)+'px');
   document.getElementById('practice-overlay').classList.add('open');
   _practiceRender();
   _practiceBuildDots();
@@ -4364,8 +4375,7 @@ function openYouTubeBacking(){
   var genre=_ytGenres[st.scale]||'major';
   var style=_ytBackingStyles[_bt.style]||'piano';
   var bpm=_audioBpm;
-  /* Vary query to get different results each time */
-  var bpmRange=Math.round(bpm/10)*10; /* Round to nearest 10 */
+  var bpmRange=Math.round(bpm/10)*10;
   var variants=[
     root+' '+genre+' backing track '+style+' '+bpmRange+' bpm',
     root+' '+genre+' jam track '+style,
@@ -4374,27 +4384,28 @@ function openYouTubeBacking(){
     genre+' backing track '+root+' '+style+' live'
   ];
   var q=variants[Math.floor(Math.random()*variants.length)];
-  /* Also randomize result index via pageToken workaround - add random order param */
   var extra=Math.random()>0.5?'&order=date':'&order=relevance';
-  /* Show floating player */
-  var floatEl=document.getElementById('yt-float');
-  var titleEl=document.getElementById('yt-float-title');
-  var loading=document.getElementById('yt-float-loading');
-  var iframe=document.getElementById('yt-float-iframe');
-  if(titleEl)titleEl.textContent=root+' '+genre+' · '+style;
-  if(loading)loading.style.display='flex';
+  /* Open practice overlay */
+  document.documentElement.style.setProperty('--rp-width',(document.getElementById('main-panel').offsetWidth||280)+'px');
+  document.getElementById('practice-overlay').classList.add('open');
+  /* Show YT section inside practice */
+  var ytSection=document.getElementById('practice-yt-section');
+  var iframe=document.getElementById('practice-yt-iframe');
+  var loading=document.getElementById('practice-yt-loading');
+  var titleEl=document.getElementById('practice-yt-title');
+  if(ytSection)ytSection.style.display='block';
+  if(loading){loading.style.display='flex';}
   if(iframe)iframe.src='';
-  if(floatEl)floatEl.classList.add('open');
+  if(titleEl)titleEl.textContent=root+' '+genre+' · '+style;
   _loadStart();
-  /* Search via YouTube API proxy */
   fetch('/api/youtube?q='+encodeURIComponent(q)+(extra||''))
     .then(function(r){return r.json();})
     .then(function(d){
       _loadEnd();
       if(loading)loading.style.display='none';
       if(d.videoId&&iframe){
-        iframe.src='https://www.youtube-nocookie.com/embed/'+d.videoId+'?autoplay=1&controls=1&modestbranding=1&rel=0';
-        if(titleEl)titleEl.textContent=(d.title||q).substring(0,40);
+        iframe.src='https://www.youtube-nocookie.com/embed/'+d.videoId+'?autoplay=1&controls=1&modestbranding=1&rel=0&enablejsapi=1';
+        if(titleEl)titleEl.textContent=(d.title||q).substring(0,50);
       } else {
         if(loading){loading.style.display='flex';loading.textContent='Introuvable';}
       }
@@ -4408,6 +4419,13 @@ function openYouTubeBacking(){
 function closeYtFloat(){
   var floatEl=document.getElementById('yt-float');
   if(floatEl)floatEl.classList.remove('open');
+}
+
+function _ytPracticeCmd(cmd){
+  var iframe=document.getElementById('practice-yt-iframe');
+  if(iframe&&iframe.contentWindow){
+    try{iframe.contentWindow.postMessage(JSON.stringify({event:'command',func:cmd,args:[]}),'*');}catch(e){}
+  }
 }
 
 
@@ -4520,6 +4538,7 @@ window.addEventListener('resize',_positionCofArrows);
   function onMove(e){
     var newW=Math.max(240,Math.min(600,startW+(startX-e.clientX)));
     grid.style.gridTemplateColumns='1fr '+newW+'px';
+    document.documentElement.style.setProperty('--rp-width',newW+'px');
     if(typeof buildPiano==='function')buildPiano();
     _positionCofArrows();
   }
