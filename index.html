@@ -971,6 +971,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     <div class="practice-chord-current" id="practice-current">—</div>
     <div class="practice-chord-next" id="practice-next"></div>
   </div>
+  <div id="practice-enrich-row" class="enrich-row" style="justify-content:center;min-height:18px;margin-bottom:2px"></div>
   <div class="practice-beat" id="practice-beat"></div>
   <div class="practice-controls">
     <div class="practice-bpm-ctrl">
@@ -1647,6 +1648,11 @@ function _setPianoMode(m){
 }
 var _pianoEnrichCtxId='';
 function _getActiveChord(){
+  var overlay=document.getElementById('practice-overlay');
+  if(overlay&&overlay.classList.contains('open')&&_practiceState.chords.length){
+    var ch=_practiceState.chords[_practiceState.idx];
+    return{semi:ch.semi,type:ch.type,enrichId:ch.enrich||'',mode:'practice',practiceIdx:_practiceState.idx,ch:ch};
+  }
   var sc=getSC();
   if(scaleState.activeDeg>=0&&sc.ch){
     var d=scaleState.activeDeg;
@@ -1689,6 +1695,12 @@ function _setPianoEnrich(eid){
   if(ctx.mode==='scale'){scaleState.activeEnrich=eid;scaleState.activeInv=0;}
   else if(ctx.mode==='stdProg'){stdProg.enrichPerStep[ctx.si]=eid;stdProg.invPerStep[ctx.si]=0;}
   else if(ctx.mode==='customProg'){ctx.seq.enrich=eid;ctx.seq.label=enrichLabel(rn,eid);updateCustomName(ctx.cp);}
+  else if(ctx.mode==='practice'){
+    ctx.ch.enrich=eid;
+    ctx.ch.label=_practiceChordLabel(ctx.ch.semi,ctx.ch.type,eid);
+    ctx.ch.midis=getInvertedMidis(rn,eid||t,t,0);
+    _practiceBuildEnrich();_practiceBuildSeq();
+  }
   var iv=ENRICH_IV[eid]||ENRICH_IV[t]||[0,4,7];
   var midis;
   if(ctx.mode==='scale'&&_pianoActiveMidi>=0){midis=iv.map(function(x){return _pianoActiveMidi+x;});if(Math.max.apply(null,midis)>MIDI_END){midis=midis.map(function(m){return m-12;});}}
@@ -3640,6 +3652,7 @@ function openPracticeMode(){
   document.documentElement.style.setProperty('--rp-width',(document.getElementById('main-panel').offsetWidth||280)+'px');
   document.getElementById('practice-overlay').classList.add('open');
   _syncPracticeTools();
+  _setPianoMode('accord');
   _practiceRender();
   _practiceBuildDots();
   _practiceBuildSeq();
@@ -3650,6 +3663,9 @@ function closePracticeMode(){
   practiceStop();
   _ytPracticeCmd('pauseVideo');
   document.getElementById('practice-overlay').classList.remove('open');
+  _setPianoMode('gamme');
+  window._songChordHighlight=null;
+  paintPiano(null);
 }
 
 function _buildPracticeChords(){
@@ -3719,11 +3735,13 @@ function _practiceRender(){
   document.getElementById('practice-next').textContent=next?next.label:'';
   document.getElementById('practice-bpm-val').textContent=state.bpm;
   document.getElementById('practice-sig-val').textContent=state.sig+'/4';
-  /* Update piano */
-  var chSet={};cur.midis.forEach(function(m){chSet[m]=true;});
-  paintPiano(chSet);
+  /* Update piano in accord mode + enrichissements */
+  var enrichId=cur.enrich||'';
+  highlightChord(cur.semi,enrichId||cur.type,cur.type);
+  window._songChordHighlight={semi:cur.semi,type:enrichId||cur.type};
+  _practiceBuildEnrich();
+  _updatePianoEnrichBtns();
   /* Update COF */
-  window._songChordHighlight={semi:cur.semi,type:cur.type};
   drawCOF();
   /* Update dots */
   document.querySelectorAll('.practice-prog-dot').forEach(function(d,i){
@@ -3836,6 +3854,7 @@ function openSongPlayback(){
   document.documentElement.style.setProperty('--rp-width',(document.getElementById('main-panel').offsetWidth||280)+'px');
   document.getElementById('practice-overlay').classList.add('open');
   _syncPracticeTools();
+  _setPianoMode('accord');
   _practiceState.allChords=_practiceState.chords.slice();
   _practiceRender();
   _practiceBuildDots();
@@ -4479,6 +4498,7 @@ function openYouTubeBacking(){
   document.documentElement.style.setProperty('--rp-width',(document.getElementById('main-panel').offsetWidth||280)+'px');
   document.getElementById('practice-overlay').classList.add('open');
   _syncPracticeTools();
+  _setPianoMode('accord');
   /* Show YT section inside practice */
   var ytSection=document.getElementById('practice-yt-section');
   var iframe=document.getElementById('practice-yt-iframe');
@@ -4560,6 +4580,36 @@ function loadYtAlternatives(){
 function closeYtFloat(){
   var floatEl=document.getElementById('yt-float');
   if(floatEl)floatEl.classList.remove('open');
+}
+
+function _practiceChordLabel(semi,type,eid){
+  if(!eid)return EN[semi]+(type==='min'?'m':type==='dim'?'dim':type==='aug'?'aug':'');
+  return EN[semi]+(ENRICH_SUF[eid]||eid);
+}
+
+function _practiceBuildEnrich(){
+  var row=document.getElementById('practice-enrich-row');
+  if(!row)return;
+  row.innerHTML='';
+  var ch=_practiceState.chords[_practiceState.idx];
+  if(!ch)return;
+  var t=ch.type;var currentEnrich=ch.enrich||'';
+  var notes=getNotes();var dIdx=notes.indexOf(ch.semi);
+  var grp=enrichGroup(t,st.scale,dIdx>=0?dIdx:0);
+  var list=ENRICHMENTS[grp]||[];
+  var baseLabel=t==='min'?'Min':t==='dim'?'Dim':t==='aug'?'Aug':'Maj';
+  var bb=document.createElement('button');
+  bb.className='enrich-btn'+(currentEnrich===''?' active':'');
+  bb.textContent=baseLabel;
+  bb.onclick=function(){_setPianoEnrich('');};
+  row.appendChild(bb);
+  list.forEach(function(e){
+    var eb=document.createElement('button');
+    eb.className='enrich-btn'+(currentEnrich===e.id?' active':'');
+    eb.textContent=e.l;
+    eb.onclick=(function(eid){return function(){_setPianoEnrich(eid);};})(e.id);
+    row.appendChild(eb);
+  });
 }
 
 /* ── COF → PRACTICE DRAG (Pointer Events — desktop + tablette) ── */
@@ -4843,7 +4893,9 @@ window._highlightChord=function(semi){window._songChordHighlight=semi;drawCOF();
     if(!Array.isArray(data)||!data[0])return;
     var date=new Date(data[0].commit.author.date);
     if(el){
-      var txt='↑ '+date.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+      var d=date.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+      var t=date.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+      var txt='dernière MAJ à: '+d+' '+t;
       el.textContent=txt;
       localStorage.setItem('gh_update_date',txt);
     }
