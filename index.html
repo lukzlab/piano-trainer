@@ -5651,65 +5651,60 @@ function _tlDraw(){
   var curX=PH-beatInChord*BEAT_PX;
   var offStart=Math.floor((-CHORD_W-curX)/CHORD_W)-1;
   var offEnd=Math.ceil((W+CHORD_W-curX)/CHORD_W)+1;
+  /* Passe 1 : accords non-actifs */
   ctx.save();ctx.beginPath();ctx.rect(0,0,W,H);ctx.clip();
   for(var off=offStart;off<=offEnd;off++){
+    if(off===0)continue;
     var ci=((state.idx+off)%N+N)%N;
     var chord=chords[ci];
     var cx=curX+off*CHORD_W;
     if(cx+CHORD_W<-4||cx>W+4)continue;
-    var isAct=(off===0),isPast=(off<0);
-    /* Fond cellule */
+    var isPast=(off<0);
     ctx.beginPath();_ctxRR(ctx,cx+2,3,CHORD_W-4,H-6,5);
-    if(isAct){
-      ctx.shadowColor=cAccent;ctx.shadowBlur=14;
-      ctx.fillStyle=cAccent;ctx.globalAlpha=0.28;
-    } else {
-      ctx.globalAlpha=isPast?0.5:0.3;ctx.fillStyle=cBorder;ctx.globalAlpha=1;
-    }
-    ctx.fill();
-    ctx.globalAlpha=1;ctx.shadowBlur=0;
-    /* Bordure cellule active */
-    if(isAct){
-      ctx.shadowColor=cAccent;ctx.shadowBlur=8;
-      ctx.strokeStyle=cAccent;ctx.lineWidth=1;ctx.globalAlpha=0.7;ctx.stroke();
-      ctx.globalAlpha=1;ctx.shadowBlur=0;
-    }
-    /* Séparateurs de beat */
-    ctx.strokeStyle=cBorder;ctx.lineWidth=1;ctx.globalAlpha=isAct?0.6:0.4;
-    for(var b2=1;b2<sig;b2++){
-      var bx2=cx+b2*BEAT_PX;
-      ctx.beginPath();ctx.moveTo(bx2,H*0.38);ctx.lineTo(bx2,H*0.62);ctx.stroke();
-    }
+    ctx.globalAlpha=isPast?0.35:0.25;ctx.fillStyle=cBorder;ctx.fill();ctx.globalAlpha=1;
+    ctx.strokeStyle=cBorder;ctx.lineWidth=1;ctx.globalAlpha=0.35;
+    for(var b2=1;b2<sig;b2++){var bx2=cx+b2*BEAT_PX;ctx.beginPath();ctx.moveTo(bx2,H*0.4);ctx.lineTo(bx2,H*0.6);ctx.stroke();}
     ctx.globalAlpha=1;
-    /* Dots de beat dans la cellule active */
-    if(isAct){
-      for(var b2=0;b2<sig;b2++){
-        var dotX=cx+(b2+0.5)*BEAT_PX,dotY=H-9;
-        var isAB=(b2===state.beat);
-        ctx.beginPath();ctx.arc(dotX,dotY,isAB?3.5:2,0,Math.PI*2);
-        if(isAB){ctx.shadowColor=cAccent;ctx.shadowBlur=8;}
-        ctx.fillStyle='#fff';ctx.globalAlpha=isAB?1:0.4;ctx.fill();
-        ctx.globalAlpha=1;ctx.shadowBlur=0;
-      }
-    }
-    /* Label accord — zoom + glow sur l'actif */
     ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.globalAlpha=isPast?0.45:1;
-    if(isAct){
-      ctx.font='700 17px "DM Mono",monospace';
-      ctx.shadowColor=cAccent;ctx.shadowBlur=18;
-      ctx.fillStyle='#fff';
-      ctx.fillText(chord.label,cx+CHORD_W/2,H/2-3);
-      ctx.shadowBlur=8;
-      ctx.fillText(chord.label,cx+CHORD_W/2,H/2-3);
-      ctx.shadowBlur=0;
-    } else {
-      ctx.font='500 12px "DM Mono",monospace';
-      ctx.fillStyle='#fff';
-      ctx.fillText(chord.label,cx+CHORD_W/2,H/2);
-    }
+    ctx.font='500 12px "DM Mono",monospace';
+    ctx.fillStyle='#fff';ctx.globalAlpha=isPast?0.35:0.6;
+    ctx.fillText(chord.label,cx+CHORD_W/2,H/2);
     ctx.globalAlpha=1;
   }
+  ctx.restore();
+  /* Passe 2 : accord actif — scale 1.22 centré sur la cellule, passe au-dessus */
+  var acx=curX;
+  var acMidX=acx+CHORD_W/2,acMidY=H/2;
+  var SCALE=1.22;
+  ctx.save();
+  ctx.translate(acMidX,acMidY);ctx.scale(SCALE,SCALE);ctx.translate(-acMidX,-acMidY);
+  /* Fond */
+  ctx.beginPath();_ctxRR(ctx,acx+2,3,CHORD_W-4,H-6,6);
+  ctx.shadowColor=cAccent;ctx.shadowBlur=20;
+  ctx.fillStyle=cAccent;ctx.globalAlpha=0.32;ctx.fill();ctx.globalAlpha=1;
+  /* Bordure */
+  ctx.shadowColor=cAccent;ctx.shadowBlur=10;
+  ctx.strokeStyle=cAccent;ctx.lineWidth=1.5;ctx.globalAlpha=0.8;ctx.stroke();
+  ctx.globalAlpha=1;ctx.shadowBlur=0;
+  /* Séparateurs */
+  ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;
+  for(var b2=1;b2<sig;b2++){var bx2=acx+b2*BEAT_PX;ctx.beginPath();ctx.moveTo(bx2,H*0.38);ctx.lineTo(bx2,H*0.62);ctx.stroke();}
+  /* Dots */
+  for(var b2=0;b2<sig;b2++){
+    var dotX=acx+(b2+0.5)*BEAT_PX,dotY=H-9;
+    var isAB=(b2===state.beat);
+    ctx.beginPath();ctx.arc(dotX,dotY,isAB?3.5:2,0,Math.PI*2);
+    if(isAB){ctx.shadowColor=cAccent;ctx.shadowBlur=8;}
+    ctx.fillStyle='#fff';ctx.globalAlpha=isAB?1:0.4;ctx.fill();
+    ctx.globalAlpha=1;ctx.shadowBlur=0;
+  }
+  /* Label */
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.font='700 16px "DM Mono",monospace';
+  ctx.shadowColor=cAccent;ctx.shadowBlur=16;
+  ctx.fillStyle='#fff';ctx.fillText(chords[state.idx].label,acMidX,acMidY-3);
+  ctx.shadowBlur=6;ctx.fillText(chords[state.idx].label,acMidX,acMidY-3);
+  ctx.shadowBlur=0;
   ctx.restore();
   /* Playhead */
   ctx.shadowColor=cAccent;ctx.shadowBlur=6;
