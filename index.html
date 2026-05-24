@@ -554,8 +554,8 @@ nav{display:none}
 .sidebar-prog-item{font-size:13px;padding:3px 6px;border-radius:4px;cursor:pointer;color:var(--text3);font-family:'DM Mono',monospace;white-space:nowrap;border:none;background:transparent;text-align:left;transition:all .1s;width:100%}
 .sidebar-prog-item:hover{color:var(--text);background:var(--bg2)}
 .sidebar-prog-item.active{color:var(--tonic);font-weight:500}
-/* Audio bar above COF */
-.audio-top-bar{display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:.25rem .875rem;border-bottom:1px solid var(--border);background:var(--nav-bg);flex-wrap:nowrap;overflow-x:auto;flex-shrink:0;height:36px;box-sizing:border-box}
+/* Audio bar above COF — masquée, tout est dans la sidebar */
+.audio-top-bar{display:none!important}
 
 /* ── SIDEBAR SUBMENUS ── */
 .sb-expandable{justify-content:space-between}
@@ -697,7 +697,8 @@ body.light .wheel-eyebrow{fill:var(--text3)}
 .scale-pop-prog-none{padding:10px 14px;cursor:pointer;font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;transition:background .1s;letter-spacing:.05em}
 .scale-pop-prog-none:hover{background:var(--bg2)}
 .scale-pop-prog-none.active{color:var(--tonic);background:var(--tonic-bg)}
-.scale-pop-prog-cat{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.18em;color:var(--text3);padding:.375rem 14px .2rem;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.scale-pop-prog-cat{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.18em;color:var(--text3);padding:.375rem 14px .2rem;text-transform:uppercase;border-bottom:1px solid var(--border);grid-column:1/-1}
+#scale-pop-prog-list{display:grid;grid-template-columns:1fr 1fr}
 .scale-pop-prog-item{padding:8px 14px;cursor:pointer;transition:background .1s;border-left:2px solid transparent}
 .scale-pop-prog-item:hover{background:var(--accent-bg)}
 .scale-pop-prog-item.active{border-left-color:var(--tonic);background:var(--tonic-bg)}
@@ -794,6 +795,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
       </div>
       <div class="sidebar-logo-text">
         <div style="font-size:14px;font-weight:700;color:var(--text);letter-spacing:.06em;font-family:'Syne',sans-serif;line-height:1.1;text-transform:uppercase">PIANO <span style="color:var(--accent)">LAB</span></div>
+        <span id="topbar-update" style="font-size:9px;font-family:'DM Mono',monospace;color:#4caf82;letter-spacing:.02em;display:block;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px" title="Dernière mise à jour"></span>
       </div>
     </div>
     <!-- Items -->
@@ -808,6 +810,25 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     <button class="sidebar-item" id="sb-import" onclick="openImportModal()">
       <span class="sidebar-icon">&#8659;</span>
       <span class="sidebar-label">Importer</span>
+    </button>
+    <div class="sidebar-divider"></div>
+    <div class="sb-section-hdr">Réglages</div>
+    <button class="sidebar-item" id="sb-theme" onclick="toggleTheme()">
+      <span class="sidebar-icon" id="sb-theme-icon">◗</span>
+      <span class="sidebar-label" id="sb-theme-lbl">Graphite</span>
+      <span class="sidebar-tooltip">Thème</span>
+    </button>
+    <button class="sidebar-item" id="sb-autosound" onclick="toggleAutoSound()">
+      <span class="sidebar-icon">♪</span>
+      <span class="sidebar-label">Son auto</span>
+      <span class="sb-on-dot" id="sb-autosound-dot"></span>
+      <span class="sidebar-tooltip">Son auto</span>
+    </button>
+    <button class="sidebar-item" id="sb-peda" onclick="togglePeda()">
+      <span class="sidebar-icon">ℹ</span>
+      <span class="sidebar-label">Infos suppl.</span>
+      <span class="sb-on-dot" id="sb-peda-dot"></span>
+      <span class="sidebar-tooltip">Infos suppl.</span>
     </button>
     <div class="sidebar-spacer"></div>
     <button class="sidebar-toggle" onclick="sidebarToggle()" title="Labels" id="sb-toggle-btn"><span class="sidebar-icon" id="sb-toggle-arrow">&#8612;</span><span class="sidebar-label" id="sb-toggle-lbl">Réduire</span></button>
@@ -829,7 +850,6 @@ body.peda-hidden .cof-arrow-lbl{display:none}
       <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">☀ Light</button>
       <button style="display:flex;align-items:center;gap:5px;padding:4px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s" onmouseenter="this.style.background='var(--accent)';this.style.color='#fff';this.style.borderColor='var(--accent)'" onmouseleave="this.style.background='var(--surface)';this.style.color='var(--text2)';this.style.borderColor='var(--border2)'" onclick="drawerToggle()"><span style="font-size:14px;line-height:1">&#9881;</span><span style="font-size:10px;font-weight:500;line-height:1">Réglages</span></button>
       <span class="drawer-sep"></span>
-      <span id="topbar-update" style="font-size:11px;font-family:'DM Mono',monospace;color:#4caf82;letter-spacing:.02em" title="Dernière mise à jour GitHub"></span>
     </div>
 
     <!-- Drawer panel -->
@@ -1094,10 +1114,17 @@ function initTheme(){
 
 function _updateThemeBtn(t){
   var btn=document.getElementById('theme-btn');
-  if(!btn)return;
-  if(t==='light')btn.textContent='☀ Light';
-  else if(t==='graphite')btn.textContent='◈ Graphite';
-  else btn.textContent='◈ Graphite';
+  var icon=document.getElementById('sb-theme-icon');
+  var lbl=document.getElementById('sb-theme-lbl');
+  if(t==='light'){
+    if(btn)btn.textContent='☀ Light';
+    if(icon)icon.textContent='☀';
+    if(lbl)lbl.textContent='Light';
+  } else {
+    if(btn)btn.textContent='◈ Graphite';
+    if(icon)icon.textContent='◗';
+    if(lbl)lbl.textContent='Graphite';
+  }
 }
 
 function toggleTheme(){
@@ -3192,6 +3219,8 @@ function toggleAutoSound(){
   _autoSound=!_autoSound;
   var cls='auto-sound-tog'+(_autoSound?' on':'');
   document.querySelectorAll('.auto-sound-tog').forEach(function(t){t.className=cls;});
+  var dot=document.getElementById('sb-autosound-dot');
+  if(dot)dot.className='sb-on-dot'+(_autoSound?' on':'');
 }
 
 function autoSoundTrigger(){
@@ -3369,6 +3398,8 @@ function _applyPeda(){
   var nav=document.getElementById('peda-tog-nav');
   if(nav)nav.className='peda-tog'+(_pedaOn?' on':'');
   document.body.classList.toggle('peda-hidden',!_pedaOn);
+  var dot=document.getElementById('sb-peda-dot');
+  if(dot)dot.className='sb-on-dot'+(_pedaOn?' on':'');
 }
 function togglePeda(){
   _pedaOn=!_pedaOn;
@@ -4630,6 +4661,16 @@ function sidebarToggle(){
   if(lbl)lbl.textContent=_sidebarExpanded?'Réduire':'Déplier';
   sbBuildProgs();
 }
+
+/* Clic sur le fond de la sidebar (hors boutons) → expand/collapse */
+(function(){
+  var sb=document.getElementById('sidebar');
+  if(!sb)return;
+  sb.addEventListener('click',function(e){
+    var interactive=e.target.closest('button,a,label,input,select');
+    if(!interactive&&!e.target.closest('.sidebar-logo'))sidebarToggle();
+  });
+})();
 
 function sbActivate(id,el){
   document.querySelectorAll('.sidebar-item').forEach(function(b){b.classList.remove('active');});
