@@ -5621,7 +5621,7 @@ function _tlDraw(){
   var cText=cs.getPropertyValue('--text').trim()||'#ccc';
   var cText2=cs.getPropertyValue('--text2').trim()||'#888';
   var cText3=cs.getPropertyValue('--text3').trim()||'#555';
-  var cSurface=cs.getPropertyValue('--surface2').trim()||'#1a1a1a';
+  var cSurface=cs.getPropertyValue('--surface').trim()||'#1a1a1a';
   var cBorder=cs.getPropertyValue('--border').trim()||'rgba(255,255,255,0.07)';
   ctx.clearRect(0,0,W,H);
   ctx.fillStyle=cSurface;ctx.fillRect(0,0,W,H);
@@ -5667,14 +5667,18 @@ function _tlDraw(){
     var isPast=(off<0);
     ctx.beginPath();_ctxRR(ctx,cx+2,NHY,CHORD_W-4,NHH,5);
     ctx.globalAlpha=isPast?0.35:0.25;ctx.fillStyle=cBorder;ctx.fill();ctx.globalAlpha=1;
+    /* Bordure intérieure beige sur les accords à venir */
+    if(!isPast){
+      ctx.beginPath();_ctxRR(ctx,cx+4,NHY+2,CHORD_W-8,NHH-4,4);
+      ctx.strokeStyle='rgba(255,235,180,0.22)';ctx.lineWidth=1;ctx.stroke();
+    }
     ctx.strokeStyle=cBorder;ctx.lineWidth=1;ctx.globalAlpha=0.3;
     for(var b2=1;b2<sig;b2++){var bx2=cx+b2*BEAT_PX;ctx.beginPath();ctx.moveTo(bx2,NHY+NHH*0.3);ctx.lineTo(bx2,NHY+NHH*0.7);ctx.stroke();}
     ctx.globalAlpha=1;
     ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.font='500 12px "DM Mono",monospace';
-    ctx.fillStyle=isPast?cText3:cText2;ctx.globalAlpha=isPast?0.6:0.9;
+    ctx.fillStyle='rgba(255,255,255,'+(isPast?'0.38':'0.65')+')';
     ctx.fillText(chord.label,cx+CHORD_W/2,NHY+NHH/2);
-    ctx.globalAlpha=1;
   }
   ctx.restore();
   /* Passe 2 : accord actif — cellule plus haute, passe au-dessus */
@@ -5684,10 +5688,13 @@ function _tlDraw(){
   ctx.beginPath();_ctxRR(ctx,acx+2,AHY,CHORD_W-4,AHH,6);
   ctx.shadowColor=cAccent;ctx.shadowBlur=20;
   ctx.fillStyle=cAccent;ctx.globalAlpha=0.32;ctx.fill();ctx.globalAlpha=1;
-  /* Bordure */
+  /* Bordure extérieure glow accent */
   ctx.shadowColor=cAccent;ctx.shadowBlur=10;
   ctx.strokeStyle=cAccent;ctx.lineWidth=1.5;ctx.globalAlpha=0.8;ctx.stroke();
   ctx.globalAlpha=1;ctx.shadowBlur=0;
+  /* Bordure intérieure beige — effet néon */
+  ctx.beginPath();_ctxRR(ctx,acx+4,AHY+2,CHORD_W-8,AHH-4,5);
+  ctx.strokeStyle='rgba(255,235,180,0.55)';ctx.lineWidth=1;ctx.stroke();
   /* Séparateurs */
   ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;
   for(var b2=1;b2<sig;b2++){var bx2=acx+b2*BEAT_PX;ctx.beginPath();ctx.moveTo(bx2,AHY+AHH*0.35);ctx.lineTo(bx2,AHY+AHH*0.65);ctx.stroke();}
