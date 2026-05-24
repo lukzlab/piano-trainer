@@ -353,8 +353,6 @@ body.peda-hidden .harmony-note{display:none!important}
 .sb-on-dot.on{opacity:1}
 
 /* ── PIANO DOTS ── */
-.key-dot{position:absolute;top:5px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;pointer-events:none;background:transparent;border:1px solid rgba(0,0,0,0.08);transition:background .1s,border-color .1s;z-index:3}
-.bk .key-dot{top:3px;width:6px;height:6px}
 
  body.graphite .nl { color: var(--text2); }
  body.graphite .nl.active { color: var(--tonic); border-bottom-color: var(--tonic); }
@@ -1592,10 +1590,9 @@ function buildPiano(){
     el.style.cssText='left:'+x+'px;width:'+ww+'px;height:'+wh+'px;cursor:pointer;'+(i===whites.length-1?'border-right:none;':'');
     el.onclick=(function(m){return function(e){e.stopPropagation();_pianoKeyClick(m);};})(midi);
     if(OCTAVE_LABELS[midi]){var lb=document.createElement('span');lb.className='oct-lbl';lb.textContent=OCTAVE_LABELS[midi];el.appendChild(lb);}
-    var dot=document.createElement('span');dot.className='key-dot';el.appendChild(dot);
     pw.appendChild(el);
     var bsa={0:1,2:3,5:6,7:8,9:10};
-    if(bsa[sm]!==undefined){var bmidi=midi+1;if(bmidi<=MIDI_END&&isB(bmidi)){var bel=document.createElement('div');bel.className='bk';bel.id='pw_K'+bmidi;bel.style.cssText='left:'+(x+ww-Math.floor(bw/2))+'px;width:'+bw+'px;height:'+(wh*.62)+'px;cursor:pointer;';bel.onclick=(function(m){return function(e){e.stopPropagation();_pianoKeyClick(m);};})(bmidi);var bdot=document.createElement('span');bdot.className='key-dot';bel.appendChild(bdot);pw.appendChild(bel);}}
+    if(bsa[sm]!==undefined){var bmidi=midi+1;if(bmidi<=MIDI_END&&isB(bmidi)){var bel=document.createElement('div');bel.className='bk';bel.id='pw_K'+bmidi;bel.style.cssText='left:'+(x+ww-Math.floor(bw/2))+'px;width:'+bw+'px;height:'+(wh*.62)+'px;cursor:pointer;';bel.onclick=(function(m){return function(e){e.stopPropagation();_pianoKeyClick(m);};})(bmidi);pw.appendChild(bel);}}
   }
 }
 
@@ -1633,8 +1630,7 @@ function paintPiano(chordMidiSet, overlayScale){
     el.style.zIndex='';
     el.style.clipPath='';
     el.style.borderRightColor='';
-    var dot=el.querySelector('.key-dot');
-    if(dot){dot.style.background='transparent';dot.style.border='';dot.style.visibility='hidden';}
+
     /* Touche enfoncée — accord sélectionné */
     if(chordMidiSet&&chordMidiSet[m]){
       /* clip-path: laisse passer le glow vers le haut seulement, coupe côtés + bas */
@@ -1648,21 +1644,6 @@ function paintPiano(chordMidiSet, overlayScale){
         el.style.background='#eeeade';
         el.style.borderRightColor='';
         el.style.boxShadow='inset 1px 0 0 #7a7570,inset -1px 0 0 #7a7570,inset 0 10px 18px rgba(0,0,0,0.55),inset 0 4px 8px rgba(0,0,0,0.38),0 -2px 4px 1px rgba(200,135,58,0.85),0 -7px 14px 2px rgba(200,135,58,0.4),0 -16px 26px 3px rgba(200,135,58,0.13)';
-      }
-    }
-    /* Pastille — appartenance à la gamme */
-    if(showScale&&dot){
-      var isTonic=(sm===tonic);
-      var inScale=notes.indexOf(sm)>=0;
-      if(inScale){
-        dot.style.visibility='visible';
-        if(isTonic){
-          dot.style.background='var(--tonic)';
-          dot.style.border='1.5px solid rgba(0,0,0,0.45)';
-        }else{
-          dot.style.background=isB(sm)?'rgba(225,215,190,0.9)':'#b8943a';
-          dot.style.border=isB(sm)?'1px solid rgba(0,0,0,0.14)':'1px solid rgba(0,0,0,0.2)';
-        }
       }
     }
   }
