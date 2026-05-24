@@ -353,8 +353,8 @@ body.peda-hidden .harmony-note{display:none!important}
 .sb-on-dot.on{opacity:1}
 
 /* ── PIANO DOTS ── */
-.key-dot{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;pointer-events:none;background:transparent;border:1px solid rgba(0,0,0,0.08);transition:background .1s,border-color .1s;z-index:3}
-.bk .key-dot{bottom:4px;top:auto;width:6px;height:6px}
+.key-dot{position:absolute;top:5px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;pointer-events:none;background:transparent;border:1px solid rgba(0,0,0,0.08);transition:background .1s,border-color .1s;z-index:3}
+.bk .key-dot{top:3px;width:6px;height:6px}
 
  body.graphite .nl { color: var(--text2); }
  body.graphite .nl.active { color: var(--tonic); border-bottom-color: var(--tonic); }
@@ -1640,9 +1640,9 @@ function paintPiano(chordMidiSet, overlayScale){
       /* clip-path: laisse passer le glow vers le haut seulement, coupe côtés + bas */
       if(isB(sm)){
         /* inset: profondeur + glow côtés et bas pour lisibilité */
-        el.style.clipPath='inset(-30px 0 0 0)';
+        el.style.clipPath='inset(-30px -12px -14px -12px)';
         el.style.background='#1c1810';
-        el.style.boxShadow='inset 0 10px 20px rgba(0,0,0,0.95),inset 0 3px 7px rgba(0,0,0,0.8),inset 0 0 0 2px #1c1810,inset 0 0 0 7px rgba(255,255,255,0.18),inset 0 0 12px 3px rgba(255,255,255,0.08),0 -2px 4px 1px rgba(200,135,58,0.9),0 -7px 14px 2px rgba(200,135,58,0.5),0 -16px 26px 2px rgba(200,135,58,0.2)';
+        el.style.boxShadow='inset 0 10px 20px rgba(0,0,0,0.95),inset 0 3px 7px rgba(0,0,0,0.8),inset 0 0 0 2px #1c1810,inset 0 0 0 4px rgba(255,255,255,0.18),0 -2px 4px 1px rgba(200,135,58,0.9),0 -7px 14px 2px rgba(200,135,58,0.5),0 -16px 26px 2px rgba(200,135,58,0.2),0 5px 10px 0px rgba(0,0,0,0.85),0 3px 5px 0px rgba(0,0,0,0.65)';
       }else{
         el.style.clipPath='inset(-30px 0 0 0)';
         el.style.background='#eeeade';
@@ -1654,8 +1654,8 @@ function paintPiano(chordMidiSet, overlayScale){
     if(showScale&&dot){
       var isTonic=(sm===tonic);
       var inScale=notes.indexOf(sm)>=0;
-      if(isTonic){dot.style.background='var(--tonic)';dot.style.border='1.5px solid var(--piano-border)';}
-      else if(inScale){dot.style.background='#f0c832';dot.style.border='1.5px solid var(--piano-border)';}
+      if(isTonic){dot.style.background='var(--tonic)';dot.style.border='1.5px solid rgba(0,0,0,0.45)';}
+      else if(inScale){dot.style.background='rgba(230,225,215,0.92)';dot.style.border='1px solid rgba(0,0,0,0.14)';}
     }
   }
 }
