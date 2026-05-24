@@ -1639,12 +1639,11 @@ function paintPiano(chordMidiSet, overlayScale){
     if(showScale&&dot){
       var isTonic=(sm===tonic);
       var inScale=notes.indexOf(sm)>=0;
-      if(!inScale){
-        el.style.opacity='';
+      if(inScale){
         if(isB(sm))
-          el.style.background='linear-gradient(rgba(160,30,30,0.22),rgba(160,30,30,0.22)),#222';
+          el.style.background='linear-gradient(rgba(40,160,90,0.28),rgba(40,160,90,0.28)),#222';
         else
-          el.style.background='linear-gradient(rgba(160,30,30,0.10),rgba(160,30,30,0.10)),#f5f2ec';
+          el.style.background='linear-gradient(rgba(40,160,90,0.10),rgba(40,160,90,0.10)),#f5f2ec';
       }
       if(inScale){
         dot.style.background=isTonic?'var(--tonic)':'rgba(255,255,255,0.92)';
