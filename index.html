@@ -1643,7 +1643,7 @@ function paintPiano(chordMidiSet, overlayScale){
       var inScale=notes.indexOf(sm)>=0;
       if(inScale){
         dot.style.background=isTonic?'var(--tonic)':'rgba(255,255,255,0.92)';
-        dot.style.border='1px solid var(--piano-border)';
+        dot.style.border=isB(sm)?'1px solid rgba(255,255,255,0.5)':'1px solid var(--piano-border)';
       }
     }
     /* Touche enfoncée — accord sélectionné */
