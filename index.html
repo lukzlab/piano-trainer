@@ -353,6 +353,8 @@ body.peda-hidden .harmony-note{display:none!important}
 .sb-on-dot.on{opacity:1}
 
 /* ── PIANO DOTS ── */
+.key-dot{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;pointer-events:none;background:transparent;border:none;transition:background .1s;z-index:3}
+.bk .key-dot{bottom:4px;width:6px;height:6px}
 
  body.graphite .nl { color: var(--text2); }
  body.graphite .nl.active { color: var(--tonic); border-bottom-color: var(--tonic); }
@@ -1590,9 +1592,10 @@ function buildPiano(){
     el.style.cssText='left:'+x+'px;width:'+ww+'px;height:'+wh+'px;cursor:pointer;'+(i===whites.length-1?'border-right:none;':'');
     el.onclick=(function(m){return function(e){e.stopPropagation();_pianoKeyClick(m);};})(midi);
     if(OCTAVE_LABELS[midi]){var lb=document.createElement('span');lb.className='oct-lbl';lb.textContent=OCTAVE_LABELS[midi];el.appendChild(lb);}
+    var dot=document.createElement('span');dot.className='key-dot';el.appendChild(dot);
     pw.appendChild(el);
     var bsa={0:1,2:3,5:6,7:8,9:10};
-    if(bsa[sm]!==undefined){var bmidi=midi+1;if(bmidi<=MIDI_END&&isB(bmidi)){var bel=document.createElement('div');bel.className='bk';bel.id='pw_K'+bmidi;bel.style.cssText='left:'+(x+ww-Math.floor(bw/2))+'px;width:'+bw+'px;height:'+(wh*.62)+'px;cursor:pointer;';bel.onclick=(function(m){return function(e){e.stopPropagation();_pianoKeyClick(m);};})(bmidi);pw.appendChild(bel);}}
+    if(bsa[sm]!==undefined){var bmidi=midi+1;if(bmidi<=MIDI_END&&isB(bmidi)){var bel=document.createElement('div');bel.className='bk';bel.id='pw_K'+bmidi;bel.style.cssText='left:'+(x+ww-Math.floor(bw/2))+'px;width:'+bw+'px;height:'+(wh*.62)+'px;cursor:pointer;';bel.onclick=(function(m){return function(e){e.stopPropagation();_pianoKeyClick(m);};})(bmidi);var bdot=document.createElement('span');bdot.className='key-dot';bel.appendChild(bdot);pw.appendChild(bel);}}
   }
 }
 
@@ -1630,7 +1633,18 @@ function paintPiano(chordMidiSet, overlayScale){
     el.style.zIndex='';
     el.style.clipPath='';
     el.style.borderRightColor='';
+    var dot=el.querySelector('.key-dot');
+    if(dot){dot.style.background='transparent';}
 
+    /* Touche enfoncée — accord sélectionné */
+    /* Pastille gamme */
+    if(showScale&&dot){
+      var isTonic=(sm===tonic);
+      var inScale=notes.indexOf(sm)>=0;
+      if(inScale){
+        dot.style.background=isTonic?'var(--tonic)':(isB(sm)?'rgba(225,215,190,0.9)':'#b8943a');
+      }
+    }
     /* Touche enfoncée — accord sélectionné */
     if(chordMidiSet&&chordMidiSet[m]){
       /* clip-path: laisse passer le glow vers le haut seulement, coupe côtés + bas */
