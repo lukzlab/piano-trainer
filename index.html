@@ -412,9 +412,9 @@ body.peda-hidden .harmony-note{display:none!important}
 .practice-btn{font-size:11px;padding:4px 12px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'DM Sans',sans-serif;transition:all .15s}
 .practice-btn:hover{border-color:var(--accent);color:var(--accent)}
 .practice-btn.active{background:var(--tonic);color:#fff;border-color:var(--tonic)}
-.practice-overlay{display:none;position:fixed;top:0;right:0;bottom:0;width:var(--rp-width,280px);background:var(--surface);border-left:1px solid var(--border);z-index:150;flex-direction:column;padding:.25rem .875rem;overflow-y:auto}
+.practice-overlay{display:none;position:fixed;top:0;right:0;bottom:0;width:var(--rp-width,280px);background:var(--surface);border-left:1px solid var(--border);z-index:150;flex-direction:column;padding:0 .875rem .25rem;overflow-y:auto}
 .practice-overlay.open{display:flex}
-.practice-close{align-self:flex-start;font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:.75rem}
+.practice-close{align-self:flex-start;font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:.25rem;margin-top:.25rem}
 .practice-title{display:none}
 .practice-chord-display{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:.375rem}
 .practice-chord-prev{font-size:26px;font-weight:500;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:-.02em;text-align:right;min-width:70px}
@@ -989,9 +989,9 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     <div class="practice-chord-current" id="practice-current">—</div>
     <div class="practice-chord-next" id="practice-next"></div>
   </div>
-  <div id="practice-enrich-row" class="enrich-row" style="justify-content:center;min-height:18px;margin-bottom:8px;margin-top:2px"></div>
-  <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:.75rem">
-    <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;flex-shrink:0">tempo</span>
+  <div id="practice-enrich-row" class="enrich-row" style="justify-content:center;min-height:18px;margin-bottom:16px;margin-top:2px"></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:1.25rem">
+    <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">tempo</span>
     <div class="practice-beat" id="practice-beat"></div>
   </div>
   <div class="practice-controls">
@@ -1010,11 +1010,12 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     </div>
     <button class="practice-bpm-btn" onclick="_ytSeekStart()" id="practice-seek-start-btn" title="Remettre la vidéo au début" style="font-size:13px;min-width:34px;display:none">⏮</button>
   </div>
-  <div style="display:flex;justify-content:center;margin-top:8px;margin-bottom:4px">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:18px;margin-bottom:4px">
+    <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">tempo manuel</span>
     <button onclick="practiceTapTempo()" id="practice-tap-btn" title="Tap tempo" style="font-size:14px;font-weight:600;letter-spacing:.1em;padding:10px 32px;border-radius:99px;border:2px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;font-family:'DM Mono',monospace;transition:background .1s,color .1s">TAP</button>
   </div>
-  <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;margin-bottom:.5rem">
-    <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;flex-shrink:0">progression</span>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:18px;margin-bottom:.5rem">
+    <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">progression</span>
     <div class="practice-prog-dots" id="practice-prog-dots" style="margin-bottom:0"></div>
   </div>
   <div id="practice-seq-section" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);flex-shrink:0">
@@ -1022,7 +1023,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
       <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase">Séquence</span>
       <div style="display:flex;gap:5px">
         <button onclick="_practiceResetSeq()" style="font-size:12px;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace" title="Réinitialiser">↺ reset</button>
-        <button onclick="_practiceClearSeq()" style="font-size:12px;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace" title="Vider la séquence">✕ clear</button>
+        <button onclick="_practiceClearSeq()" style="font-size:12px;padding:4px 10px;border-radius:5px;border:1px solid #c0392b;background:transparent;color:#e05445;cursor:pointer;font-family:'DM Mono',monospace" title="Vider la séquence">✕ clear</button>
       </div>
     </div>
     <div id="practice-seq-list" style="display:flex;flex-wrap:wrap;gap:4px;min-height:22px"></div>
