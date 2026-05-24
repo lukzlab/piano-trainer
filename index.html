@@ -120,6 +120,9 @@ body.light .rbtn.active{background:#1A1814;border-color:#1A1814}
 .right-col{border-left:1px solid var(--border);height:100%;overflow-y:auto;padding-left:8px;padding-right:14px;background:var(--nav-bg);position:relative}
 .rp-resizer{position:absolute;left:-3px;top:0;bottom:0;width:6px;cursor:col-resize;z-index:50;background:transparent;transition:background .15s}
 .rp-resizer:hover,.rp-resizer.dragging{background:var(--tonic)}
+.practice-resizer{position:absolute;left:0;top:0;bottom:0;width:6px;cursor:col-resize;z-index:10;background:transparent;transition:background .15s}
+.practice-resizer:hover,.practice-resizer.dragging{background:var(--tonic)}
+.practice-overlay.fullscreen{left:0!important;width:100%!important}
 .cof-hint{font-size:10px;color:var(--text3);text-align:center;margin-top:.375rem;transition:color .2s}
 .cof-hint.build{color:var(--tonic);font-weight:500}
 
@@ -981,7 +984,11 @@ body.peda-hidden .cof-arrow-lbl{display:none}
 
 <!-- ── PRACTICE MODE ── -->
 <div class="practice-overlay" id="practice-overlay">
-  <button class="practice-close" onclick="closePracticeMode()">✕ Fermer</button>
+  <div class="practice-resizer" id="practice-resizer"></div>
+  <div style="display:flex;align-items:center;gap:6px;margin-top:.25rem;margin-bottom:.25rem">
+    <button class="practice-close" style="margin:0" onclick="closePracticeMode()">✕ Fermer</button>
+    <button id="practice-fs-btn" class="practice-close" style="margin:0" onclick="_practiceToggleFullscreen()" title="Plein écran">⤢</button>
+  </div>
   <div class="practice-title" id="practice-title">Practice</div>
   <div class="practice-section-name" id="practice-section-name"></div>
   <div class="practice-chord-display">
@@ -3950,7 +3957,11 @@ function openPracticeMode(){
 function closePracticeMode(){
   practiceStop();
   _ytPracticeCmd('pauseVideo');
-  document.getElementById('practice-overlay').classList.remove('open');
+  var _po=document.getElementById('practice-overlay');
+  _po.classList.remove('open');
+  _po.classList.remove('fullscreen');
+  var _fsb=document.getElementById('practice-fs-btn');
+  if(_fsb)_fsb.textContent='⤢';
   _setPianoMode('gamme');
   window._songChordHighlight=null;
   paintPiano(null);
@@ -5396,6 +5407,47 @@ window.addEventListener('resize',_positionCofArrows);
     var newW=Math.max(240,Math.min(600,startW+(startX-e.clientX)));
     grid.style.gridTemplateColumns='1fr '+newW+'px';
     document.documentElement.style.setProperty('--rp-width',newW+'px');
+    if(typeof buildPiano==='function')buildPiano();
+    _positionCofArrows();
+  }
+  function onUp(){
+    resizer.classList.remove('dragging');
+    document.body.style.cursor='';
+    document.body.style.userSelect='';
+    document.removeEventListener('mousemove',onMove);
+    document.removeEventListener('mouseup',onUp);
+  }
+})();
+
+/* ── PRACTICE FULLSCREEN ── */
+function _practiceToggleFullscreen(){
+  var overlay=document.getElementById('practice-overlay');
+  var btn=document.getElementById('practice-fs-btn');
+  var fs=overlay.classList.toggle('fullscreen');
+  if(btn)btn.textContent=fs?'⤡':'⤢';
+  if(typeof buildPiano==='function')buildPiano();
+}
+
+/* ── PRACTICE RESIZE HANDLE ── */
+(function(){
+  var resizer=document.getElementById('practice-resizer');
+  var grid=document.querySelector('.main-grid');
+  if(!resizer)return;
+  var startX,startW;
+  resizer.addEventListener('mousedown',function(e){
+    startX=e.clientX;
+    startW=document.getElementById('practice-overlay').offsetWidth;
+    resizer.classList.add('dragging');
+    document.body.style.cursor='col-resize';
+    document.body.style.userSelect='none';
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+    e.preventDefault();
+  });
+  function onMove(e){
+    var newW=Math.max(240,Math.min(600,startW+(startX-e.clientX)));
+    document.documentElement.style.setProperty('--rp-width',newW+'px');
+    if(grid)grid.style.gridTemplateColumns='1fr '+newW+'px';
     if(typeof buildPiano==='function')buildPiano();
     _positionCofArrows();
   }
