@@ -5662,12 +5662,12 @@ function _tlDraw(){
     ctx.beginPath();_ctxRR(ctx,cx+2,3,CHORD_W-4,H-6,5);
     if(isAct){
       ctx.shadowColor=cAccent;ctx.shadowBlur=14;
-      ctx.fillStyle=cTonicBg;
+      ctx.fillStyle=cAccent;ctx.globalAlpha=0.28;
     } else {
       ctx.globalAlpha=isPast?0.5:0.3;ctx.fillStyle=cBorder;ctx.globalAlpha=1;
     }
     ctx.fill();
-    ctx.shadowBlur=0;
+    ctx.globalAlpha=1;ctx.shadowBlur=0;
     /* Bordure cellule active */
     if(isAct){
       ctx.shadowColor=cAccent;ctx.shadowBlur=8;
