@@ -1013,6 +1013,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
       <button class="practice-bpm-btn" onclick="practiceChangeSig(+1)">+</button>
       <span class="practice-bpm-label">mesure</span>
     </div>
+    <button class="practice-bpm-btn" onclick="_ytSeekStart()" id="practice-seek-start-btn" title="Remettre la vidéo au début" style="font-size:13px;min-width:34px;display:none">⏮</button>
     <button class="practice-bpm-btn" onclick="practiceTapTempo()" id="practice-tap-btn" title="Tap tempo" style="font-size:9px;letter-spacing:.08em;min-width:34px;border-color:var(--accent);color:var(--accent)">TAP</button>
   </div>
   <div class="practice-prog-dots" id="practice-prog-dots"></div>
@@ -4775,8 +4776,10 @@ function loadYtAlternatives(skipToggle){
         var loadingEl=document.getElementById('practice-yt-loading');
         _ytCurrentVideoId=d.videoId;
         if(loadingEl){loadingEl.textContent='Chargement…';loadingEl.style.display='flex';}
-        if(iframe)iframe.src='https://www.youtube-nocookie.com/embed/'+d.videoId+'?autoplay=1&controls=1&modestbranding=1&rel=0&enablejsapi=1';
-        _ytPracticeIsPlaying=true;
+        if(iframe)iframe.src='https://www.youtube-nocookie.com/embed/'+d.videoId+'?autoplay=0&controls=1&modestbranding=1&rel=0&enablejsapi=1';
+        _ytPracticeIsPlaying=false;
+        var seekBtn=document.getElementById('practice-seek-start-btn');
+        if(seekBtn)seekBtn.style.display='';
         if(loadingEl)setTimeout(function(){loadingEl.style.display='none';},1500);
         var tStr=(d.title||d.videoId).substring(0,50);
         if(!_ytRestoreCfg(d.videoId)){
@@ -4955,11 +4958,16 @@ function _syncPracticeTools(){
   if(ps)ps.value=_bt.style;
 }
 
-function _ytPracticeCmd(cmd){
+function _ytPracticeCmd(cmd,args){
   var iframe=document.getElementById('practice-yt-iframe');
   if(iframe&&iframe.contentWindow){
-    try{iframe.contentWindow.postMessage(JSON.stringify({event:'command',func:cmd,args:[]}),'*');}catch(e){}
+    try{iframe.contentWindow.postMessage(JSON.stringify({event:'command',func:cmd,args:args||[]}),'*');}catch(e){}
   }
+}
+function _ytSeekStart(){
+  _ytPracticeCmd('seekTo',[0,true]);
+  _ytPracticeCmd('pauseVideo');
+  _ytPracticeIsPlaying=false;
 }
 
 
@@ -5096,14 +5104,13 @@ window.addEventListener('load',function(){
   buildProgList();
   updateAll();
   sbBuildProgs();
-  /* Space bar → tap tempo when practice overlay is open */
+  /* Keyboard shortcuts when practice overlay is open */
   document.addEventListener('keydown',function(e){
-    if(e.code!=='Space')return;
     if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT'||e.target.tagName==='BUTTON'))return;
     var overlay=document.getElementById('practice-overlay');
     if(!overlay||!overlay.classList.contains('open'))return;
-    e.preventDefault();
-    practiceTapTempo();
+    if(e.code==='Space'){e.preventDefault();practiceTapTempo();}
+    else if(e.code==='Enter'){e.preventDefault();practiceToggle();}
   });
   /* Web MIDI note-on → tap tempo when practice is open */
   if(navigator.requestMIDIAccess){
