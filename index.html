@@ -5692,9 +5692,17 @@ function _tlDraw(){
   ctx.shadowColor=cAccent;ctx.shadowBlur=10;
   ctx.strokeStyle=cAccent;ctx.lineWidth=1.5;ctx.globalAlpha=0.8;ctx.stroke();
   ctx.globalAlpha=1;ctx.shadowBlur=0;
-  /* Bordure intérieure beige — effet néon */
-  ctx.beginPath();_ctxRR(ctx,acx+4,AHY+2,CHORD_W-8,AHH-4,5);
-  ctx.strokeStyle='rgba(255,235,180,0.55)';ctx.lineWidth=1;ctx.stroke();
+  /* Bordure 1px blanche */
+  ctx.beginPath();_ctxRR(ctx,acx+2,AHY,CHORD_W-4,AHH,6);
+  ctx.strokeStyle='rgba(255,255,255,0.85)';ctx.lineWidth=1;ctx.stroke();
+  /* Inner shadow — clip à la cellule + stroke large extérieur qui saigne vers l'intérieur */
+  ctx.save();
+  ctx.beginPath();_ctxRR(ctx,acx+2,AHY,CHORD_W-4,AHH,6);ctx.clip();
+  ctx.shadowColor='rgba(0,0,0,0.75)';ctx.shadowBlur=22;
+  ctx.strokeStyle='rgba(0,0,0,0.75)';ctx.lineWidth=36;
+  ctx.beginPath();_ctxRR(ctx,acx+2-18,AHY-18,CHORD_W-4+36,AHH+36,6);ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.restore();
   /* Séparateurs */
   ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;
   for(var b2=1;b2<sig;b2++){var bx2=acx+b2*BEAT_PX;ctx.beginPath();ctx.moveTo(bx2,AHY+AHH*0.35);ctx.lineTo(bx2,AHY+AHH*0.65);ctx.stroke();}
@@ -5711,7 +5719,7 @@ function _tlDraw(){
   ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.font='700 16px "DM Mono",monospace';
   ctx.shadowColor=cAccent;ctx.shadowBlur=16;
-  ctx.fillStyle=cAccent;ctx.fillText(chords[state.idx].label,acMidX,acMidY-2);
+  ctx.fillStyle='rgba(255,255,255,0.95)';ctx.fillText(chords[state.idx].label,acMidX,acMidY-2);
   ctx.shadowBlur=6;ctx.fillText(chords[state.idx].label,acMidX,acMidY-2);
   ctx.shadowBlur=0;
   ctx.restore();
