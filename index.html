@@ -666,6 +666,7 @@ body.graphite .panel-title{color:#c9c7c0}
 .wheel-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.20em;fill:#9a9890;text-transform:uppercase}
 .wheel-tonality{font-family:'DM Sans',sans-serif;font-size:22px;font-weight:500;fill:#bcbab2}
 .wheel-roman{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.08em}
+.wheel-enrich-lbl{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;fill:#1a1814;letter-spacing:.04em}
 .wheel-label-sel{fill:#1a1814}
 .wheel-major{font-family:'DM Sans',sans-serif;font-size:18px;font-weight:500}
 .wheel-minor{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400}
@@ -1305,7 +1306,7 @@ function _cofSelectChord(semi,type){
   while(Math.min.apply(null,midis)<MIDI_START)midis=midis.map(function(m){return m+12;});
   var chSet={};midis.forEach(function(m){chSet[m]=true;});
   paintPiano(chSet,true);
-  window._songChordHighlight={semi:semi,type:eid||type};
+  window._songChordHighlight={semi:semi,type:type,enrichId:eid};
   _updatePianoEnrichBtns();drawCOF();renderMainPanel();
   if(_autoSound&&!_audioPlaying){var actx=_getCtx();_playChord(midis,actx.currentTime+0.05,true);}
 }
@@ -1494,6 +1495,7 @@ function drawCOF(){
     var _tn=txt(mp[0],mp[1]+6,COF_MAJ[i],'wheel-major '+(isHlOuter?'wheel-label-sel':role==='tonic'?'wheel-label-active':role==='degree'?'wheel-label-dim':'wheel-label-ghost'));
     _tn.style.pointerEvents='none';
     svg.appendChild(_tn);
+    if(isHlOuter&&hl.enrichId){var _el=txt(mp[0],mp[1]+22,hl.enrichId,'wheel-enrich-lbl');_el.style.pointerEvents='none';svg.appendChild(_el);}
   });
 
   /* Draw inner (minor) ring */
@@ -1570,6 +1572,7 @@ function drawCOF(){
       updateAll();drawCOF();
     };})(minSemi,i);
     svg.appendChild(minLbl);
+    if(isHlInner&&hl.enrichId){var _iel=txt(mp[0],mp[1]+18,hl.enrichId,'wheel-enrich-lbl');_iel.style.pointerEvents='none';svg.appendChild(_iel);}
   });
 
   /* Gap ring — fond */
@@ -1584,10 +1587,10 @@ function drawCOF(){
   var _isGraphite=document.body.classList.contains('graphite');
   var _activeTxt=C_SELECTED;
   var _inactiveTxt=_isGraphite?'rgba(255,255,255,0.22)':'rgba(42,40,32,0.30)';
-  var _hGL=mk('path',{d:_dGL,'fill-opacity':_isGamme?'0.55':'0',stroke:'none'});
+  var _hGL=mk('path',{d:_dGL,'fill-opacity':_isGamme?'0.55':'0',stroke:_isGamme?C_LINE:'none','stroke-width':'1'});
   _hGL.style.fill=C_DEGREE;_hGL.style.cursor='pointer';_hGL.onclick=function(){_setPianoMode('gamme');drawCOF();};
   svg.appendChild(_hGL);
-  var _hAR=mk('path',{d:_dAR,'fill-opacity':_isGamme?'0':'0.55',stroke:'none'});
+  var _hAR=mk('path',{d:_dAR,'fill-opacity':_isGamme?'0':'0.55',stroke:_isGamme?'none':C_LINE,'stroke-width':'1'});
   _hAR.style.fill=C_DEGREE;_hAR.style.cursor='pointer';_hAR.onclick=function(){_setPianoMode('accord');drawCOF();};
   svg.appendChild(_hAR);
   /* Divider vertical dans l'anneau */
@@ -1631,6 +1634,20 @@ function drawCOF(){
   svg.appendChild(cOver);
   _updateScalePopBtn();
   requestAnimationFrame(_positionCofArrows);
+  /* Fond conteneur cliquable gauche/droite — enregistré une seule fois */
+  var _cofCont=svg.parentElement;
+  if(!_cofCont._bgNavSet){
+    _cofCont._bgNavSet=true;
+    _cofCont.addEventListener('click',function(e){
+      var t=e.target;
+      var _r=_cofCont.getBoundingClientRect();
+      var _cx=_r.left+_r.width/2;
+      /* Clic sur le fond du conteneur (hors SVG et boutons) */
+      if(t===_cofCont){if(e.clientX<_cx)navigateCircle(-1);else navigateCircle(1);return;}
+      /* Clic sur le fond SVG (coins hors anneaux) */
+      if(t===svg){if(e.clientX<_cx)navigateCircle(-1);else navigateCircle(1);}
+    });
+  }
 }
 
 function navigateCircle(dir){
@@ -1878,7 +1895,7 @@ function _setPianoEnrich(eid){
   var chSet={};midis.forEach(function(m){chSet[m]=true;});paintPiano(chSet,true);
   var lbl=document.getElementById('piano-inv-lbl');if(lbl)lbl.textContent='0';
   var sub=document.getElementById('piano-sub');if(sub)sub.textContent=inversionLabel(rn,eid,t,0)+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');
-  window._songChordHighlight={semi:rn,type:eid||t};
+  window._songChordHighlight={semi:rn,type:t,enrichId:eid};
   if(_autoSound&&!_audioPlaying){var c=_getCtx();_playChord(midis,c.currentTime+0.05,true);}
   _updatePianoEnrichBtns();renderMainPanel();drawCOF();
 }
@@ -1956,7 +1973,7 @@ function _pianoKeyClick(midi){
     var _il=document.getElementById('piano-inv-lbl');if(_il)_il.textContent='0';
     var sub=document.getElementById('piano-sub');
     if(sub)sub.textContent=chordNameDeg(dIdx,'')+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');
-    window._songChordHighlight={semi:rn,type:eid||sc.ch[dIdx]};
+    window._songChordHighlight={semi:rn,type:sc.ch[dIdx],enrichId:eid};
     if(_autoSound&&!_audioPlaying){var ctx=_getCtx();_playChord(midis,ctx.currentTime+0.05,true);}
     _updatePianoEnrichBtns();
     drawCOF();renderMainPanel();
