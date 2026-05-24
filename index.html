@@ -467,6 +467,17 @@ body.peda-hidden .harmony-note{display:none!important}
 .prac-chip-x{background:none;border:none;cursor:pointer;padding:0 0 0 5px;font-size:9px;line-height:1;color:inherit;opacity:.45;transition:opacity .1s;flex-shrink:0}
 .prac-chip-x:hover{opacity:1}
 .prog-insert-bar{width:2px;min-height:26px;align-self:center;background:var(--tonic);border-radius:2px;flex-shrink:0;pointer-events:none}
+#prac-trackline{display:block;width:100%;height:56px;border-radius:6px}
+.prac-col-toggle-wrap{display:none;padding:2px 4px 0;flex-shrink:0}
+.practice-overlay.fullscreen .prac-col-toggle-wrap{display:flex;justify-content:flex-end}
+#prac-right-toggle-wrap{justify-content:flex-start}
+.prac-col-toggle-btn{font-size:13px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;line-height:1;font-family:'DM Mono',monospace;transition:all .1s}
+.prac-col-toggle-btn:hover{border-color:var(--tonic);color:var(--tonic)}
+.practice-overlay.fullscreen #prac-fs-left.collapsed #prac-cof-section{display:none}
+.practice-overlay.fullscreen #prac-fs-right.collapsed #prac-bpm-section,
+.practice-overlay.fullscreen #prac-fs-right.collapsed #prac-tap-section,
+.practice-overlay.fullscreen #prac-fs-right.collapsed #practice-tools,
+.practice-overlay.fullscreen #prac-fs-right.collapsed #practice-yt-section{display:none}
 .yt-alt-btn{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.03em;transition:all .15s;flex-shrink:0}
 .yt-alt-btn:hover{border-color:var(--accent);color:var(--accent)}
 .yt-alt-btn:disabled{opacity:.4;cursor:default;pointer-events:none}
@@ -1029,9 +1040,9 @@ body.peda-hidden .cof-arrow-lbl{display:none}
       <div class="practice-chord-next" id="practice-next"></div>
     </div>
     <div id="practice-enrich-row" class="enrich-row" style="justify-content:center;min-height:18px;margin-bottom:16px;margin-top:2px"></div>
-    <div id="prac-beat-section" style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:1.25rem">
-      <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">tempo</span>
-      <div class="practice-beat" id="practice-beat"></div>
+    <div id="prac-beat-section" style="margin-bottom:1.25rem;width:100%">
+      <canvas id="prac-trackline"></canvas>
+      <div class="practice-beat" id="practice-beat" style="display:none"></div>
     </div>
     <div id="prac-play-row" style="display:flex;justify-content:center;margin-bottom:1.25rem">
       <button class="practice-play-btn" id="practice-play-btn" onclick="practiceToggle()">&#9654;</button>
@@ -1048,6 +1059,9 @@ body.peda-hidden .cof-arrow-lbl{display:none}
   <!-- RIGHT : BPM + TAP + YT -->
   <div id="prac-fs-right">
     <div class="prac-col-resizer" id="prac-right-resizer"></div>
+    <div class="prac-col-toggle-wrap" id="prac-right-toggle-wrap">
+      <button id="prac-right-toggle" class="prac-col-toggle-btn" onclick="_pracToggleRight()" title="Masquer/afficher les réglages">›</button>
+    </div>
     <div id="prac-bpm-section" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:18px;margin-bottom:.75rem">
       <div class="practice-bpm-ctrl">
         <button class="practice-bpm-btn" onclick="practiceChangeBpm(-5)">−</button>
@@ -1103,6 +1117,9 @@ body.peda-hidden .cof-arrow-lbl{display:none}
   <!-- LEFT : COF uniquement -->
   <div id="prac-fs-left">
     <div class="prac-col-resizer" id="prac-left-resizer"></div>
+    <div class="prac-col-toggle-wrap" id="prac-left-toggle-wrap">
+      <button id="prac-left-toggle" class="prac-col-toggle-btn" onclick="_pracToggleLeft()" title="Masquer/afficher la roue">‹</button>
+    </div>
     <div id="prac-cof-section">
       <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">roue des quintes</span>
       <svg id="cof-practice" style="display:block;width:100%;cursor:pointer"></svg>
@@ -4232,12 +4249,14 @@ function practiceStart(){
   _practiceState.beat=0;
   document.getElementById('practice-play-btn').innerHTML='&#9646;&#9646;';
   _practiceSchedule();
+  _tlStart();
 }
 
 function practiceStop(){
   _practiceState.playing=false;
   if(_practiceState.timer)clearInterval(_practiceState.timer);
   document.getElementById('practice-play-btn').innerHTML='&#9654;';
+  _tlStop();
 }
 
 function _practiceSchedule(){
@@ -4248,6 +4267,7 @@ function _practiceSchedule(){
     if(!state.playing){clearInterval(state.timer);return;}
     /* Tick beat */
     state.beat=(state.beat+1)%state.sig;
+    _tlBeat();
     /* On beat 1: advance chord (si accords présents) */
     if(state.beat===0&&state.chords.length){
       state.idx=(state.idx+1)%state.chords.length;
@@ -5532,12 +5552,168 @@ window.addEventListener('resize',_positionCofArrows);
   }
 })();
 
+/* ── PRACTICE TRACKLINE ── */
+var _tlRAF=null,_tlLastBeatTime=0,_tlBeatDuration=500;
+function _tlStart(){
+  _tlLastBeatTime=performance.now();
+  _tlBeatDuration=Math.round(60000/_practiceState.bpm);
+  if(_tlRAF)cancelAnimationFrame(_tlRAF);
+  _tlRAF=requestAnimationFrame(_tlLoop);
+}
+function _tlStop(){
+  if(_tlRAF){cancelAnimationFrame(_tlRAF);_tlRAF=null;}
+  _tlDraw();
+}
+function _tlBeat(){
+  _tlLastBeatTime=performance.now();
+  _tlBeatDuration=Math.round(60000/_practiceState.bpm);
+}
+function _tlLoop(){
+  _tlDraw();
+  if(_practiceState.playing)_tlRAF=requestAnimationFrame(_tlLoop);
+  else _tlRAF=null;
+}
+function _ctxRR(ctx,x,y,w,h,r){
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
+}
+function _tlDraw(){
+  var cv=document.getElementById('prac-trackline');
+  if(!cv)return;
+  var W=cv.offsetWidth;if(!W||W<10)return;
+  var H=56;
+  if(cv.width!==W)cv.width=W;
+  if(cv.height!==H)cv.height=H;
+  var ctx=cv.getContext('2d');
+  var state=_practiceState;
+  var cs=getComputedStyle(document.documentElement);
+  var cTonic=cs.getPropertyValue('--tonic').trim()||'#6c63ff';
+  var cText=cs.getPropertyValue('--text2').trim()||'#999';
+  var cText3=cs.getPropertyValue('--text3').trim()||'#555';
+  var cBg2=cs.getPropertyValue('--bg2').trim()||'#161616';
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle=cBg2;ctx.fillRect(0,0,W,H);
+  var sig=state.sig;
+  var BEAT_PX=Math.max(36,Math.min(90,Math.floor(W/(sig*2.8))));
+  var CHORD_W=sig*BEAT_PX;
+  var PH=Math.floor(W*0.28);
+  var now=performance.now();
+  var bp=state.playing?Math.min(1,(now-_tlLastBeatTime)/_tlBeatDuration):0;
+  var chords=state.chords;
+  if(!chords.length){
+    var measProg=state.beat+bp;
+    var x0=PH-measProg*BEAT_PX;
+    var bStart=Math.floor((-PH-BEAT_PX)/BEAT_PX);
+    var bEnd=Math.ceil((W-PH+BEAT_PX)/BEAT_PX);
+    for(var b=bStart;b<=bEnd;b++){
+      var bx=x0+b*BEAT_PX;
+      if(bx<-2||bx>W+2)continue;
+      var is0=(((b%sig)+sig)%sig===0);
+      ctx.fillStyle=is0?cTonic:cText3;
+      ctx.fillRect(bx-1,is0?H*0.2:H*0.35,2,is0?H*0.6:H*0.3);
+    }
+    ctx.strokeStyle=cTonic;ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(PH,0);ctx.lineTo(PH,H);ctx.stroke();
+    return;
+  }
+  var N=chords.length;
+  var beatInChord=state.beat+bp;
+  var curX=PH-beatInChord*BEAT_PX;
+  var offStart=Math.floor((-CHORD_W-curX)/CHORD_W)-1;
+  var offEnd=Math.ceil((W+CHORD_W-curX)/CHORD_W)+1;
+  ctx.save();ctx.beginPath();ctx.rect(0,0,W,H);ctx.clip();
+  for(var off=offStart;off<=offEnd;off++){
+    var ci=((state.idx+off)%N+N)%N;
+    var chord=chords[ci];
+    var cx=curX+off*CHORD_W;
+    if(cx+CHORD_W<-4||cx>W+4)continue;
+    var isAct=(off===0),isPast=(off<0);
+    ctx.beginPath();_ctxRR(ctx,cx+2,3,CHORD_W-4,H-6,5);
+    ctx.fillStyle=isAct?cTonic+'cc':isPast?cText3+'18':cText3+'10';
+    ctx.fill();
+    ctx.strokeStyle=isAct?'rgba(255,255,255,0.18)':cText3+'40';
+    ctx.lineWidth=1;
+    for(var b2=1;b2<sig;b2++){
+      var bx2=cx+b2*BEAT_PX;
+      ctx.beginPath();ctx.moveTo(bx2,H*0.38);ctx.lineTo(bx2,H*0.62);ctx.stroke();
+    }
+    if(isAct){
+      for(var b2=0;b2<sig;b2++){
+        var dotX=cx+(b2+0.5)*BEAT_PX,dotY=H-9;
+        var isAB=(b2===state.beat);
+        ctx.beginPath();ctx.arc(dotX,dotY,isAB?3.5:2,0,Math.PI*2);
+        ctx.fillStyle=isAB?'rgba(255,255,255,.95)':'rgba(255,255,255,.3)';ctx.fill();
+      }
+    }
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font=(isAct?'600 14':'500 12')+'px "DM Mono",monospace';
+    ctx.fillStyle=isAct?'rgba(255,255,255,.95)':isPast?cText3:cText;
+    ctx.fillText(chord.label,cx+CHORD_W/2,isAct?H/2-4:H/2);
+  }
+  ctx.restore();
+  ctx.strokeStyle=cTonic;ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(PH,0);ctx.lineTo(PH,H);ctx.stroke();
+  ctx.fillStyle=cTonic;
+  ctx.beginPath();ctx.moveTo(PH-4,0);ctx.lineTo(PH+4,0);ctx.lineTo(PH,6);ctx.closePath();ctx.fill();
+}
+
+/* ── PRACTICE COLLAPSIBLE COLUMNS ── */
+var _pracLeftCollapsed=false,_pracRightCollapsed=false,_pracSavedLW=null,_pracSavedRW=null;
+function _pracToggleLeft(){
+  var overlay=document.getElementById('practice-overlay');
+  if(!overlay||!overlay.classList.contains('fullscreen'))return;
+  var lEl=document.getElementById('prac-fs-left');
+  _pracLeftCollapsed=!_pracLeftCollapsed;
+  if(_pracLeftCollapsed){
+    _pracSavedLW=lEl.offsetWidth;
+    lEl.classList.add('collapsed');
+    var rw=(_pracRightCollapsed?40:(document.getElementById('prac-fs-right')||{offsetWidth:280}).offsetWidth);
+    overlay.style.gridTemplateColumns='40px 1fr '+rw+'px';
+  } else {
+    lEl.classList.remove('collapsed');
+    var lw=_pracSavedLW||Math.round(overlay.clientWidth*0.3);
+    var rw=(_pracRightCollapsed?40:(document.getElementById('prac-fs-right')||{offsetWidth:280}).offsetWidth);
+    overlay.style.gridTemplateColumns=lw+'px 1fr '+rw+'px';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){drawCOF();});});
+  }
+  var btn=document.getElementById('prac-left-toggle');
+  if(btn)btn.textContent=_pracLeftCollapsed?'›':'‹';
+}
+function _pracToggleRight(){
+  var overlay=document.getElementById('practice-overlay');
+  if(!overlay||!overlay.classList.contains('fullscreen'))return;
+  var rEl=document.getElementById('prac-fs-right');
+  _pracRightCollapsed=!_pracRightCollapsed;
+  if(_pracRightCollapsed){
+    _pracSavedRW=rEl.offsetWidth;
+    rEl.classList.add('collapsed');
+    var lw=(_pracLeftCollapsed?40:(document.getElementById('prac-fs-left')||{offsetWidth:480}).offsetWidth);
+    overlay.style.gridTemplateColumns=lw+'px 1fr 40px';
+  } else {
+    rEl.classList.remove('collapsed');
+    var lw=(_pracLeftCollapsed?40:(document.getElementById('prac-fs-left')||{offsetWidth:480}).offsetWidth);
+    var rw=_pracSavedRW||Math.round(overlay.clientWidth*0.2);
+    overlay.style.gridTemplateColumns=lw+'px 1fr '+rw+'px';
+  }
+  var btn=document.getElementById('prac-right-toggle');
+  if(btn)btn.textContent=_pracRightCollapsed?'‹':'›';
+}
+
 /* ── PRACTICE FULLSCREEN ── */
 function _practiceToggleFullscreen(){
   var overlay=document.getElementById('practice-overlay');
   var btn=document.getElementById('practice-fs-btn');
   var fs=overlay.classList.toggle('fullscreen');
   if(btn)btn.textContent=fs?'⤡':'⤢';
+  if(!fs){
+    var lEl=document.getElementById('prac-fs-left');var rEl=document.getElementById('prac-fs-right');
+    if(lEl)lEl.classList.remove('collapsed');if(rEl)rEl.classList.remove('collapsed');
+    _pracLeftCollapsed=false;_pracRightCollapsed=false;overlay.style.gridTemplateColumns='';
+    var lb=document.getElementById('prac-left-toggle');var rb=document.getElementById('prac-right-toggle');
+    if(lb)lb.textContent='‹';if(rb)rb.textContent='›';
+  }
   if(typeof buildPiano==='function')buildPiano();
   requestAnimationFrame(function(){ requestAnimationFrame(function(){ drawCOF(); }); });
 }
@@ -5564,12 +5740,14 @@ function _practiceToggleFullscreen(){
     function onMove(e){
       var overlay=document.getElementById('practice-overlay');
       if(!overlay)return;
+      if(side==='left'&&_pracLeftCollapsed)return;
+      if(side==='right'&&_pracRightCollapsed)return;
       var delta=e.clientX-startX;
       var newW=side==='left'
         ?Math.max(180,Math.min(700,startW+delta))
         :Math.max(150,Math.min(500,startW-delta));
-      var lw=side==='left'?newW:(document.getElementById('prac-fs-left')||{offsetWidth:480}).offsetWidth;
-      var rw=side==='right'?newW:(document.getElementById('prac-fs-right')||{offsetWidth:280}).offsetWidth;
+      var lw=side==='left'?newW:(_pracLeftCollapsed?40:(document.getElementById('prac-fs-left')||{offsetWidth:480}).offsetWidth);
+      var rw=side==='right'?newW:(_pracRightCollapsed?40:(document.getElementById('prac-fs-right')||{offsetWidth:280}).offsetWidth);
       overlay.style.gridTemplateColumns=lw+'px 1fr '+rw+'px';
       requestAnimationFrame(function(){drawCOF();});
     }
