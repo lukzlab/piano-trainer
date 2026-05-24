@@ -420,7 +420,7 @@ body.peda-hidden .harmony-note{display:none!important}
 .practice-chord-prev{font-size:26px;font-weight:500;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:-.02em;text-align:right;min-width:70px}
 .practice-chord-current{font-size:72px;font-weight:600;color:var(--text);font-family:'DM Sans',sans-serif;letter-spacing:-.04em;text-align:center;min-width:120px;transition:opacity .1s}
 .practice-chord-next{font-size:26px;font-weight:500;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:-.02em;text-align:left;min-width:70px}
-.practice-beat{display:flex;gap:10px;justify-content:center;margin-bottom:1.5rem}
+.practice-beat{display:flex;gap:10px;justify-content:center;margin-bottom:0}
 .practice-beat-dot{width:14px;height:14px;border-radius:50%;background:var(--border2);transition:background .05s,transform .05s}
 .practice-beat-dot.active{background:var(--tonic);transform:scale(1.4)}
 .practice-beat-dot.strong{background:var(--tonic)}
@@ -990,7 +990,10 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     <div class="practice-chord-next" id="practice-next"></div>
   </div>
   <div id="practice-enrich-row" class="enrich-row" style="justify-content:center;min-height:18px;margin-bottom:14px;margin-top:4px"></div>
-  <div class="practice-beat" id="practice-beat"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem">
+    <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;flex-shrink:0">tempo</span>
+    <div class="practice-beat" id="practice-beat" style="margin-bottom:0"></div>
+  </div>
   <div class="practice-controls">
     <div class="practice-bpm-ctrl">
       <button class="practice-bpm-btn" onclick="practiceChangeBpm(-5)">−</button>
@@ -1008,7 +1011,10 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     <button class="practice-bpm-btn" onclick="_ytSeekStart()" id="practice-seek-start-btn" title="Remettre la vidéo au début" style="font-size:13px;min-width:34px;display:none">⏮</button>
     <button class="practice-bpm-btn" onclick="practiceTapTempo()" id="practice-tap-btn" title="Tap tempo" style="font-size:9px;letter-spacing:.08em;min-width:34px;border-color:var(--accent);color:var(--accent)">TAP</button>
   </div>
-  <div class="practice-prog-dots" id="practice-prog-dots"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:.5rem">
+    <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;flex-shrink:0">progression</span>
+    <div class="practice-prog-dots" id="practice-prog-dots" style="margin-bottom:0"></div>
+  </div>
   <div id="practice-seq-section" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);flex-shrink:0">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
       <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase">Séquence</span>
