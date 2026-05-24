@@ -456,6 +456,8 @@ body.peda-hidden .harmony-note{display:none!important}
 .practice-prog-chip{font-size:12px;font-family:'DM Mono',monospace;font-weight:500;padding:5px 12px;border-radius:99px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .1s;white-space:nowrap;user-select:none}
 .practice-prog-chip.active{background:var(--tonic);color:#fff;border-color:var(--tonic)}
 .practice-prog-chip.done{background:var(--tonic-bg);color:var(--tonic);border-color:transparent}
+.prac-chip-x{background:none;border:none;cursor:pointer;padding:0 0 0 5px;font-size:9px;line-height:1;color:inherit;opacity:.45;transition:opacity .1s;flex-shrink:0}
+.prac-chip-x:hover{opacity:1}
 .prog-insert-bar{width:2px;min-height:26px;align-self:center;background:var(--tonic);border-radius:2px;flex-shrink:0;pointer-events:none}
 .yt-alt-btn{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.03em;transition:all .15s;flex-shrink:0}
 .yt-alt-btn:hover{border-color:var(--accent);color:var(--accent)}
@@ -2001,7 +2003,7 @@ function _setPianoEnrich(eid){
     ctx.ch.enrich=eid;
     ctx.ch.label=_practiceChordLabel(ctx.ch.semi,ctx.ch.type,eid);
     ctx.ch.midis=getInvertedMidis(rn,eid||t,t,0);
-    _practiceBuildEnrich();_practiceBuildSeq();
+    _practiceBuildEnrich();_practiceBuildDots();_practiceBuildSeq();
     _ytSaveCfg();
   }
   var iv=ENRICH_IV[eid]||ENRICH_IV[t]||[0,4,7];
@@ -4117,8 +4119,13 @@ function _practiceBuildDots(){
   _practiceState.chords.forEach(function(c,i){
     var chip=document.createElement('div');
     chip.className='practice-prog-chip'+(i===0?' active':'');
-    chip.textContent=c.label;
     chip.dataset.idx=i;
+    chip.style.display='inline-flex';chip.style.alignItems='center';
+    var _lbl=document.createElement('span');_lbl.textContent=c.label;chip.appendChild(_lbl);
+    var _x=document.createElement('button');_x.className='prac-chip-x';_x.textContent='✕';
+    _x.title='Supprimer';
+    _x.onclick=(function(idx){return function(e){e.stopPropagation();practiceSeqRemove(idx);};})(i);
+    chip.appendChild(_x);
     chip.draggable=true;
     chip.onclick=(function(idx){return function(){
       _practiceState.idx=idx;_practiceState.beat=0;_practiceRender();
@@ -5275,10 +5282,14 @@ function _practiceBuildSeq(){
 }
 
 function practiceSeqRemove(idx){
-  if(_practiceState.chords.length<=1)return;
   _practiceState.chords.splice(idx,1);
-  if(_practiceState.idx>=_practiceState.chords.length)
-    _practiceState.idx=_practiceState.chords.length-1;
+  if(!_practiceState.chords.length){
+    _practiceState.idx=0;_practiceState.beat=0;
+    var _pt=document.getElementById('practice-title');if(_pt)_pt.textContent='Métronome';
+  } else {
+    if(_practiceState.idx>=_practiceState.chords.length)
+      _practiceState.idx=_practiceState.chords.length-1;
+  }
   _practiceBuildDots();_practiceBuildSeq();_practiceRender();
   _ytSaveCfg();
 }
