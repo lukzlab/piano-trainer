@@ -1580,7 +1580,7 @@ function drawCOF(){
   var _dGL='M '+CX+' '+(CY-_RMO)+' A '+_RMO+' '+_RMO+' 0 0 0 '+CX+' '+(CY+_RMO)+' L '+CX+' '+(CY+_RMI)+' A '+_RMI+' '+_RMI+' 0 0 1 '+CX+' '+(CY-_RMI)+' Z';
   var _dAR='M '+CX+' '+(CY-_RMO)+' A '+_RMO+' '+_RMO+' 0 0 1 '+CX+' '+(CY+_RMO)+' L '+CX+' '+(CY+_RMI)+' A '+_RMI+' '+_RMI+' 0 0 0 '+CX+' '+(CY-_RMI)+' Z';
   var _isGraphite=document.body.classList.contains('graphite');
-  var _activeTxt=_isGraphite?'rgba(255,255,255,0.80)':'#2A2820';
+  var _activeTxt=C_SELECTED;
   var _inactiveTxt=_isGraphite?'rgba(255,255,255,0.22)':'rgba(42,40,32,0.30)';
   var _hGL=mk('path',{d:_dGL,'fill-opacity':_isGamme?'0.55':'0',stroke:'none'});
   _hGL.style.fill=C_DEGREE;_hGL.style.cursor='pointer';_hGL.onclick=function(){_setPianoMode('gamme');drawCOF();};
@@ -5157,7 +5157,14 @@ document.addEventListener('click',function(e){
 document.addEventListener('click',function(e){
   if(!_showPianoEnrich)return;
   var pop=document.getElementById('chord-enrich-pop');
-  if(pop&&!pop.contains(e.target)){_closeChordEnrichPop();}
+  if(pop&&!pop.contains(e.target)){
+    /* Ne pas fermer si le clic vient du COF ou du piano — ce sont des interactions légitimes */
+    var cof=document.getElementById('cof');
+    var pw=document.getElementById('pw');
+    if(cof&&cof.contains(e.target))return;
+    if(pw&&pw.contains(e.target))return;
+    _closeChordEnrichPop();
+  }
 });
 
 /* ── INIT ── */
