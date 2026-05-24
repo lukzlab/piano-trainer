@@ -1629,11 +1629,18 @@ function paintPiano(chordMidiSet, overlayScale){
     var sm=mod(m);
     /* Reset */
     el.style.boxShadow='';
+    el.style.background='';
     var dot=el.querySelector('.key-dot');
     if(dot)dot.style.background='transparent';
-    /* Glow — accord sélectionné */
+    /* Touche enfoncée — accord sélectionné */
     if(chordMidiSet&&chordMidiSet[m]){
-      el.style.boxShadow='0 0 16px 6px rgba(200,135,58,0.95),0 0 6px 2px rgba(200,135,58,0.7)';
+      if(isB(sm)){
+        el.style.background='#2e2e2e';
+        el.style.boxShadow='inset 0 6px 14px rgba(0,0,0,0.85),inset 0 2px 5px rgba(0,0,0,0.6)';
+      }else{
+        el.style.background='#e0dbd0';
+        el.style.boxShadow='inset 0 8px 16px rgba(0,0,0,0.18),inset 0 3px 6px rgba(0,0,0,0.10)';
+      }
     }
     /* Pastille — appartenance à la gamme */
     if(showScale&&dot){
