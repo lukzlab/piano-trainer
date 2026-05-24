@@ -133,7 +133,7 @@ body.light .rbtn.active{background:#1A1814;border-color:#1A1814}
 .bk{position:absolute;top:0;border-radius:0;background:#222;border:none;box-sizing:border-box;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;font-size:0;color:transparent;z-index:2;transition:box-shadow .12s;cursor:pointer}
 .wk:hover{background:#ede9e0 !important}
 .bk:hover{filter:brightness(1.4)}
-.key-dot{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;pointer-events:none;background:transparent;transition:background .1s;z-index:3}
+
 .piano-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:.5rem;font-size:10px;color:var(--text3)}
 .oct-lbl{position:absolute;bottom:3px;left:0;right:0;text-align:center;pointer-events:none;font-size:8px;font-weight:600;color:#2A2820;font-family:'DM Mono',monospace;letter-spacing:.03em}
 body.graphite .oct-lbl{color:rgba(0,0,0,0.35)}
@@ -353,8 +353,8 @@ body.peda-hidden .harmony-note{display:none!important}
 .sb-on-dot.on{opacity:1}
 
 /* ── PIANO DOTS ── */
-.key-dot{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;pointer-events:none;z-index:3}
-.bk .key-dot{top:4px;width:5px;height:5px}
+.key-dot{position:absolute;top:5px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;pointer-events:none;background:transparent;border:1.5px solid rgba(0,0,0,0.14);transition:background .1s,border-color .1s;z-index:3}
+.bk .key-dot{top:4px;width:7px;height:7px}
 
  body.graphite .nl { color: var(--text2); }
  body.graphite .nl.active { color: var(--tonic); border-bottom-color: var(--tonic); }
@@ -1630,24 +1630,27 @@ function paintPiano(chordMidiSet, overlayScale){
     /* Reset */
     el.style.boxShadow='';
     el.style.background='';
+    el.style.zIndex='';
     var dot=el.querySelector('.key-dot');
-    if(dot)dot.style.background='transparent';
+    if(dot){dot.style.background='transparent';dot.style.borderColor='rgba(0,0,0,0.14)';}
     /* Touche enfoncée — accord sélectionné */
     if(chordMidiSet&&chordMidiSet[m]){
       if(isB(sm)){
-        el.style.background='#2e2e2e';
-        el.style.boxShadow='inset 0 6px 14px rgba(0,0,0,0.85),inset 0 2px 5px rgba(0,0,0,0.6)';
+        el.style.background='#38332e';
+        el.style.zIndex='3';
+        el.style.boxShadow='inset 0 10px 22px rgba(0,0,0,0.92),inset 0 4px 9px rgba(0,0,0,0.75),0 0 7px 3px rgba(200,135,58,0.55)';
       }else{
-        el.style.background='#e0dbd0';
-        el.style.boxShadow='inset 0 8px 16px rgba(0,0,0,0.18),inset 0 3px 6px rgba(0,0,0,0.10)';
+        el.style.background='#ede5d4';
+        el.style.zIndex='3';
+        el.style.boxShadow='inset 0 12px 24px rgba(0,0,0,0.26),inset 0 4px 10px rgba(0,0,0,0.16),0 0 9px 3px rgba(200,135,58,0.5)';
       }
     }
     /* Pastille — appartenance à la gamme */
     if(showScale&&dot){
       var isTonic=(sm===tonic);
       var inScale=notes.indexOf(sm)>=0;
-      if(isTonic)dot.style.background='var(--tonic)';
-      else if(inScale)dot.style.background='#e8d0a0';
+      if(isTonic){dot.style.background='var(--tonic)';dot.style.borderColor='rgba(0,0,0,0.25)';}
+      else if(inScale){dot.style.background='#c8922a';dot.style.borderColor='rgba(0,0,0,0.18)';}
     }
   }
 }
