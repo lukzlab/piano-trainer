@@ -139,7 +139,7 @@ body.light .rbtn.active{background:#1A1814;border-color:#1A1814}
 .practice-overlay.fullscreen .practice-prog-dot{width:20px;height:20px}
 .practice-overlay.fullscreen .practice-play-btn{width:64px;height:64px;font-size:22px}
 #prac-cof-section{display:none}
-.practice-overlay.fullscreen #prac-cof-section{display:flex;flex-direction:column;align-items:center;gap:6px;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.practice-overlay.fullscreen #prac-cof-section{display:flex;flex-direction:column;align-items:center;gap:6px;padding-bottom:.75rem;border-bottom:1px solid var(--border);min-height:180px}
 .cof-hint{font-size:10px;color:var(--text3);text-align:center;margin-top:.375rem;transition:color .2s}
 .cof-hint.build{color:var(--tonic);font-weight:500}
 
@@ -1404,7 +1404,7 @@ function _cofSelectChord(semi,type){
 function drawCOF(){
   _drawCOFCore(document.getElementById('cof'));
   var _c2=document.getElementById('cof-practice');
-  if(_c2&&_c2.offsetWidth>0) _drawCOFCore(_c2);
+  if(_c2) _drawCOFCore(_c2);
 }
 function _drawCOFCore(svg){
   if(!svg)return;
@@ -1413,7 +1413,7 @@ function _drawCOFCore(svg){
   var cont=svg.parentElement;
   var w=cont?cont.clientWidth:500;
   var h=cont?cont.clientHeight:500;
-  var size=Math.min(w,h);
+  var size=(h>w/2)?Math.min(w,h):w;
   if(size<150)size=150;
   svg.setAttribute('viewBox','0 0 600 600');
   svg.setAttribute('width',size);
@@ -5463,7 +5463,7 @@ function _practiceToggleFullscreen(){
   var fs=overlay.classList.toggle('fullscreen');
   if(btn)btn.textContent=fs?'⤡':'⤢';
   if(typeof buildPiano==='function')buildPiano();
-  drawCOF();
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ drawCOF(); }); });
 }
 
 /* ── PRACTICE RESIZE HANDLE ── */
