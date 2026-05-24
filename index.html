@@ -514,7 +514,7 @@ body{margin:0;overflow:hidden}
 .sidebar{width:44px;min-width:44px;background:var(--nav-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:.5rem 0;gap:.125rem;z-index:100;transition:width .2s;overflow:hidden;flex-shrink:0;height:100vh}
 .sidebar.expanded{width:178px;min-width:178px;align-items:flex-start;padding:.5rem 0;overflow-y:auto;overflow-x:hidden}
 .sidebar-logo{display:flex;align-items:center;gap:8px;padding:.25rem 8px .625rem;border-bottom:1px solid var(--border);width:100%;box-sizing:border-box;margin-bottom:.25rem;flex-shrink:0;min-height:44px}
-.sidebar-logo-icon{flex-shrink:0}
+.sidebar-logo-icon{flex-shrink:0;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center}
 .sidebar-logo-text{white-space:nowrap;opacity:0;transition:opacity .15s;overflow:hidden}
 .sidebar.expanded .sidebar-logo-text{opacity:1}
 .sidebar-item{display:flex;align-items:center;gap:8px;padding:.4rem 8px;cursor:pointer;border-radius:0;width:100%;box-sizing:border-box;transition:background .1s;position:relative;flex-shrink:0;border:none;background:transparent}
@@ -522,7 +522,7 @@ body{margin:0;overflow:hidden}
 .sidebar-item.active{background:var(--tonic-bg)}
 .sidebar-item.active .sidebar-icon{color:var(--tonic)}
 .sidebar-item.active .sidebar-label{color:var(--tonic);font-weight:500}
-.sidebar-icon{font-size:15px;flex-shrink:0;width:28px;text-align:center;color:var(--text2);line-height:1}
+.sidebar-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center;color:var(--text2);line-height:1}
 .sidebar-label{font-size:14px;color:var(--text2);white-space:nowrap;opacity:0;transition:opacity .15s,max-width .2s;overflow:hidden;font-family:'DM Sans',sans-serif;max-width:0}
 .sidebar.expanded .sidebar-label{opacity:1;max-width:178px}
 .sidebar-tooltip{position:absolute;left:52px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-size:11px;color:var(--text);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .1s;z-index:200;font-family:'DM Sans',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.12)}
