@@ -467,7 +467,7 @@ body.peda-hidden .harmony-note{display:none!important}
 .prac-chip-x{background:none;border:none;cursor:pointer;padding:0 0 0 5px;font-size:9px;line-height:1;color:inherit;opacity:.45;transition:opacity .1s;flex-shrink:0}
 .prac-chip-x:hover{opacity:1}
 .prog-insert-bar{width:2px;min-height:26px;align-self:center;background:var(--tonic);border-radius:2px;flex-shrink:0;pointer-events:none}
-#prac-trackline{display:block;width:100%;height:70px;border-radius:6px}
+#prac-trackline{display:block;width:100%;height:86px;border-radius:6px}
 .prac-col-toggle-wrap{display:none;padding:2px 4px 0;flex-shrink:0}
 .practice-overlay.fullscreen .prac-col-toggle-wrap{display:flex;justify-content:flex-end}
 #prac-right-toggle-wrap{justify-content:flex-start}
@@ -5609,7 +5609,7 @@ function _tlDraw(){
   var cv=document.getElementById('prac-trackline');
   if(!cv)return;
   var W=cv.offsetWidth;if(!W||W<10)return;
-  var H=70;
+  var H=86;
   if(cv.width!==W)cv.width=W;
   if(cv.height!==H)cv.height=H;
   var ctx=cv.getContext('2d');
