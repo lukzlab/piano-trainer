@@ -456,6 +456,8 @@ body.peda-hidden .harmony-note{display:none!important}
 .practice-bpm-val{font-size:14px;font-family:'DM Mono',monospace;color:var(--text);width:40px;text-align:center;font-weight:500}
 .practice-bpm-label{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace}
 .practice-section-name{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);font-family:'DM Mono',monospace;text-align:center;margin-bottom:.5rem}
+.practice-tonality{font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.08em;text-align:center;margin-bottom:.5rem}
+.practice-overlay.fullscreen .practice-tonality{font-size:14px;margin-bottom:.75rem}
 .practice-prog-dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;max-width:100%;margin-bottom:.5rem;min-height:34px;align-items:center;padding:4px;border-radius:8px;transition:background .1s,outline .1s}
 .practice-prog-chip{font-size:12px;font-family:'DM Mono',monospace;font-weight:500;padding:5px 12px;border-radius:99px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .1s;white-space:nowrap;user-select:none}
 .practice-prog-chip.active{background:var(--tonic);color:#fff;border-color:var(--tonic)}
@@ -1018,6 +1020,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
   <div id="prac-fs-center">
     <div class="practice-title" id="practice-title">Practice</div>
     <div class="practice-section-name" id="practice-section-name"></div>
+    <div class="practice-tonality" id="practice-tonality"></div>
     <div class="practice-chord-display">
       <div class="practice-chord-prev" id="practice-prev"></div>
       <div class="practice-chord-current" id="practice-current">—</div>
@@ -2725,9 +2728,15 @@ function buildScaleBtns(){
 }
 
 
+function _updatePracticeTonality(){
+  var el=document.getElementById('practice-tonality');
+  if(el){var sc=getSC();el.textContent=EN[mod(st.root)]+' — '+sc.label;}
+}
+
 function updateAll(){
   var ptl=document.getElementById('piano-title-label');
   if(ptl){var sc2=getSC();ptl.textContent=EN[st.root]+' '+sc2.label;}
+  _updatePracticeTonality();
   drawCOF();renderMainPanel();buildProgList();
   if(scaleState.activeDeg<0&&customProg.activeStep<0&&stdProg.activeStep<0)paintPiano(null);
   if(scaleState.activeDeg<0&&customProg.activeStep<0&&stdProg.activeStep<0)document.getElementById('piano-sub').textContent='tonique en ocre';
@@ -4093,6 +4102,7 @@ function _practiceRender(){
   _updatePianoEnrichBtns();
   /* Update COF */
   drawCOF();
+  _updatePracticeTonality();
   /* Update progression chips */
   document.querySelectorAll('.practice-prog-chip').forEach(function(d,i){
     d.classList.toggle('active',i===state.idx);
