@@ -797,7 +797,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
       <span class="drawer-sep"></span>
       <button class="atb-icon-btn metro-btn-all" onclick="metroToggle()" id="metro-btn" title="Métronome">&#9711;</button>
       <span class="atb-label">Métronome</span>
-      <input class="audio-tempo" id="metro-vol" type="range" min="1" max="10" value="5" oninput="metroSetVol(this.value);_syncSlider('practice-metro-vol',this.value)" style="width:50px">
+      <input class="audio-tempo" id="metro-vol" type="range" min="0" max="10" value="5" oninput="metroSetVol(this.value);_syncSlider('practice-metro-vol',this.value)" style="width:50px">
       <span class="drawer-sep"></span>
       <span class="atb-label">STYLE</span>
       <select class="atb-select" id="yt-style-select" onchange="ytSetStyleSelect(this.value)">
@@ -864,7 +864,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
             <option value="perc">Percussion</option>
           </select>
           <span class="drawer-label">Vol</span>
-          <input class="bt-vol" id="metro-vol-2" type="range" min="1" max="10" value="5" oninput="metroSetVol(this.value)">
+          <input class="bt-vol" id="metro-vol-2" type="range" min="0" max="10" value="5" oninput="metroSetVol(this.value)">
         </div>
       </div>
       <div class="drawer-section">
@@ -971,7 +971,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     <div class="practice-chord-current" id="practice-current">—</div>
     <div class="practice-chord-next" id="practice-next"></div>
   </div>
-  <div id="practice-enrich-row" class="enrich-row" style="justify-content:center;min-height:18px;margin-bottom:2px"></div>
+  <div id="practice-enrich-row" class="enrich-row" style="justify-content:center;min-height:18px;margin-bottom:14px;margin-top:4px"></div>
   <div class="practice-beat" id="practice-beat"></div>
   <div class="practice-controls">
     <div class="practice-bpm-ctrl">
@@ -987,6 +987,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
       <button class="practice-bpm-btn" onclick="practiceChangeSig(+1)">+</button>
       <span class="practice-bpm-label">mesure</span>
     </div>
+    <button class="practice-bpm-btn" onclick="practiceTapTempo()" id="practice-tap-btn" title="Tap tempo" style="font-size:9px;letter-spacing:.08em;min-width:34px;border-color:var(--accent);color:var(--accent)">TAP</button>
   </div>
   <div class="practice-prog-dots" id="practice-prog-dots"></div>
   <div id="practice-seq-section" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);flex-shrink:0">
@@ -1000,7 +1001,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     <div style="display:flex;align-items:center;gap:8px">
       <button id="practice-metro-btn" class="atb-icon-btn metro-btn-all" onclick="metroToggle()" title="Métronome" style="flex-shrink:0">&#9711;</button>
       <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;flex-shrink:0;letter-spacing:.06em">VOL</span>
-      <input type="range" min="1" max="10" value="5" id="practice-metro-vol" style="flex:1" oninput="metroSetVol(this.value);_syncSlider('metro-vol',this.value)">
+      <input type="range" min="0" max="10" value="5" id="practice-metro-vol" style="flex:1" oninput="metroSetVol(this.value);_syncSlider('metro-vol',this.value)">
     </div>
     <div style="display:flex;align-items:center;gap:6px">
       <select class="atb-select" id="practice-yt-style" style="flex:1;min-width:0" onchange="ytSetStyleSelect(this.value)">
@@ -2609,13 +2610,15 @@ function _getCtx(){
 }
 
 function _playNote(midi,when,dur){
+  if(_metroVol===0)return;
   var ctx=_getCtx();
   var freq=440*Math.pow(2,(midi-69)/12);
   var master=ctx.createGain();
+  var v=_metroVol;
   master.gain.setValueAtTime(0,when);
-  master.gain.linearRampToValueAtTime(0.5,when+0.01);
-  master.gain.exponentialRampToValueAtTime(0.25,when+0.08);
-  master.gain.setValueAtTime(0.25,when+dur*0.5);
+  master.gain.linearRampToValueAtTime(0.5*v,when+0.01);
+  master.gain.exponentialRampToValueAtTime(Math.max(0.001,0.25*v),when+0.08);
+  master.gain.setValueAtTime(Math.max(0.001,0.25*v),when+dur*0.5);
   master.gain.exponentialRampToValueAtTime(0.001,when+dur);
   master.connect(ctx.destination);
   [[1,0.6],[2,0.25],[3,0.1],[4,0.05]].forEach(function(h){
@@ -3028,6 +3031,7 @@ function metroSetVol(val){_metroVol=parseInt(val)/10;}
 function metroSetSound(val){_metroSound=val;}
 
 function _metroClick(when,strong){
+  if(_metroVol===0)return;
   var ctx=_getCtx();
   var gain=ctx.createGain();
   gain.connect(ctx.destination);
@@ -3772,9 +3776,36 @@ function _practiceBuildDots(){
   });
 }
 
+var _ytPracticeIsPlaying=false;
+
 function practiceToggle(){
-  if(_practiceState.playing){practiceStop();}
-  else{practiceStart();}
+  var ytVisible=document.getElementById('practice-yt-section').style.display!=='none';
+  if(_practiceState.playing){
+    practiceStop();
+    if(ytVisible){_ytPracticeCmd('pauseVideo');_ytPracticeIsPlaying=false;}
+  } else {
+    practiceStart();
+    if(ytVisible){_ytPracticeCmd('playVideo');_ytPracticeIsPlaying=true;}
+  }
+}
+
+var _tapTimes=[],_tapTimer=null;
+function practiceTapTempo(){
+  var now=Date.now();
+  if(_tapTimer)clearTimeout(_tapTimer);
+  _tapTimer=setTimeout(function(){_tapTimes=[];},2500);
+  _tapTimes.push(now);
+  var btn=document.getElementById('practice-tap-btn');
+  if(btn){btn.style.background='var(--accent)';btn.style.color='#fff';setTimeout(function(){btn.style.background='';btn.style.color='var(--accent)';},120);}
+  if(_tapTimes.length<2)return;
+  if(_tapTimes.length>8)_tapTimes=_tapTimes.slice(-8);
+  var intervals=[];
+  for(var i=1;i<_tapTimes.length;i++)intervals.push(_tapTimes[i]-_tapTimes[i-1]);
+  var avg=intervals.reduce(function(a,b){return a+b;})/intervals.length;
+  var bpm=Math.max(40,Math.min(240,Math.round(60000/avg)));
+  _practiceState.bpm=bpm;_audioBpm=bpm;
+  document.getElementById('practice-bpm-val').textContent=bpm;
+  if(_practiceState.playing){practiceStop();practiceStart();}
 }
 
 function practiceStart(){
@@ -4518,7 +4549,21 @@ function openYouTubeBacking(){
       if(loading)loading.style.display='none';
       if(d.videoId&&iframe){
         iframe.src='https://www.youtube-nocookie.com/embed/'+d.videoId+'?autoplay=1&controls=1&modestbranding=1&rel=0&enablejsapi=1';
-        if(titleEl)titleEl.textContent=(d.title||q).substring(0,50);
+        _ytPracticeIsPlaying=true;
+        var titleStr=(d.title||q).substring(0,50);
+        /* Parse BPM from title + description (description disponible si le backend l'inclut) */
+        var ytText=(d.title||q)+' '+(d.description||'');
+        var bpmMatch=ytText.match(/\b(\d{2,3})\s*bpm\b/i);
+        if(bpmMatch){
+          var detBpm=parseInt(bpmMatch[1]);
+          if(detBpm>=40&&detBpm<=240){
+            _practiceState.bpm=detBpm;_audioBpm=detBpm;
+            document.getElementById('practice-bpm-val').textContent=detBpm;
+            titleStr+=' · ♩='+detBpm;
+            if(_practiceState.playing){practiceStop();practiceStart();}
+          }
+        }
+        if(titleEl)titleEl.textContent=titleStr;
       } else {
         if(loading){loading.style.display='flex';loading.textContent='Introuvable';}
       }
