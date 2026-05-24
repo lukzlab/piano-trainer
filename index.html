@@ -5301,25 +5301,27 @@ function setScaleFromPop(scaleId){
   updateAll();_updateScalePopBtn();
 }
 
+/* Handler capture : le premier clic hors d'un menu flottant ferme juste ce menu,
+   sans déclencher l'action sous-jacente (COF, fond, etc.) */
 document.addEventListener('click',function(e){
-  if(!_scalePopOpen)return;
-  var pop=document.getElementById('scale-popover');
-  if(pop&&!pop.contains(e.target)){
-    _scalePopOpen=false;pop.classList.remove('open');
+  if(!_scalePopOpen&&!_showPianoEnrich)return;
+  var blocked=false;
+  if(_scalePopOpen){
+    var sp=document.getElementById('scale-popover');
+    if(sp&&!sp.contains(e.target)){
+      _scalePopOpen=false;sp.classList.remove('open');
+      blocked=true;
+    }
   }
-});
-document.addEventListener('click',function(e){
-  if(!_showPianoEnrich)return;
-  var pop=document.getElementById('chord-enrich-pop');
-  if(pop&&!pop.contains(e.target)){
-    /* Ne pas fermer si le clic vient du COF ou du piano — ce sont des interactions légitimes */
-    var cof=document.getElementById('cof');
-    var pw=document.getElementById('pw');
-    if(cof&&cof.contains(e.target))return;
-    if(pw&&pw.contains(e.target))return;
-    _closeChordEnrichPop();
+  if(_showPianoEnrich){
+    var ep=document.getElementById('chord-enrich-pop');
+    if(ep&&!ep.contains(e.target)){
+      _closeChordEnrichPop();
+      blocked=true;
+    }
   }
-});
+  if(blocked)e.stopPropagation();
+},true);
 
 /* ── INIT ── */
 /* ── COF ARROW POSITIONING ── */
