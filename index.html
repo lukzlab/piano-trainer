@@ -2130,7 +2130,7 @@ function renderScalePanel(header,body){
     ROMAN.slice(0,sc.iv.length).forEach(function(r,i){
       var t=sc.ch[i];var isPivot=(sc.id==='major'&&(i===3||i===4));
       var row=document.createElement('div');row.className='deg-row'+(i===scaleState.activeDeg?' selected':'');
-      var cn=chordNameDeg(i,i===scaleState.activeDeg?scaleState.activeEnrich:'');
+      var cn=chordNameDeg(i,i===scaleState.activeDeg?scaleState.activeEnrich:(scaleState.enrichPerDeg[i]||''));
       var hint=DEG_HINTS[r]||'';
       var funcNames=['Tonique','Sus-tonique','Médiante','Sous-dom.','Dominante','Relat. min.','Sensible'];
       var chipLabel=t==='min'?'m':t==='dim'?'°':t==='aug'?'+':'M';
