@@ -138,6 +138,7 @@ body.light .rbtn.active{background:#1A1814;border-color:#1A1814}
 .oct-lbl{position:absolute;bottom:3px;left:0;right:0;text-align:center;pointer-events:none;font-size:8px;font-weight:600;color:#2A2820;font-family:'DM Mono',monospace;letter-spacing:.03em}
 body.graphite .oct-lbl{color:rgba(0,0,0,0.35)}
 .note-lbl{position:absolute;bottom:4px;left:0;right:0;text-align:center;pointer-events:none;font-size:7px;font-weight:500;color:rgba(60,55,45,0.45);font-family:'DM Mono',monospace;letter-spacing:.02em}
+.bk .note-lbl{color:rgba(255,255,255,0.3);font-size:6px;bottom:3px}
 body.manuscrit .oct-lbl{color:#2b1f12}
 .pleg{display:flex;align-items:center;gap:4px}
 .pleg-dot{width:10px;height:10px;border-radius:2px;display:inline-block;border:1px solid rgba(0,0,0,.15)}
@@ -1597,7 +1598,7 @@ function buildPiano(){
     var dot=document.createElement('span');dot.className='key-dot';el.appendChild(dot);
     pw.appendChild(el);
     var bsa={0:1,2:3,5:6,7:8,9:10};
-    if(bsa[sm]!==undefined){var bmidi=midi+1;if(bmidi<=MIDI_END&&isB(bmidi)){var bel=document.createElement('div');bel.className='bk';bel.id='pw_K'+bmidi;bel.style.cssText='left:'+(x+ww-Math.floor(bw/2))+'px;width:'+bw+'px;height:'+(wh*.62)+'px;cursor:pointer;';bel.onclick=(function(m){return function(e){e.stopPropagation();_pianoKeyClick(m);};})(bmidi);var bdot=document.createElement('span');bdot.className='key-dot';bel.appendChild(bdot);pw.appendChild(bel);}}
+    if(bsa[sm]!==undefined){var bmidi=midi+1;if(bmidi<=MIDI_END&&isB(bmidi)){var bel=document.createElement('div');bel.className='bk';bel.id='pw_K'+bmidi;bel.style.cssText='left:'+(x+ww-Math.floor(bw/2))+'px;width:'+bw+'px;height:'+(wh*.62)+'px;cursor:pointer;';bel.onclick=(function(m){return function(e){e.stopPropagation();_pianoKeyClick(m);};})(bmidi);var bdot=document.createElement('span');bdot.className='key-dot';bel.appendChild(bdot);var bnl=document.createElement('span');bnl.className='note-lbl';bnl.textContent=EN[mod(bmidi)];bel.appendChild(bnl);pw.appendChild(bel);}}
   }
 }
 
