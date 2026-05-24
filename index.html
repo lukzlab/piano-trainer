@@ -354,7 +354,7 @@ body.peda-hidden .harmony-note{display:none!important}
 
 /* ── PIANO DOTS ── */
 .key-dot{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;pointer-events:none;background:transparent;border:none;transition:background .1s;z-index:3}
-.bk .key-dot{bottom:4px;width:6px;height:6px}
+.bk .key-dot{bottom:8px;width:6px;height:6px}
 
  body.graphite .nl { color: var(--text2); }
  body.graphite .nl.active { color: var(--tonic); border-bottom-color: var(--tonic); }
@@ -1634,7 +1634,7 @@ function paintPiano(chordMidiSet, overlayScale){
     el.style.clipPath='';
     el.style.borderRightColor='';
     var dot=el.querySelector('.key-dot');
-    if(dot){dot.style.background='transparent';}
+    if(dot){dot.style.background='transparent';dot.style.border='';}
 
     /* Touche enfoncée — accord sélectionné */
     /* Pastille gamme */
@@ -1643,15 +1643,16 @@ function paintPiano(chordMidiSet, overlayScale){
       var inScale=notes.indexOf(sm)>=0;
       if(inScale){
         dot.style.background=isTonic?'var(--tonic)':'rgba(255,255,255,0.92)';
+        dot.style.border='1px solid var(--piano-border)';
       }
     }
     /* Touche enfoncée — accord sélectionné */
     if(chordMidiSet&&chordMidiSet[m]){
       /* clip-path: laisse passer le glow vers le haut seulement, coupe côtés + bas */
       if(isB(sm)){
-        el.style.clipPath='inset(0 -12px -14px -12px)';
+        el.style.clipPath='inset(0 -6px -8px -6px)';
         el.style.background='#1c1810';
-        el.style.boxShadow='inset 0 10px 20px rgba(0,0,0,0.95),inset 0 3px 7px rgba(0,0,0,0.8),inset 0 0 0 2px #1c1810,inset 0 0 0 4px rgba(255,255,255,0.18),0 5px 10px 0px rgba(0,0,0,0.85),0 3px 5px 0px rgba(0,0,0,0.65)';
+        el.style.boxShadow='inset 0 10px 20px rgba(0,0,0,0.95),inset 0 3px 7px rgba(0,0,0,0.8),inset 0 0 0 2px #1c1810,inset 0 0 0 4px rgba(255,255,255,0.18),0 4px 6px 0px rgba(0,0,0,0.85),0 2px 3px 0px rgba(0,0,0,0.65)';
       }else{
         el.style.clipPath='';
         el.style.background='#eeeade';
