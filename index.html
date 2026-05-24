@@ -1642,9 +1642,9 @@ function paintPiano(chordMidiSet, overlayScale){
       if(!inScale){
         el.style.opacity='';
         if(isB(sm))
-          el.style.background='#222 repeating-linear-gradient(45deg,transparent,transparent 15px,rgba(255,255,255,0.18) 15px,rgba(255,255,255,0.18) 16px)';
+          el.style.background='linear-gradient(rgba(160,30,30,0.22),rgba(160,30,30,0.22)),#222';
         else
-          el.style.background='#f5f2ec repeating-linear-gradient(45deg,transparent,transparent 15px,rgba(0,0,0,0.10) 15px,rgba(0,0,0,0.10) 16px)';
+          el.style.background='linear-gradient(rgba(160,30,30,0.10),rgba(160,30,30,0.10)),#f5f2ec';
       }
       if(inScale){
         dot.style.background=isTonic?'var(--tonic)':'rgba(255,255,255,0.92)';
