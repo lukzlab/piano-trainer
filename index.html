@@ -1632,6 +1632,7 @@ function paintPiano(chordMidiSet, overlayScale){
     el.style.background='';
     el.style.zIndex='';
     el.style.clipPath='';
+    el.style.borderRightColor='';
     var dot=el.querySelector('.key-dot');
     if(dot){dot.style.background='transparent';dot.style.border='';}
     /* Touche enfoncée — accord sélectionné */
@@ -1645,6 +1646,7 @@ function paintPiano(chordMidiSet, overlayScale){
       }else{
         el.style.clipPath='inset(-30px 0 0 0)';
         el.style.background='#eeeade';
+        el.style.borderRightColor='#8a8680';
         el.style.boxShadow='inset 0 10px 18px rgba(0,0,0,0.55),inset 0 4px 8px rgba(0,0,0,0.38),0 -2px 4px 1px rgba(200,135,58,0.85),0 -7px 14px 2px rgba(200,135,58,0.4),0 -16px 26px 3px rgba(200,135,58,0.13)';
       }
     }
