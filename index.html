@@ -1650,6 +1650,26 @@ function drawCOF(){
   }
 }
 
+function _refreshActiveChord(){
+  if(scaleState.activeDeg<0)return;
+  var sc=getSC();var notes=getNotes();
+  var dIdx=scaleState.activeDeg;
+  if(!sc.ch||dIdx>=sc.ch.length)return;
+  var type=sc.ch[dIdx];
+  var eid=scaleState.enrichPerDeg[dIdx]||scaleState.activeEnrich||'';
+  scaleState.activeEnrich=eid;
+  var tonic=mod(st.root);var centerMidi=60;
+  for(var m=48;m<=72;m++){if(mod(m)===tonic){centerMidi=m;break;}}
+  var degMidi=centerMidi+sc.iv[dIdx];
+  _pianoActiveMidi=degMidi;_pianoInvPos=0;
+  var iv=ENRICH_IV[eid]||ENRICH_IV[type]||[0,4,7];
+  var midis=iv.map(function(x){return degMidi+x;});
+  while(Math.max.apply(null,midis)>MIDI_END)midis=midis.map(function(m){return m-12;});
+  while(Math.min.apply(null,midis)<MIDI_START)midis=midis.map(function(m){return m+12;});
+  var chSet={};midis.forEach(function(m){chSet[m]=true;});
+  paintPiano(chSet,true);
+  window._songChordHighlight={semi:notes[dIdx],type:type,enrichId:eid};
+}
 function navigateCircle(dir){
   if(st.viewMode==='prog'&&customProg.idx>=0){
     var cp=customProgs[customProg.idx];
@@ -1678,7 +1698,7 @@ function navigateCircle(dir){
     if(currentIdx<0)currentIdx=0;
     var newIdx=((currentIdx+dir)%12+12)%12;
     st.root=COF_MAJ[newIdx];
-    scaleState.activeDeg=-1;scaleState.activeEnrich='';
+    _refreshActiveChord();
     buildRootBtns();updateAll();autoSoundTrigger();
   }
 }
