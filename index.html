@@ -1012,7 +1012,10 @@ body.peda-hidden .cof-arrow-lbl{display:none}
   <div id="practice-seq-section" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);flex-shrink:0">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
       <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase">Séquence</span>
-      <button onclick="_practiceResetSeq()" style="font-size:9px;padding:1px 6px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-family:'DM Mono',monospace" title="Réinitialiser">↺ reset</button>
+      <div style="display:flex;gap:5px">
+        <button onclick="_practiceResetSeq()" style="font-size:12px;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace" title="Réinitialiser">↺ reset</button>
+        <button onclick="_practiceClearSeq()" style="font-size:12px;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace" title="Vider la séquence">✕ clear</button>
+      </div>
     </div>
     <div id="practice-seq-list" style="display:flex;flex-wrap:wrap;gap:4px;min-height:22px"></div>
   </div>
@@ -5180,6 +5183,14 @@ function practiceSeqRemove(idx){
 function _practiceResetSeq(){
   _practiceState.chords=_practiceState.allChords.slice();
   _practiceState.idx=0;
+  _practiceBuildDots();_practiceBuildSeq();_practiceRender();
+  _ytSaveCfg();
+}
+
+function _practiceClearSeq(){
+  _practiceState.chords=[];
+  _practiceState.idx=0;_practiceState.beat=0;
+  document.getElementById('practice-title').textContent='Métronome';
   _practiceBuildDots();_practiceBuildSeq();_practiceRender();
   _ytSaveCfg();
 }
