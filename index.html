@@ -459,8 +459,10 @@ body:has(.practice-overlay.open) #atb-left{display:none}
 .practice-seq-pill.drag-over{border-color:var(--accent);background:var(--tonic-bg)}
 .practice-seq-x{background:none;border:none;color:var(--text3);cursor:pointer;font-size:9px;padding:0 0 0 2px;line-height:1}
 .practice-seq-x:hover{color:var(--accent)}
-.yt-alt-item{display:block;width:100%;text-align:left;padding:5px 8px;margin-bottom:2px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:10px;cursor:pointer;transition:all .15s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3}
+.yt-alt-item{display:flex;align-items:center;gap:6px;width:100%;text-align:left;padding:5px 8px;margin-bottom:2px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:10px;cursor:pointer;transition:all .15s;line-height:1.3}
 .yt-alt-item:hover{border-color:var(--accent);color:var(--accent);background:var(--tonic-bg)}
+.yt-alt-item-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.yt-cfg-badge{flex-shrink:0;font-size:9px;padding:1px 4px;border-radius:3px;background:#2a7a4a;color:#8fe0aa;letter-spacing:.04em;font-family:'DM Mono',monospace;}
 .practice-prog-dot.done{background:var(--tonic-bg)}
 /* Song play button in fiche */
 .song-play-btn{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:.75rem;transition:all .15s}
@@ -746,7 +748,31 @@ body.graphite .wheel-prog-lbl{fill:rgba(245,158,11,0.8)}
 .cof-center-btn:hover{fill:rgba(0,0,0,.07)}
 .cof-arrow-lbl{position:absolute;font-size:12px;font-family:'DM Mono',monospace;color:var(--text3);text-align:center;letter-spacing:.04em;line-height:1.4;pointer-events:none}
 body.peda-hidden .cof-arrow-lbl{display:none}
+
+/* ── AUTH GATE ── */
+#auth-gate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#0a0a0f;}
+#auth-gate.hidden{display:none;}
+.auth-card{display:flex;flex-direction:column;align-items:center;gap:20px;padding:48px 40px;background:#13131a;border:1px solid #2a2a3a;border-radius:16px;width:320px;}
+.auth-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;letter-spacing:.04em;color:#e8e4d8;}
+.auth-logo span{color:#c0a060;}
+.auth-sub{font-family:'DM Mono',monospace;font-size:11px;color:#555;letter-spacing:.12em;text-transform:uppercase;}
+.auth-input{width:100%;padding:11px 14px;background:#0e0e16;border:1px solid #2a2a3a;border-radius:8px;color:#e8e4d8;font-family:'DM Mono',monospace;font-size:14px;outline:none;transition:border .15s;}
+.auth-input:focus{border-color:#c0a060;}
+.auth-btn{width:100%;padding:11px;background:#c0a060;border:none;border-radius:8px;color:#0a0a0f;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;letter-spacing:.05em;transition:opacity .15s;}
+.auth-btn:hover{opacity:.85;}
+.auth-err{font-family:'DM Mono',monospace;font-size:11px;color:#e05555;display:none;}
 </style>
+
+<!-- ── AUTH GATE ── -->
+<div id="auth-gate">
+  <div class="auth-card">
+    <div class="auth-logo">Piano<span>Lab</span></div>
+    <div class="auth-sub">Accès privé</div>
+    <input id="auth-input" class="auth-input" type="password" placeholder="Mot de passe" autocomplete="current-password" onkeydown="if(event.key==='Enter')_authSubmit()">
+    <button class="auth-btn" onclick="_authSubmit()">Accéder</button>
+    <div class="auth-err" id="auth-err">Mot de passe incorrect</div>
+  </div>
+</div>
 
 <div class="load-bar-wrap" id="load-bar-wrap"><div class="load-bar" id="load-bar"></div></div>
 <div class="app-shell">
@@ -1056,6 +1082,32 @@ body.peda-hidden .cof-arrow-lbl{display:none}
 
 
 <script>
+/* ── AUTH GATE ── */
+/* Password stored as base64 — change value of _AP to update */
+var _AP=atob('cGlhbm9sYWI='); // default: pianolab
+(function(){
+  if(localStorage.getItem('pl_auth')==='1'){
+    var g=document.getElementById('auth-gate');
+    if(g)g.classList.add('hidden');
+  }else{
+    setTimeout(function(){var inp=document.getElementById('auth-input');if(inp)inp.focus();},50);
+  }
+})();
+function _authSubmit(){
+  var inp=document.getElementById('auth-input');
+  var err=document.getElementById('auth-err');
+  if(!inp)return;
+  if(inp.value===_AP){
+    localStorage.setItem('pl_auth','1');
+    var g=document.getElementById('auth-gate');
+    if(g)g.classList.add('hidden');
+  }else{
+    inp.value='';
+    if(err){err.style.display='block';setTimeout(function(){err.style.display='none';},2000);}
+    inp.focus();
+  }
+}
+
 /* ── THÈME DUAL MODE ── */
 function initTheme(){
   var saved=localStorage.getItem('piano_trainer_theme');
@@ -1701,6 +1753,7 @@ function _setPianoEnrich(eid){
     ctx.ch.label=_practiceChordLabel(ctx.ch.semi,ctx.ch.type,eid);
     ctx.ch.midis=getInvertedMidis(rn,eid||t,t,0);
     _practiceBuildEnrich();_practiceBuildSeq();
+    _ytSaveCfg();
   }
   var iv=ENRICH_IV[eid]||ENRICH_IV[t]||[0,4,7];
   var midis;
@@ -3793,19 +3846,24 @@ var _tapTimes=[],_tapTimer=null;
 function practiceTapTempo(){
   var now=Date.now();
   if(_tapTimer)clearTimeout(_tapTimer);
-  _tapTimer=setTimeout(function(){_tapTimes=[];},2500);
   _tapTimes.push(now);
+  if(_tapTimes.length>8)_tapTimes=_tapTimes.slice(-8);
   var btn=document.getElementById('practice-tap-btn');
   if(btn){btn.style.background='var(--accent)';btn.style.color='#fff';setTimeout(function(){btn.style.background='';btn.style.color='var(--accent)';},120);}
-  if(_tapTimes.length<2)return;
-  if(_tapTimes.length>8)_tapTimes=_tapTimes.slice(-8);
-  var intervals=[];
-  for(var i=1;i<_tapTimes.length;i++)intervals.push(_tapTimes[i]-_tapTimes[i-1]);
-  var avg=intervals.reduce(function(a,b){return a+b;})/intervals.length;
-  var bpm=Math.max(40,Math.min(240,Math.round(60000/avg)));
-  _practiceState.bpm=bpm;_audioBpm=bpm;
-  document.getElementById('practice-bpm-val').textContent=bpm;
-  if(_practiceState.playing){practiceStop();practiceStart();}
+  /* BPM calculated and applied once tapping stops (2.5s silence) — rounded to nearest 10 */
+  _tapTimer=setTimeout(function(){
+    if(_tapTimes.length>=2){
+      var intervals=[];
+      for(var i=1;i<_tapTimes.length;i++)intervals.push(_tapTimes[i]-_tapTimes[i-1]);
+      var avg=intervals.reduce(function(a,b){return a+b;})/intervals.length;
+      var bpm=Math.round(Math.max(40,Math.min(240,Math.round(60000/avg)))/10)*10;
+      _practiceState.bpm=bpm;_audioBpm=bpm;
+      document.getElementById('practice-bpm-val').textContent=bpm;
+      _ytSaveCfg();
+      if(_practiceState.playing){practiceStop();practiceStart();}
+    }
+    _tapTimes=[];
+  },2500);
 }
 
 function practiceStart(){
@@ -3852,6 +3910,7 @@ function practiceChangeBpm(delta){
   _practiceState.bpm=Math.max(40,Math.min(240,_practiceState.bpm+delta));
   _audioBpm=_practiceState.bpm;
   document.getElementById('practice-bpm-val').textContent=_practiceState.bpm;
+  _ytSaveCfg();
   if(_practiceState.playing){practiceStop();practiceStart();}
 }
 
@@ -4490,6 +4549,130 @@ var _ytBackingStyles={
   'drums':'drum backing track'
 };
 
+/* ── PER-VIDEO CONFIG PERSISTENCE ── */
+var _ytCurrentVideoId=null;
+function _ytSaveCfg(){
+  if(!_ytCurrentVideoId)return;
+  try{
+    localStorage.setItem('yt_cfg_'+_ytCurrentVideoId,JSON.stringify({
+      root:st.root,scale:st.scale,
+      chords:_practiceState.chords,
+      bpm:_practiceState.bpm
+    }));
+  }catch(e){}
+}
+function _ytRestoreCfg(videoId){
+  try{
+    var saved=localStorage.getItem('yt_cfg_'+videoId);
+    if(!saved)return false;
+    var cfg=JSON.parse(saved);
+    if(cfg.root!==undefined)st.root=cfg.root;
+    if(cfg.scale)st.scale=cfg.scale;
+    updateAll();
+    if(cfg.chords&&cfg.chords.length){
+      _practiceState.chords=cfg.chords;
+      _practiceState.allChords=cfg.chords.slice();
+      _practiceState.idx=0;_practiceState.beat=0;
+      _practiceRender();_practiceBuildDots();_practiceBuildSeq();
+    }
+    if(cfg.bpm){
+      _practiceState.bpm=cfg.bpm;_audioBpm=cfg.bpm;
+      document.getElementById('practice-bpm-val').textContent=cfg.bpm;
+    }
+    return true;
+  }catch(e){return false;}
+}
+
+/* ── YT METADATA PARSING ── */
+function _ytScaleFromText(str){
+  str=(str||'').toLowerCase().trim();
+  if(str==='major'||str==='maj'||str==='ionian')return 'major';
+  if(str==='minor'||str==='min'||str==='aeolian'||str==='natural minor')return 'minor';
+  if(str==='dorian')return 'dorian';
+  if(str==='phrygian')return 'phrygian';
+  if(str==='lydian')return 'lydian';
+  if(str==='mixolydian'||str==='mixo')return 'mixo';
+  if(str.indexOf('harmonic')>=0)return 'harmonic';
+  if(str.indexOf('melodic')>=0)return 'melodic';
+  if(str.indexOf('blues')>=0)return 'blues';
+  if(str.indexOf('pentatonic')>=0)return str.indexOf('min')>=0?'penta_min':'penta_maj';
+  return null;
+}
+function _parseYtMetadata(title,description){
+  var text=(title||'')+'\n'+(description||'');
+  var result={bpm:null,key:null,scale:null,chords:null};
+  /* BPM */
+  var bpmM=text.match(/\b(\d{2,3})\s*bpm\b/i);
+  if(bpmM){var b=parseInt(bpmM[1]);if(b>=40&&b<=240)result.bpm=Math.round(b/10)*10;}
+  /* Key / scale */
+  var KP=[
+    /\bkey\s+of\s+([A-Ga-g][#b]?)\s*(major|minor|maj|min|dorian|phrygian|lydian|mixolydian|aeolian|blues|pentatonic\s+minor|pentatonic\s+major|harmonic\s+minor|melodic\s+minor)?/i,
+    /\bin\s+([A-Ga-g][#b]?)\s*(major|minor|maj|min|dorian|phrygian|lydian|mixolydian|aeolian|blues)/i,
+    /([A-Ga-g][#b]?)\s+(major|minor|dorian|phrygian|lydian|mixolydian|aeolian|blues)\s+(?:backing|jam|play\s*along|key|scale)/i,
+    /([A-Ga-g][#b]?m)\s+(?:backing\s+track|jam\s+track|play\s+along)/i
+  ];
+  for(var ki=0;ki<KP.length;ki++){
+    var km=text.match(KP[ki]);
+    if(!km)continue;
+    var noteRaw=km[1].charAt(0).toUpperCase()+km[1].slice(1);
+    var isMinorSuffix=noteRaw.slice(-1)==='m'&&noteRaw.length>1;
+    var noteClean=isMinorSuffix?noteRaw.slice(0,-1):noteRaw;
+    var semi=noteToSemi(noteClean);
+    if(semi<0)continue;
+    result.key=semi;
+    var scTxt=km[2]||(isMinorSuffix?'minor':'major');
+    result.scale=_ytScaleFromText(scTxt)||'major';
+    break;
+  }
+  /* Chord progression — find the line with the most chord tokens */
+  var lines=text.split(/[\n\r]+/);
+  var bestParsed=null,bestN=0;
+  lines.forEach(function(line){
+    line=line.trim();
+    if(!line||line.length>300)return;
+    var parsed=parseChordString(line);
+    var tokens=line.split(/\s+/).filter(function(t){return t.length>0;});
+    if(parsed.length>=2&&tokens.length>0&&parsed.length/tokens.length>=0.4&&parsed.length>bestN){
+      bestParsed=parsed;bestN=parsed.length;
+    }
+  });
+  if(bestParsed)result.chords=bestParsed;
+  return result;
+}
+function _applyYtMetadata(meta){
+  var changed=false;
+  if(meta.key!==null&&meta.scale){
+    st.root=meta.key;st.scale=meta.scale;
+    updateAll();
+    changed=true;
+  }
+  if(meta.chords&&meta.chords.length){
+    var newChords=meta.chords.map(function(c){
+      var type=qualToType(c.qual);
+      return{label:c.raw,semi:c.semi,type:type,midis:getInvertedMidis(c.semi,type,type,0)};
+    });
+    _practiceState.chords=newChords;
+    _practiceState.allChords=newChords.slice();
+    _practiceState.idx=0;_practiceState.beat=0;
+    _practiceRender();_practiceBuildDots();_practiceBuildSeq();
+    changed=true;
+  }
+  if(meta.bpm!==null){
+    _practiceState.bpm=meta.bpm;_audioBpm=meta.bpm;
+    document.getElementById('practice-bpm-val').textContent=meta.bpm;
+    if(_practiceState.playing){practiceStop();practiceStart();}
+    changed=true;
+  }
+  if(changed){
+    var status=document.getElementById('practice-yt-alt-status');
+    var parts=[];
+    if(meta.key!==null&&meta.scale)parts.push(EN[meta.key]+' '+meta.scale);
+    if(meta.chords)parts.push(meta.chords.length+' accords');
+    if(meta.bpm)parts.push('♩='+meta.bpm);
+    if(parts.length&&status)status.textContent='Auto: '+parts.join(' · ');
+  }
+}
+
 var _ytGenres={
   'major':'major',
   'minor':'minor',
@@ -4513,6 +4696,8 @@ function openYouTubeBacking(){
   var style=_ytBackingStyles[_bt.style]||'piano';
   var bpm=_audioBpm;
   var bpmRange=Math.round(bpm/10)*10;
+  var sig=_practiceState.sig||4;
+  var sigLabel=sig===3?'3/4 ':sig===6?'6/8 ':sig===2?'2/4 ':'';
   var variants=[
     root+' '+genre+' '+sigLabel+'backing track '+style+' '+bpmRange+' bpm',
     root+' '+genre+' jam track '+style,
@@ -4520,74 +4705,39 @@ function openYouTubeBacking(){
     root+' '+genre+' play along '+style+' piano',
     genre+' '+sigLabel+'backing track '+root+' '+style+' live'
   ];
-  var sig=_practiceState.sig||4;
-  var sigLabel=sig===3?'3/4 ':sig===6?'6/8 ':sig===2?'2/4 ':'';
   _ytSearchCtx={root:root,genre:genre,style:style,bpm:bpmRange,variants:variants};
-  var q=variants[Math.floor(Math.random()*variants.length)];
-  var extra=Math.random()>0.5?'&order=date':'&order=relevance';
   /* Open practice overlay */
   document.documentElement.style.setProperty('--rp-width',(document.getElementById('main-panel').offsetWidth||280)+'px');
   document.getElementById('practice-overlay').classList.add('open');
   _syncPracticeTools();
   _setPianoMode('accord');
-  /* Show YT section inside practice */
+  /* Show YT section — display picker list directly */
   var ytSection=document.getElementById('practice-yt-section');
   var iframe=document.getElementById('practice-yt-iframe');
   var loading=document.getElementById('practice-yt-loading');
   var titleEl=document.getElementById('practice-yt-title');
-  var picker=document.getElementById('practice-yt-picker');
   if(ytSection)ytSection.style.display='block';
-  if(loading){loading.style.display='flex';}
+  if(loading)loading.style.display='none';
   if(iframe)iframe.src='';
   if(titleEl)titleEl.textContent=root+' '+genre+' · '+style;
-  if(picker){picker.style.display='none';picker.innerHTML='';}
-  _loadStart();
-  fetch('/api/youtube?q='+encodeURIComponent(q)+(extra||''))
-    .then(function(r){return r.json();})
-    .then(function(d){
-      _loadEnd();
-      if(loading)loading.style.display='none';
-      if(d.videoId&&iframe){
-        iframe.src='https://www.youtube-nocookie.com/embed/'+d.videoId+'?autoplay=1&controls=1&modestbranding=1&rel=0&enablejsapi=1';
-        _ytPracticeIsPlaying=true;
-        var titleStr=(d.title||q).substring(0,50);
-        /* Parse BPM from title + description (description disponible si le backend l'inclut) */
-        var ytText=(d.title||q)+' '+(d.description||'');
-        var bpmMatch=ytText.match(/\b(\d{2,3})\s*bpm\b/i);
-        if(bpmMatch){
-          var detBpm=parseInt(bpmMatch[1]);
-          if(detBpm>=40&&detBpm<=240){
-            _practiceState.bpm=detBpm;_audioBpm=detBpm;
-            document.getElementById('practice-bpm-val').textContent=detBpm;
-            titleStr+=' · ♩='+detBpm;
-            if(_practiceState.playing){practiceStop();practiceStart();}
-          }
-        }
-        if(titleEl)titleEl.textContent=titleStr;
-      } else {
-        if(loading){loading.style.display='flex';loading.textContent='Introuvable';}
-      }
-    })
-    .catch(function(){
-      _loadError();
-      if(loading){loading.style.display='flex';loading.textContent='Erreur réseau';}
-    });
+  loadYtAlternatives(true);
 }
 
-function loadYtAlternatives(){
+function loadYtAlternatives(skipToggle){
   if(!_ytSearchCtx)return;
   var ctx=_ytSearchCtx;
   var altBtn=document.getElementById('practice-yt-alt-btn');
   var picker=document.getElementById('practice-yt-picker');
   var status=document.getElementById('practice-yt-alt-status');
   if(!picker)return;
-  /* Toggle off if already visible */
-  if(picker.style.display!=='none'&&picker.innerHTML!==''){
+  /* Toggle off if already visible (only when triggered by user, not on initial open) */
+  if(!skipToggle&&picker.style.display!=='none'&&picker.innerHTML!==''){
     picker.style.display='none';picker.innerHTML='';
     return;
   }
   if(altBtn)altBtn.disabled=true;
   if(status)status.textContent='Recherche…';
+  picker.innerHTML='';picker.style.display='block';
   var orders=['&order=relevance','&order=date','&order=relevance','&order=date','&order=relevance'];
   var promises=ctx.variants.map(function(q,i){
     return fetch('/api/youtube?q='+encodeURIComponent(q)+orders[i])
@@ -4608,12 +4758,33 @@ function loadYtAlternatives(){
       var btn=document.createElement('button');
       btn.className='yt-alt-item';
       btn.title=d.title||d.videoId;
-      btn.textContent=(d.title||d.videoId).substring(0,60);
+      var hasCfg=!!localStorage.getItem('yt_cfg_'+d.videoId);
+      var lbl=document.createElement('span');
+      lbl.className='yt-alt-item-label';
+      lbl.textContent=(d.title||d.videoId).substring(0,60);
+      btn.appendChild(lbl);
+      if(hasCfg){
+        var badge=document.createElement('span');
+        badge.className='yt-cfg-badge';
+        badge.textContent='cfg ✓';
+        btn.appendChild(badge);
+      }
       btn.onclick=function(){
         var iframe=document.getElementById('practice-yt-iframe');
         var titleEl=document.getElementById('practice-yt-title');
+        var loadingEl=document.getElementById('practice-yt-loading');
+        _ytCurrentVideoId=d.videoId;
+        if(loadingEl){loadingEl.textContent='Chargement…';loadingEl.style.display='flex';}
         if(iframe)iframe.src='https://www.youtube-nocookie.com/embed/'+d.videoId+'?autoplay=1&controls=1&modestbranding=1&rel=0&enablejsapi=1';
-        if(titleEl)titleEl.textContent=(d.title||d.videoId).substring(0,50);
+        _ytPracticeIsPlaying=true;
+        if(loadingEl)setTimeout(function(){loadingEl.style.display='none';},1500);
+        var tStr=(d.title||d.videoId).substring(0,50);
+        if(!_ytRestoreCfg(d.videoId)){
+          var meta=_parseYtMetadata(d.title,d.description);
+          _applyYtMetadata(meta);
+          if(meta.bpm)tStr+=' · ♩='+meta.bpm;
+        }
+        if(titleEl)titleEl.textContent=tStr.substring(0,60);
         picker.style.display='none';picker.innerHTML='';
       };
       picker.appendChild(btn);
@@ -4708,6 +4879,7 @@ function _cofDragEnd(e){
     if(el&&el.closest('#practice-overlay')){
       _practiceState.chords.push(_cofDrag.chord);
       _practiceBuildDots();_practiceBuildSeq();
+      _ytSaveCfg();
     }
     document.addEventListener('click',function _nc(ev){ev.stopImmediatePropagation();document.removeEventListener('click',_nc,true);},true);
   }
@@ -4748,6 +4920,7 @@ function _practiceBuildSeq(){
       arr.splice(to,0,moved);
       _practiceState.idx=Math.min(_practiceState.idx,arr.length-1);
       _practiceBuildDots();_practiceBuildSeq();_practiceRender();
+      _ytSaveCfg();
     });
     list.appendChild(pill);
   });
@@ -4759,12 +4932,14 @@ function practiceSeqRemove(idx){
   if(_practiceState.idx>=_practiceState.chords.length)
     _practiceState.idx=_practiceState.chords.length-1;
   _practiceBuildDots();_practiceBuildSeq();_practiceRender();
+  _ytSaveCfg();
 }
 
 function _practiceResetSeq(){
   _practiceState.chords=_practiceState.allChords.slice();
   _practiceState.idx=0;
   _practiceBuildDots();_practiceBuildSeq();_practiceRender();
+  _ytSaveCfg();
 }
 
 function _syncPracticeTools(){
@@ -4921,6 +5096,29 @@ window.addEventListener('load',function(){
   buildProgList();
   updateAll();
   sbBuildProgs();
+  /* Space bar → tap tempo when practice overlay is open */
+  document.addEventListener('keydown',function(e){
+    if(e.code!=='Space')return;
+    if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT'||e.target.tagName==='BUTTON'))return;
+    var overlay=document.getElementById('practice-overlay');
+    if(!overlay||!overlay.classList.contains('open'))return;
+    e.preventDefault();
+    practiceTapTempo();
+  });
+  /* Web MIDI note-on → tap tempo when practice is open */
+  if(navigator.requestMIDIAccess){
+    navigator.requestMIDIAccess().then(function(access){
+      function _onMidi(msg){
+        var overlay=document.getElementById('practice-overlay');
+        if(!overlay||!overlay.classList.contains('open'))return;
+        var cmd=msg.data[0]&0xF0;
+        if(cmd===0x90&&msg.data[2]>0)practiceTapTempo();
+      }
+      function _bindMidi(){access.inputs.forEach(function(input){input.onmidimessage=_onMidi;});}
+      _bindMidi();
+      access.onstatechange=_bindMidi;
+    }).catch(function(){});
+  }
 });
 window.addEventListener('resize',function(){buildPiano();paintPiano(null);setTimeout(drawCOF,50);});
 /* Expose for console debugging */
