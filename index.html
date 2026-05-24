@@ -475,12 +475,14 @@ body.peda-hidden .harmony-note{display:none!important}
 .prac-col-toggle-btn:hover{border-color:var(--tonic);color:var(--tonic)}
 .prac-col-label{display:none}
 .practice-overlay.fullscreen #prac-fs-left.collapsed .prac-col-label,
-.practice-overlay.fullscreen #prac-fs-right.collapsed .prac-col-label{display:flex;flex:1;align-items:center;justify-content:center;writing-mode:vertical-lr;font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;cursor:pointer}
-.practice-overlay.fullscreen #prac-fs-left.collapsed #prac-cof-section{display:none}
-.practice-overlay.fullscreen #prac-fs-right.collapsed #prac-bpm-section,
-.practice-overlay.fullscreen #prac-fs-right.collapsed #prac-tap-section,
-.practice-overlay.fullscreen #prac-fs-right.collapsed #practice-tools,
-.practice-overlay.fullscreen #prac-fs-right.collapsed #practice-yt-section{display:none}
+.practice-overlay.fullscreen #prac-fs-right.collapsed .prac-col-label{display:flex;flex:1;align-items:center;justify-content:center;writing-mode:vertical-lr;font-size:11px;font-family:'DM Mono',monospace;font-weight:500;color:var(--text2);letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;cursor:pointer;transition:color .1s}
+.practice-overlay.fullscreen #prac-fs-left.collapsed .prac-col-label:hover,
+.practice-overlay.fullscreen #prac-fs-right.collapsed .prac-col-label:hover{color:var(--tonic)}
+/* Colonnes réduites : overflow caché + masquer tout sauf toggle et label */
+.practice-overlay.fullscreen #prac-fs-left.collapsed,
+.practice-overlay.fullscreen #prac-fs-right.collapsed{overflow:hidden}
+.practice-overlay.fullscreen #prac-fs-left.collapsed>*:not(.prac-col-resizer):not(.prac-col-toggle-wrap):not(.prac-col-label){display:none!important}
+.practice-overlay.fullscreen #prac-fs-right.collapsed>*:not(.prac-col-resizer):not(.prac-col-toggle-wrap):not(.prac-col-label){display:none!important}
 .yt-alt-btn{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.03em;transition:all .15s;flex-shrink:0}
 .yt-alt-btn:hover{border-color:var(--accent);color:var(--accent)}
 .yt-alt-btn:disabled{opacity:.4;cursor:default;pointer-events:none}
@@ -5640,11 +5642,20 @@ function _tlDraw(){
     var isAct=(off===0),isPast=(off<0);
     /* Fond cellule */
     ctx.beginPath();_ctxRR(ctx,cx+2,3,CHORD_W-4,H-6,5);
-    if(isAct){ctx.fillStyle=cTonicBg;}
-    else{ctx.globalAlpha=isPast?0.5:0.3;ctx.fillStyle=cBorder;ctx.globalAlpha=1;}
+    if(isAct){
+      ctx.shadowColor=cTonic;ctx.shadowBlur=14;
+      ctx.fillStyle=cTonicBg;
+    } else {
+      ctx.globalAlpha=isPast?0.5:0.3;ctx.fillStyle=cBorder;ctx.globalAlpha=1;
+    }
     ctx.fill();
+    ctx.shadowBlur=0;
     /* Bordure cellule active */
-    if(isAct){ctx.strokeStyle=cTonic;ctx.lineWidth=1;ctx.globalAlpha=0.5;ctx.stroke();ctx.globalAlpha=1;}
+    if(isAct){
+      ctx.shadowColor=cTonic;ctx.shadowBlur=8;
+      ctx.strokeStyle=cTonic;ctx.lineWidth=1;ctx.globalAlpha=0.7;ctx.stroke();
+      ctx.globalAlpha=1;ctx.shadowBlur=0;
+    }
     /* Séparateurs de beat */
     ctx.strokeStyle=cBorder;ctx.lineWidth=1;ctx.globalAlpha=isAct?0.6:0.4;
     for(var b2=1;b2<sig;b2++){
@@ -5658,15 +5669,27 @@ function _tlDraw(){
         var dotX=cx+(b2+0.5)*BEAT_PX,dotY=H-9;
         var isAB=(b2===state.beat);
         ctx.beginPath();ctx.arc(dotX,dotY,isAB?3.5:2,0,Math.PI*2);
-        ctx.fillStyle=cTonic;ctx.globalAlpha=isAB?0.9:0.35;ctx.fill();ctx.globalAlpha=1;
+        if(isAB){ctx.shadowColor=cTonic;ctx.shadowBlur=8;}
+        ctx.fillStyle=cTonic;ctx.globalAlpha=isAB?0.95:0.35;ctx.fill();
+        ctx.globalAlpha=1;ctx.shadowBlur=0;
       }
     }
-    /* Label accord */
+    /* Label accord — zoom + glow sur l'actif */
     ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.font=(isAct?'600 14':'500 12')+'px "DM Mono",monospace';
-    ctx.fillStyle=isAct?cText:isPast?cText3:cText2;
-    ctx.globalAlpha=isPast?0.55:1;
-    ctx.fillText(chord.label,cx+CHORD_W/2,isAct?H/2-4:H/2);
+    ctx.globalAlpha=isPast?0.5:1;
+    if(isAct){
+      ctx.font='700 17px "DM Mono",monospace';
+      ctx.fillStyle=cTonic;
+      ctx.shadowColor=cTonic;ctx.shadowBlur=18;
+      ctx.fillText(chord.label,cx+CHORD_W/2,H/2-3);
+      ctx.shadowBlur=8;
+      ctx.fillText(chord.label,cx+CHORD_W/2,H/2-3);
+      ctx.shadowBlur=0;
+    } else {
+      ctx.font='500 12px "DM Mono",monospace';
+      ctx.fillStyle=isPast?cText3:cText2;
+      ctx.fillText(chord.label,cx+CHORD_W/2,H/2);
+    }
     ctx.globalAlpha=1;
   }
   ctx.restore();
