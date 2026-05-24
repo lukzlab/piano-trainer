@@ -417,11 +417,11 @@ body.peda-hidden .harmony-note{display:none!important}
 .practice-close{align-self:flex-end;font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:.75rem}
 .practice-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:1rem;text-align:center}
 .practice-chord-display{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem}
-.practice-chord-prev{font-size:18px;font-weight:500;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:-.02em;text-align:right;min-width:60px}
-.practice-chord-current{font-size:52px;font-weight:600;color:var(--text);font-family:'DM Sans',sans-serif;letter-spacing:-.04em;text-align:center;min-width:120px;transition:opacity .1s}
-.practice-chord-next{font-size:18px;font-weight:500;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:-.02em;text-align:left;min-width:60px}
-.practice-beat{display:flex;gap:8px;justify-content:center;margin-bottom:1.5rem}
-.practice-beat-dot{width:10px;height:10px;border-radius:50%;background:var(--border2);transition:background .05s,transform .05s}
+.practice-chord-prev{font-size:26px;font-weight:500;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:-.02em;text-align:right;min-width:70px}
+.practice-chord-current{font-size:72px;font-weight:600;color:var(--text);font-family:'DM Sans',sans-serif;letter-spacing:-.04em;text-align:center;min-width:120px;transition:opacity .1s}
+.practice-chord-next{font-size:26px;font-weight:500;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:-.02em;text-align:left;min-width:70px}
+.practice-beat{display:flex;gap:10px;justify-content:center;margin-bottom:1.5rem}
+.practice-beat-dot{width:14px;height:14px;border-radius:50%;background:var(--border2);transition:background .05s,transform .05s}
 .practice-beat-dot.active{background:var(--tonic);transform:scale(1.4)}
 .practice-beat-dot.strong{background:var(--tonic)}
 .practice-controls{display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;justify-content:center}
@@ -584,7 +584,7 @@ body:has(.practice-overlay.open) .yt-float.open{right:auto;left:16px}
 .yt-style-btn{font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-family:'DM Mono',monospace;transition:all .1s;line-height:1.4}
 .yt-style-btn:hover{color:var(--text2);border-color:var(--text3)}
 .yt-style-btn.active{color:var(--tonic);border-color:var(--tonic);font-weight:500}
-.yt-launch-btn{font-size:10px;padding:2px 9px;border-radius:4px;border:1px solid var(--tonic);background:transparent;color:var(--tonic);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .1s;display:flex;align-items:center;gap:4px;flex-shrink:0}
+.yt-launch-btn{font-size:13px;padding:6px 14px;border-radius:6px;border:1px solid var(--tonic);background:transparent;color:var(--tonic);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .1s;display:flex;align-items:center;gap:4px;flex-shrink:0}
 .yt-launch-btn:hover{background:var(--tonic-bg)}
 
 /* ── AUDIO TOP BAR CLEAN ── */
@@ -592,7 +592,7 @@ body:has(.practice-overlay.open) .yt-float.open{right:auto;left:16px}
 .atb-icon-btn{width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
 .atb-icon-btn:hover{border-color:var(--accent);color:var(--accent)}
 .atb-icon-btn.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
-.atb-select{font-size:11px;padding:2px 6px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Mono',monospace;cursor:pointer;flex-shrink:0}
+.atb-select{font-size:14px;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Mono',monospace;cursor:pointer;flex-shrink:0}
 .audio-top-bar .audio-tempo{width:80px}
 
 .sb-section-hdr{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);font-family:'DM Mono',monospace;padding:.5rem 10px .2rem;white-space:nowrap;overflow:hidden;display:none}
@@ -2686,7 +2686,12 @@ function _practiceRebuildIfOpen(){
   if(!overlay||!overlay.classList.contains('open'))return;
   if(_practiceState.source==='song')return;
   var chords=_buildPracticeChords();
-  if(!chords.length)return;
+  if(!chords.length){
+    _practiceState.chords=[];_practiceState.allChords=[];
+    document.getElementById('practice-title').textContent='Métronome';
+    _practiceRender();_practiceBuildDots();_practiceBuildSeq();
+    return;
+  }
   var wasPlaying=_practiceState.playing;
   if(wasPlaying)practiceStop();
   _practiceState.chords=chords;
@@ -3913,22 +3918,18 @@ var _practiceState={
 };
 
 function openPracticeMode(){
-  /* Build chord list from current context */
   var chords=_buildPracticeChords();
-  if(!chords.length){
-    alert('Sélectionne une progression ou un morceau importé pour pratiquer.');
-    return;
-  }
   _practiceState.chords=chords;
   _practiceState.allChords=chords.slice();
   _practiceState.idx=0;
   _practiceState.beat=0;
   _practiceState.bpm=_audioBpm;
   _practiceState.playing=false;
+  if(!chords.length)document.getElementById('practice-title').textContent='Métronome';
   document.documentElement.style.setProperty('--rp-width',(document.getElementById('main-panel').offsetWidth||280)+'px');
   document.getElementById('practice-overlay').classList.add('open');
   _syncPracticeTools();
-  _setPianoMode('accord');
+  if(chords.length)_setPianoMode('accord');
   _practiceRender();
   _practiceBuildDots();
   _practiceBuildSeq();
@@ -4001,7 +4002,18 @@ function _buildPracticeChords(){
 function _practiceRender(){
   var state=_practiceState;
   var chords=state.chords;
-  if(!chords.length)return;
+  /* Mode métronome — aucun accord */
+  if(!chords.length){
+    var el=document.getElementById('practice-current');if(el)el.textContent='';
+    var elP=document.getElementById('practice-prev');if(elP)elP.textContent='';
+    var elN=document.getElementById('practice-next');if(elN)elN.textContent='';
+    document.getElementById('practice-section-name').textContent='';
+    document.getElementById('practice-bpm-val').textContent=state.bpm;
+    document.getElementById('practice-sig-val').textContent=state.sig+'/4';
+    var beatDiv=document.getElementById('practice-beat');beatDiv.innerHTML='';
+    for(var b=0;b<state.sig;b++){var dot=document.createElement('div');dot.className='practice-beat-dot'+(b===0?' strong':'')+(b===state.beat?' active':'');beatDiv.appendChild(dot);}
+    return;
+  }
   var cur=chords[state.idx];
   var prev=state.idx>0?chords[state.idx-1]:null;
   var next=state.idx<chords.length-1?chords[state.idx+1]:chords[0];
@@ -4106,10 +4118,9 @@ function _practiceSchedule(){
     if(!state.playing){clearInterval(state.timer);return;}
     /* Tick beat */
     state.beat=(state.beat+1)%state.sig;
-    /* On beat 1: advance chord */
-    if(state.beat===0){
+    /* On beat 1: advance chord (si accords présents) */
+    if(state.beat===0&&state.chords.length){
       state.idx=(state.idx+1)%state.chords.length;
-      /* Play chord */
       var cur=state.chords[state.idx];
       var ctx=_getCtx();
       _playChord(cur.midis,ctx.currentTime+0.02,true);
