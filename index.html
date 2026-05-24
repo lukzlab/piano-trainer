@@ -1631,14 +1631,15 @@ function paintPiano(chordMidiSet, overlayScale){
     el.style.zIndex='';
     el.style.clipPath='';
     el.style.borderRightColor='';
+    el.style.opacity='';
     var dot=el.querySelector('.key-dot');
     if(dot){dot.style.background='transparent';dot.style.border='';}
 
-    /* Touche enfoncée — accord sélectionné */
     /* Pastille gamme */
     if(showScale&&dot){
       var isTonic=(sm===tonic);
       var inScale=notes.indexOf(sm)>=0;
+      if(!inScale)el.style.opacity='0.5';
       if(inScale){
         dot.style.background=isTonic?'var(--tonic)':'rgba(255,255,255,0.92)';
         dot.style.border=isB(sm)?'1px solid rgba(255,255,255,0.5)':'1px solid var(--piano-border)';
