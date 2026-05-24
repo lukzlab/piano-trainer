@@ -129,13 +129,13 @@ body.light .rbtn.active{background:#1A1814;border-color:#1A1814}
 .piano-sub{font-size:10px;color:var(--text3)}
 .piano-wrap{width:100%;background:var(--piano-bg);border-radius:0;padding:0;border:1px solid var(--border2)}
 .piano88{position:relative;width:100%}
-.wk{position:absolute;top:0;border-radius:0;background:#f5f2ec;border-right:1px solid var(--piano-border);border-bottom:none;box-sizing:border-box;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;font-size:0;color:transparent;z-index:1;transition:box-shadow .12s;cursor:pointer}
+.wk{position:absolute;top:0;border-radius:0;background:#faf8f5;border-right:1px solid var(--piano-border);border-bottom:none;box-sizing:border-box;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;font-size:0;color:transparent;z-index:1;transition:box-shadow .12s;cursor:pointer}
 .bk{position:absolute;top:0;border-radius:0 0 4px 4px;background:#222;border:none;box-sizing:border-box;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;font-size:0;color:transparent;z-index:2;transition:box-shadow .12s;cursor:pointer}
 .wk:hover{background:#ede9e0 !important}
 .bk:hover{filter:brightness(1.4)}
 
 .piano-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:.5rem;font-size:10px;color:var(--text3)}
-.oct-lbl{position:absolute;bottom:16px;left:0;right:0;text-align:center;pointer-events:none;font-size:8px;font-weight:600;color:#2A2820;font-family:'DM Mono',monospace;letter-spacing:.03em}
+.oct-lbl{position:absolute;bottom:22px;left:0;right:0;text-align:center;pointer-events:none;font-size:10px;font-weight:600;color:#2A2820;font-family:'DM Mono',monospace;letter-spacing:.03em}
 body.graphite .oct-lbl{color:rgba(0,0,0,0.35)}
 body.manuscrit .oct-lbl{color:#2b1f12}
 .pleg{display:flex;align-items:center;gap:4px}
@@ -353,8 +353,8 @@ body.peda-hidden .harmony-note{display:none!important}
 .sb-on-dot.on{opacity:1}
 
 /* ── PIANO DOTS ── */
-.key-dot{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;pointer-events:none;background:transparent;border:none;transition:background .1s;z-index:3}
-.bk .key-dot{bottom:8px;width:6px;height:6px}
+.key-dot{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:12px;height:12px;border-radius:50%;pointer-events:none;background:transparent;border:none;transition:background .1s;z-index:3}
+.bk .key-dot{bottom:8px;width:9px;height:9px}
 
  body.graphite .nl { color: var(--text2); }
  body.graphite .nl.active { color: var(--tonic); border-bottom-color: var(--tonic); }
@@ -730,6 +730,7 @@ body.graphite .wheel-prog-lbl{fill:rgba(245,158,11,0.8)}
 
 .cof-nav-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:48px;height:48px;border-radius:50%;border:1.5px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s,color .15s,box-shadow .15s;box-shadow:0 2px 8px rgba(0,0,0,.10)}
 .cof-nav-arrow:hover{border-color:var(--tonic);color:var(--tonic);background:var(--tonic-bg);box-shadow:0 2px 16px rgba(0,0,0,.18)}
+.wheel-mode-ind{font-size:9px;font-family:'DM Mono',monospace;fill:var(--text3);font-weight:600;letter-spacing:.06em;pointer-events:all;cursor:pointer;transition:fill .15s}
 #cof path{transition:opacity .12s,filter .12s}
 #cof path:hover{opacity:.75;filter:brightness(.93);cursor:pointer}
 .cof-center-btn{transition:fill .15s}
@@ -888,9 +889,10 @@ body.peda-hidden .cof-arrow-lbl{display:none}
             <span class="scale-sel-label">Majeure</span>
           </button>
           <!-- Legend -->
-          <div style="display:flex;align-items:center;gap:16px;padding:.25rem 0;flex-wrap:wrap;justify-content:center">
-            <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase"><span style="width:8px;height:8px;border-radius:50%;background:var(--tonic);flex-shrink:0;display:inline-block"></span>Tonique</span>
-            <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase"><span style="width:8px;height:8px;border-radius:50%;background:#fff;border:1px solid var(--piano-border);flex-shrink:0;display:inline-block"></span>Gamme</span>
+          <div style="display:flex;align-items:center;gap:20px;padding:.25rem 0;flex-wrap:wrap;justify-content:center">
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase"><span style="width:12px;height:12px;border-radius:50%;background:var(--tonic);flex-shrink:0;display:inline-block"></span>Tonique</span>
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase"><span style="width:12px;height:12px;border-radius:50%;background:#fff;border:1px solid var(--piano-border);flex-shrink:0;display:inline-block"></span>Gamme</span>
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase"><span style="width:12px;height:12px;border-radius:50%;background:var(--chord-sel);border:1px solid rgba(0,0,0,0.18);flex-shrink:0;display:inline-block"></span>Accord</span>
           </div>
         </div>
         <!-- Piano -->
@@ -903,12 +905,8 @@ body.peda-hidden .cof-arrow-lbl{display:none}
             <button onclick="_setPianoOctaves(-1)" style="font-size:13px;font-family:'DM Mono',monospace;padding:3px 9px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;line-height:1;transition:all .15s">&#8722;</button>
             <span id="piano-oct-lbl" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text2);min-width:14px;text-align:center">3</span>
             <button onclick="_setPianoOctaves(1)" style="font-size:13px;font-family:'DM Mono',monospace;padding:3px 9px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;line-height:1;transition:all .15s">&#43;</button>
-            <span style="width:1px;height:16px;background:var(--border);display:inline-block;margin:0 2px;flex-shrink:0"></span>
-            <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0">Mode</span>
-            <button id="piano-mode-gamme" onclick="_setPianoMode('gamme')" style="font-size:11px;font-family:'DM Mono',monospace;padding:5px 14px;border-radius:99px;border:1px solid var(--border);background:var(--tonic);color:#fff;cursor:pointer;letter-spacing:.04em;transition:all .15s">Gamme</button>
-            <button id="piano-mode-accord" onclick="_setPianoMode('accord')" style="font-size:11px;font-family:'DM Mono',monospace;padding:5px 14px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;letter-spacing:.04em;transition:all .15s">Accord</button>
-            <span id="piano-scale-tog-sep" style="width:1px;height:16px;background:var(--border);display:none;margin:0 2px;flex-shrink:0"></span>
-            <button id="piano-scale-tog" onclick="_togglePianoScale()" style="display:none;font-size:11px;font-family:'DM Mono',monospace;padding:5px 14px;border-radius:99px;border:1px solid var(--border);background:var(--tonic);color:#fff;cursor:pointer;letter-spacing:.04em;transition:all .15s">Visibilité gamme</button>
+            <span id="piano-scale-tog-sep" style="width:1px;height:16px;background:var(--border);margin:0 2px;flex-shrink:0"></span>
+            <button id="piano-scale-tog" onclick="_togglePianoScale()" style="font-size:11px;font-family:'DM Mono',monospace;padding:5px 14px;border-radius:99px;border:1px solid var(--border);background:var(--tonic);color:#fff;cursor:pointer;letter-spacing:.04em;transition:all .15s">Visibilité gamme</button>
             <div id="piano-accord-opts" style="display:none;align-items:center;gap:6px">
               <span style="width:1px;height:14px;background:var(--border);display:inline-block;margin:0 2px;flex-shrink:0"></span>
               <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0">Inv.</span>
@@ -1150,8 +1148,8 @@ var COF_MAJ=[0,7,2,9,4,11,6,1,8,3,10,5];
 var COF_MAJ_L=['C','G','D','A','E','B','F#','Db','Ab','Eb','Bb','F'];
 var COF_MIN=[9,4,11,6,1,8,3,10,5,0,7,2];
 var COF_MIN_L=['Am','Em','Bm','F#m','C#m','G#m','D#m','Bbm','Fm','Cm','Gm','Dm'];
-var BLK=[1,3,6,8,10];var MIDI_START=36,MIDI_END=71,_pianoOctaves=3,_pianoShowScale=true,_pianoLastChordSet=null;
-var OCTAVE_LABELS={36:'C2',48:'C3',60:'C4'};
+var BLK=[1,3,6,8,10];var MIDI_START=36,MIDI_END=71,_pianoOctaves=3,_pianoShowScale=true,_pianoLastChordSet=null,_pianoManualOctaves=false;
+var OCTAVE_LABELS={};
 function mod(s){return((s%12)+12)%12;}
 function isB(s){return BLK.indexOf(mod(s))>=0;}
 
@@ -1162,7 +1160,8 @@ var customProgs=[];
 var customProg={idx:-1,activeStep:-1,transpMode:'root'};
 var buildMode=false;
 var bld={currentNote:null,currentEnrich:'',sequence:[]};
-var scaleState={activeDeg:-1,activeEnrich:'',activeInv:0};
+var scaleState={activeDeg:-1,activeEnrich:'',activeInv:0,enrichPerDeg:['','','','','','','']};
+var _pianoClickCount=0,_showPianoEnrich=false;
 
 function getSC(){for(var i=0;i<SCALES.length;i++)if(SCALES[i].id===st.scale)return SCALES[i];return SCALES[0];}
 function getNotes(){var sc=getSC();return sc.iv.map(function(iv){return mod(st.root+iv);});}
@@ -1272,6 +1271,43 @@ function stxt(x,y,s,fs,fw,fill){
   t.style.pointerEvents='none';t.textContent=s;return t;
 }
 
+function _cofSelectChord(semi,type){
+  var notes=getNotes();var sc=getSC();
+  var dIdx=notes.indexOf(semi);
+  if(dIdx<0||!sc.ch||dIdx>=sc.ch.length)return;
+  if(scaleState.activeDeg===dIdx){
+    _pianoClickCount++;
+    if(_pianoClickCount===2){
+      _showPianoEnrich=true;
+      _updatePianoEnrichBtns();
+    } else {
+      _pianoClickCount=0;_showPianoEnrich=false;
+      scaleState.activeDeg=-1;scaleState.activeEnrich='';scaleState.activeInv=0;
+      window._songChordHighlight=null;
+      paintPiano(null);_updatePianoEnrichBtns();drawCOF();renderMainPanel();
+    }
+    return;
+  }
+  _pianoClickCount=1;_showPianoEnrich=false;
+  scaleState.activeDeg=dIdx;
+  scaleState.activeEnrich=scaleState.enrichPerDeg[dIdx]||'';
+  scaleState.activeInv=0;
+  var tonic=mod(st.root);var centerMidi=60;
+  for(var m=48;m<=72;m++){if(mod(m)===tonic){centerMidi=m;break;}}
+  var degMidi=centerMidi+sc.iv[dIdx];
+  _pianoActiveMidi=degMidi;_pianoInvPos=0;
+  var eid=scaleState.activeEnrich;
+  var iv=ENRICH_IV[eid]||ENRICH_IV[type]||[0,4,7];
+  var midis=iv.map(function(x){return degMidi+x;});
+  while(Math.max.apply(null,midis)>MIDI_END)midis=midis.map(function(m){return m-12;});
+  while(Math.min.apply(null,midis)<MIDI_START)midis=midis.map(function(m){return m+12;});
+  var chSet={};midis.forEach(function(m){chSet[m]=true;});
+  paintPiano(chSet,true);
+  window._songChordHighlight={semi:semi,type:eid||type};
+  _updatePianoEnrichBtns();drawCOF();renderMainPanel();
+  if(_autoSound&&!_audioPlaying){var actx=_getCtx();_playChord(midis,actx.currentTime+0.05,true);}
+}
+
 function drawCOF(){
   var svg=document.getElementById('cof');
   if(!svg)return;
@@ -1286,6 +1322,16 @@ function drawCOF(){
   svg.setAttribute('width',size);
   svg.setAttribute('height',size);
   svg.style.maxWidth='none';
+
+  /* Background click zones (outside COF rings) — drawn first so rings stay on top */
+  var _bgL=mk('rect',{x:'0',y:'0',width:'300',height:'600',fill:'rgba(0,0,0,0)','pointer-events':'fill'});
+  _bgL.style.cursor='pointer';
+  _bgL.onclick=function(){navigateCircle(-1);};
+  svg.appendChild(_bgL);
+  var _bgR=mk('rect',{x:'300',y:'0',width:'300',height:'600',fill:'rgba(0,0,0,0)','pointer-events':'fill'});
+  _bgR.style.cursor='pointer';
+  _bgR.onclick=function(){navigateCircle(1);};
+  svg.appendChild(_bgR);
 
   var sc=getSC();
   var notes=getNotes(); /* semitones in scale */
@@ -1416,6 +1462,13 @@ function drawCOF(){
     var path=mk('path',{d:arcPath(ROUT,RMID,a0,a1),fill:fill,stroke:C_LINE,'stroke-width':'1'});
     path.style.cursor='pointer';
     path.onclick=(function(s){return function(){
+      if(_pianoMode==='accord'&&st.viewMode==='scale'){
+        var _ns=getNotes();var _sc=getSC();
+        var _di=_ns.indexOf(s);
+        /* Outer ring = accord majeur uniquement — mineur/dim → switch gamme */
+        if(_di>=0&&_sc.ch&&_sc.ch[_di]==='maj'){_cofSelectChord(s,'maj');return;}
+        _setPianoMode('gamme');
+      }
       if(st.scale==='penta_min'||st.scale==='blues'){st.root=mod(s+9);}
       else if(['minor','harmonic','melodic'].indexOf(st.scale)>=0){st.root=s;st.scale='major';}
       else{var curSc=getSC();st.root=(curSc.ch&&curSc.ch[0]==='min')?mod(s+9):s;}
@@ -1465,6 +1518,13 @@ function drawCOF(){
     var path=mk('path',{d:arcPath(RMID,RINNER,a0,a1),fill:fill,stroke:C_LINE,'stroke-width':'1'});
     path.style.cursor='pointer';
     path.onclick=(function(s,idx){return function(){
+      if(_pianoMode==='accord'&&st.viewMode==='scale'){
+        var _ns=getNotes();var _sc=getSC();
+        var _di=_ns.indexOf(s);
+        /* Inner ring = accord mineur/dim uniquement */
+        if(_di>=0&&_sc.ch&&(_sc.ch[_di]==='min'||_sc.ch[_di]==='dim')){_cofSelectChord(s,_sc.ch[_di]);}
+        return;
+      }
       var curSc=getSC();
       if(st.scale==='major'){st.root=s;st.scale='minor';}
       else if(st.scale==='penta_maj'){st.root=s;st.scale='penta_min';}
@@ -1491,6 +1551,12 @@ function drawCOF(){
     var minLbl=txt(mp[0],mp[1]+6,COF_MIN[i],minLblCls);
     minLbl.style.cursor='pointer';
     minLbl.onclick=(function(s,idx){return function(){
+      if(_pianoMode==='accord'&&st.viewMode==='scale'){
+        var _ns=getNotes();var _sc=getSC();
+        var _di=_ns.indexOf(s);
+        if(_di>=0&&_sc.ch&&(_sc.ch[_di]==='min'||_sc.ch[_di]==='dim')){_cofSelectChord(s,_sc.ch[_di]);}
+        return;
+      }
       var curSc=getSC();
       if(st.scale==='major'){st.root=s;st.scale='minor';}
       else if(st.scale==='penta_maj'){st.root=s;st.scale='penta_min';}
@@ -1504,8 +1570,35 @@ function drawCOF(){
     svg.appendChild(minLbl);
   });
 
-  /* Gap ring */
+  /* Gap ring — fond */
   svg.appendChild(mk('circle',{cx:CX,cy:CY,r:RINNER-2,fill:'var(--bg)',stroke:'none'}));
+
+  /* Anneau mode Gamme/Accord (entre mineur et centre) */
+  var _isGamme=_pianoMode!=='accord';
+  var _RMO=RINNER-4,_RMI=RCNTR+4;
+  var _midMR=(_RMO+_RMI)/2;
+  var _dGL='M '+CX+' '+(CY-_RMO)+' A '+_RMO+' '+_RMO+' 0 0 0 '+CX+' '+(CY+_RMO)+' L '+CX+' '+(CY+_RMI)+' A '+_RMI+' '+_RMI+' 0 0 1 '+CX+' '+(CY-_RMI)+' Z';
+  var _dAR='M '+CX+' '+(CY-_RMO)+' A '+_RMO+' '+_RMO+' 0 0 1 '+CX+' '+(CY+_RMO)+' L '+CX+' '+(CY+_RMI)+' A '+_RMI+' '+_RMI+' 0 0 0 '+CX+' '+(CY-_RMI)+' Z';
+  var _isGraphite=document.body.classList.contains('graphite');
+  var _activeTxt=_isGraphite?'rgba(255,255,255,0.80)':'#2A2820';
+  var _inactiveTxt=_isGraphite?'rgba(255,255,255,0.22)':'rgba(42,40,32,0.30)';
+  var _hGL=mk('path',{d:_dGL,'fill-opacity':_isGamme?'0.55':'0',stroke:'none'});
+  _hGL.style.fill=C_DEGREE;_hGL.style.cursor='pointer';_hGL.onclick=function(){_setPianoMode('gamme');drawCOF();};
+  svg.appendChild(_hGL);
+  var _hAR=mk('path',{d:_dAR,'fill-opacity':_isGamme?'0':'0.55',stroke:'none'});
+  _hAR.style.fill=C_DEGREE;_hAR.style.cursor='pointer';_hAR.onclick=function(){_setPianoMode('accord');drawCOF();};
+  svg.appendChild(_hAR);
+  /* Divider vertical dans l'anneau */
+  svg.appendChild(mk('line',{x1:CX,y1:CY-_RMO,x2:CX,y2:CY+_RMO,stroke:C_LINE_STRONG,'stroke-width':'1'}));
+  /* Labels "Gamme" / "Accord" pivotés dans l'anneau */
+  var _gTxt=mk('text',{x:CX-_midMR,y:CY,'text-anchor':'middle','dominant-baseline':'middle','font-size':'11','font-family':'DM Mono,monospace','font-weight':'700','letter-spacing':'0.06em',fill:_isGamme?_activeTxt:_inactiveTxt,transform:'rotate(-90,'+(CX-_midMR)+','+CY+')'});
+  _gTxt.textContent='GAMME';_gTxt.style.cursor='pointer';
+  _gTxt.onclick=function(){_setPianoMode('gamme');drawCOF();};
+  svg.appendChild(_gTxt);
+  var _aTxt=mk('text',{x:CX+_midMR,y:CY,'text-anchor':'middle','dominant-baseline':'middle','font-size':'11','font-family':'DM Mono,monospace','font-weight':'700','letter-spacing':'0.06em',fill:_isGamme?_inactiveTxt:_activeTxt,transform:'rotate(90,'+(CX+_midMR)+','+CY+')'});
+  _aTxt.textContent='ACCORD';_aTxt.style.cursor='pointer';
+  _aTxt.onclick=function(){_setPianoMode('accord');drawCOF();};
+  svg.appendChild(_aTxt);
 
   /* Center circle */
   svg.appendChild(mk('circle',{cx:CX,cy:CY,r:RCNTR,fill:C_SURFACE,stroke:C_LINE_STRONG,'stroke-width':'1'}));
@@ -1513,11 +1606,11 @@ function drawCOF(){
   /* Center text: tonic note */
   var isProg=st.viewMode==='prog';
   svg.appendChild(txt(CX,isProg?CY-16:CY-10,EN[tonic],'wheel-tonality'));
-  /* Scale label below tonic */
+  /* Scale label */
   var scLbl=txt(CX,isProg?CY+8:CY+14,sc.label+' ▾','wheel-scale-lbl');
   scLbl.style.pointerEvents='none';
   svg.appendChild(scLbl);
-  /* Progression name below scale label (prog mode only) */
+  /* Progression name (prog mode only) */
   if(isProg){
     var pname='';
     if(customProg.idx>=0&&customProgs[customProg.idx])pname=customProgs[customProg.idx].name;
@@ -1528,7 +1621,7 @@ function drawCOF(){
       svg.appendChild(pgLbl);
     }
   }
-  /* Invisible clickable overlay covers full center circle */
+  /* cOver — sélecteur de gamme sur tout le centre */
   var cOver=mk('circle',{cx:CX,cy:CY,r:RCNTR,fill:'transparent'});
   cOver.setAttribute('class','cof-center-btn');
   cOver.style.cursor='pointer';
@@ -1574,14 +1667,27 @@ function navigateCircle(dir){
 /* ── PIANO ── */
 function buildPiano(){
   var pw=document.getElementById('pw');pw.innerHTML='';
-  var whites=[],nw=0;
-  for(var m=MIDI_START;m<=MIDI_END;m++)if(!isB(m)){whites.push(m);nw++;}
   pw.parentElement.style.width='';
   var totalW=pw.parentElement.offsetWidth||580;
+  var MIN_WW=35;
+  if(!_pianoManualOctaves){
+    var idealOct=Math.floor(totalW/154);
+    idealOct=Math.max(2,Math.min(6,idealOct));
+    /* Réduire si la largeur resultante passe sous le minimum */
+    while(idealOct>2&&Math.floor(totalW/(idealOct*7))<MIN_WW)idealOct--;
+    _pianoOctaves=idealOct;
+    MIDI_END=MIDI_START+_pianoOctaves*12-1;
+    var lbl=document.getElementById('piano-oct-lbl');if(lbl)lbl.textContent=_pianoOctaves;
+  }
+  OCTAVE_LABELS={};
+  for(var oi=MIDI_START;oi<=MIDI_END;oi++){if(oi%12===0)OCTAVE_LABELS[oi]='C'+(Math.floor(oi/12)-1);}
+  var whites=[],nw=0;
+  for(var m=MIDI_START;m<=MIDI_END;m++)if(!isB(m)){whites.push(m);nw++;}
+  totalW=pw.parentElement.offsetWidth||580;
   var naturalWW=Math.floor(totalW/nw);
   var ww=naturalWW;
   if(naturalWW>46){ww=46;pw.parentElement.style.width=(nw*ww)+'px';}
-  if(ww<4)ww=4;
+  if(ww<MIN_WW)ww=MIN_WW;
   var wh=Math.min(120,Math.max(70,Math.round(ww*4.5))),bw=Math.max(5,Math.floor(ww*.56));
   pw.style.height=wh+'px';
   for(var i=0;i<whites.length;i++){
@@ -1604,6 +1710,7 @@ function _togglePianoScale(){
   paintPiano(_pianoLastChordSet,true);
 }
 function _setPianoOctaves(delta){
+  _pianoManualOctaves=true;
   _pianoOctaves=Math.max(1,Math.min(6,_pianoOctaves+delta));
   MIDI_END=MIDI_START+_pianoOctaves*12-1;
   var lbl=document.getElementById('piano-oct-lbl');if(lbl)lbl.textContent=_pianoOctaves;
@@ -1638,28 +1745,23 @@ function paintPiano(chordMidiSet, overlayScale){
     /* Calcul gamme */
     var isTonic=(sm===tonic);
     var inScale=notes.indexOf(sm)>=0;
-    var tint='rgba(200,115,30,0.18)';
-    var tintBk='rgba(200,115,30,0.35)';
     /* Pastille gamme */
     if(showScale&&dot&&inScale){
       dot.style.background=isTonic?'var(--tonic)':'rgba(255,255,255,0.92)';
       dot.style.border=isB(sm)?'1px solid rgba(255,255,255,0.5)':'1px solid var(--piano-border)';
     }
-    /* Teinte gamme sur touches neutres */
-    if(showScale&&inScale){
-      el.style.background=isB(sm)?'linear-gradient('+tintBk+','+tintBk+'),#222':'linear-gradient('+tint+','+tint+'),#f5f2ec';
-    }
     /* Touche enfoncée — accord sélectionné */
     if(chordMidiSet&&chordMidiSet[m]){
       if(isB(sm)){
         el.style.clipPath='inset(0 -6px -8px -6px)';
-        el.style.background=showScale&&inScale?'linear-gradient('+tintBk+','+tintBk+'),#1c1810':'#1c1810';
+        el.style.background='#1c1810';
         el.style.boxShadow='inset 0 10px 20px rgba(0,0,0,0.95),inset 0 3px 7px rgba(0,0,0,0.8),inset 0 0 0 2px #1c1810,inset 0 0 0 4px rgba(255,255,255,0.18),0 4px 6px 0px rgba(0,0,0,0.85),0 2px 3px 0px rgba(0,0,0,0.65)';
       }else{
         el.style.clipPath='';
-        el.style.background=showScale&&inScale?'linear-gradient('+tint+','+tint+'),#eeeade':'#eeeade';
+        el.style.background='#eeeade';
         el.style.boxShadow='inset 1px 0 0 #7a7570,inset -1px 0 0 #7a7570,inset 0 10px 18px rgba(0,0,0,0.55),inset 0 4px 8px rgba(0,0,0,0.38)';
       }
+      if(dot){dot.style.background='var(--chord-sel)';dot.style.border='1px solid rgba(0,0,0,0.18)';}
     }
   }
 }
@@ -1669,21 +1771,9 @@ var _pianoActiveMidi=-1;
 var _pianoInvPos=0;
 function _setPianoMode(m){
   _pianoMode=m;
-  var bg=document.getElementById('piano-mode-gamme');
-  var ba=document.getElementById('piano-mode-accord');
   var opts=document.getElementById('piano-accord-opts');
-  if(!bg||!ba)return;
-  var tog=document.getElementById('piano-scale-tog');
-  var togSep=document.getElementById('piano-scale-tog-sep');
   if(m==='gamme'){
-    bg.style.background='var(--tonic)';bg.style.color='#fff';
-    ba.style.background='transparent';ba.style.color='var(--text2)';
     if(opts)opts.style.display='none';
-    if(tog)tog.style.display='none';if(togSep)togSep.style.display='none';
-  }else{
-    ba.style.background='var(--tonic)';ba.style.color='#fff';
-    bg.style.background='transparent';bg.style.color='var(--text2)';
-    if(tog)tog.style.display='';if(togSep)togSep.style.display='';
   }
 }
 var _pianoEnrichCtxId='';
@@ -1710,29 +1800,58 @@ function _getActiveChord(){
   }
   return null;
 }
+function _closeChordEnrichPop(){
+  _showPianoEnrich=false;
+  _pianoClickCount=1;
+  var pop=document.getElementById('chord-enrich-pop');
+  if(pop)pop.style.display='none';
+}
 function _updatePianoEnrichBtns(){
-  var row=document.getElementById('piano-enrich-row');
   var opts=document.getElementById('piano-accord-opts');
-  if(!row||!opts)return;
-  row.innerHTML='';
+  var pop=document.getElementById('chord-enrich-pop');
+  var popBtns=document.getElementById('chord-enrich-pop-btns');
+  var popTitle=document.getElementById('chord-enrich-pop-title');
+  if(!opts)return;
   var ctx=_getActiveChord();
-  var ctxId=ctx?(ctx.mode+':'+ctx.si+':'+ctx.semi):'';
+  var ctxId=ctx?(ctx.mode+':'+(ctx.si||0)+':'+ctx.semi):'';
   if(ctxId!==_pianoEnrichCtxId){_pianoInvPos=0;_pianoEnrichCtxId=ctxId;var lbl=document.getElementById('piano-inv-lbl');if(lbl)lbl.textContent='0';}
+  if(scaleState.activeDeg<0){_pianoClickCount=0;_showPianoEnrich=false;}
   opts.style.display=ctx?'flex':'none';
   if(ctx)_setPianoMode('accord');
-  if(!ctx)return;
+  if(!ctx){if(pop)pop.style.display='none';return;}
   var t=ctx.type;
   var degIdx=ctx.mode==='scale'?scaleState.activeDeg:(ctx.degIdx||0);
   var grp=enrichGroup(t,st.scale,degIdx);
   var list=ENRICHMENTS[grp]||[];
   var baseLabel=t==='min'?'Min':t==='dim'?'Dim':t==='aug'?'Aug':'Maj';
-  var bb=document.createElement('button');bb.className='enrich-btn'+(ctx.enrichId===''?' active':'');bb.textContent=baseLabel;bb.onclick=function(){_setPianoEnrich('');};row.appendChild(bb);
-  list.forEach(function(e){var eb=document.createElement('button');eb.className='enrich-btn'+(ctx.enrichId===e.id?' active':'');eb.textContent=e.l;eb.onclick=(function(eid){return function(){_setPianoEnrich(eid);};})(e.id);row.appendChild(eb);});
+  /* Legacy inline row (hidden — kept for compatibility) */
+  var row=document.getElementById('piano-enrich-row');
+  if(row){row.innerHTML='';row.style.display='none';}
+  /* Floating popup */
+  if(pop&&popBtns){
+    popBtns.innerHTML='';
+    if(popTitle){
+      var chordName=EN[ctx.semi]+(t==='min'?'m':t==='dim'?'°':t==='aug'?'+':'');
+      popTitle.textContent=chordName+(ctx.enrichId?' · '+ctx.enrichId:'');
+    }
+    var bb=document.createElement('button');bb.className='enrich-btn'+(ctx.enrichId===''?' active':'');bb.textContent=baseLabel;bb.onclick=function(){_setPianoEnrich('');};popBtns.appendChild(bb);
+    list.forEach(function(e){var eb=document.createElement('button');eb.className='enrich-btn'+(ctx.enrichId===e.id?' active':'');eb.textContent=e.l;eb.onclick=(function(eid){return function(){_setPianoEnrich(eid);};})(e.id);popBtns.appendChild(eb);});
+    if(_showPianoEnrich){
+      pop.style.display='block';
+      var pw=document.getElementById('pw');
+      if(pw){var r=pw.getBoundingClientRect();pop.style.left=(r.left+r.width/2)+'px';pop.style.top=(r.bottom+8)+'px';pop.style.transform='translateX(-50%)';}
+    } else {
+      pop.style.display='none';
+    }
+  }
 }
 function _setPianoEnrich(eid){
   var ctx=_getActiveChord();if(!ctx)return;
   _pianoInvPos=0;var rn=ctx.semi;var t=ctx.type;
-  if(ctx.mode==='scale'){scaleState.activeEnrich=eid;scaleState.activeInv=0;}
+  if(ctx.mode==='scale'){
+    scaleState.activeEnrich=eid;scaleState.activeInv=0;
+    if(scaleState.activeDeg>=0)scaleState.enrichPerDeg[scaleState.activeDeg]=eid;
+  }
   else if(ctx.mode==='stdProg'){stdProg.enrichPerStep[ctx.si]=eid;stdProg.invPerStep[ctx.si]=0;}
   else if(ctx.mode==='customProg'){ctx.seq.enrich=eid;ctx.seq.label=enrichLabel(rn,eid);updateCustomName(ctx.cp);}
   else if(ctx.mode==='practice'){
@@ -1797,27 +1916,39 @@ function _pianoKeyClick(midi){
   }
 
   if(dIdx>=0&&sc.ch&&dIdx<sc.ch.length){
-    /* Mode accord — note dans la gamme : sélectionne l'accord du degré */
     if(scaleState.activeDeg===dIdx){
-      scaleState.activeDeg=-1;scaleState.activeEnrich='';scaleState.activeInv=0;
-      window._songChordHighlight=null;
-      paintPiano(null);
-      document.getElementById('piano-sub').textContent='tonique en ocre';
-    } else {
-      scaleState.activeDeg=dIdx;scaleState.activeEnrich='';scaleState.activeInv=0;
-      _pianoActiveMidi=midi;_pianoInvPos=0;
-      var rn=mod(st.root+sc.iv[dIdx]);
-      var iv=ENRICH_IV[sc.ch[dIdx]]||[0,4,7];
-      var midis=iv.map(function(x){return midi+x;});
-      if(Math.max.apply(null,midis)>MIDI_END){midis=midis.map(function(m){return m-12;});}
-      var chSet={};midis.forEach(function(m){chSet[m]=true;});
-      paintPiano(chSet,true);
-      var _il=document.getElementById('piano-inv-lbl');if(_il)_il.textContent='0';
-      document.getElementById('piano-sub').textContent=chordNameDeg(dIdx,'')+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');
-      window._songChordHighlight={semi:rn,type:sc.ch[dIdx]};
-      if(_autoSound&&!_audioPlaying){var ctx=_getCtx();_playChord(midis,ctx.currentTime+0.05,true);}
-      _updatePianoEnrichBtns();
+      _pianoClickCount++;
+      if(_pianoClickCount===2){
+        _showPianoEnrich=true;
+        _updatePianoEnrichBtns();drawCOF();renderMainPanel();
+      } else {
+        _pianoClickCount=0;_showPianoEnrich=false;
+        scaleState.activeDeg=-1;scaleState.activeEnrich='';scaleState.activeInv=0;
+        window._songChordHighlight=null;
+        paintPiano(null);_updatePianoEnrichBtns();
+        var sub=document.getElementById('piano-sub');if(sub)sub.textContent='';
+        drawCOF();renderMainPanel();
+      }
+      return;
     }
+    _pianoClickCount=1;_showPianoEnrich=false;
+    scaleState.activeDeg=dIdx;
+    scaleState.activeEnrich=scaleState.enrichPerDeg[dIdx]||'';
+    scaleState.activeInv=0;
+    _pianoActiveMidi=midi;_pianoInvPos=0;
+    var rn=mod(st.root+sc.iv[dIdx]);
+    var eid=scaleState.activeEnrich;
+    var iv=ENRICH_IV[eid]||ENRICH_IV[sc.ch[dIdx]]||[0,4,7];
+    var midis=iv.map(function(x){return midi+x;});
+    if(Math.max.apply(null,midis)>MIDI_END){midis=midis.map(function(m){return m-12;});}
+    var chSet={};midis.forEach(function(m){chSet[m]=true;});
+    paintPiano(chSet,true);
+    var _il=document.getElementById('piano-inv-lbl');if(_il)_il.textContent='0';
+    var sub=document.getElementById('piano-sub');
+    if(sub)sub.textContent=chordNameDeg(dIdx,'')+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');
+    window._songChordHighlight={semi:rn,type:eid||sc.ch[dIdx]};
+    if(_autoSound&&!_audioPlaying){var ctx=_getCtx();_playChord(midis,ctx.currentTime+0.05,true);}
+    _updatePianoEnrichBtns();
     drawCOF();renderMainPanel();
   } else {
     /* Mode accord — note hors gamme : rien */
@@ -5023,6 +5154,11 @@ document.addEventListener('click',function(e){
     _scalePopOpen=false;pop.classList.remove('open');
   }
 });
+document.addEventListener('click',function(e){
+  if(!_showPianoEnrich)return;
+  var pop=document.getElementById('chord-enrich-pop');
+  if(pop&&!pop.contains(e.target)){_closeChordEnrichPop();}
+});
 
 /* ── INIT ── */
 /* ── COF ARROW POSITIONING ── */
@@ -5163,6 +5299,15 @@ window._highlightChord=function(semi){window._songChordHighlight=semi;drawCOF();
 <div id="compare-panel" style="display:none"></div>
 <div id="peda-panel" style="display:none"></div>
 
+
+<!-- ── ACCORD ENRICHISSEMENT POPUP ── -->
+<div id="chord-enrich-pop" style="display:none;position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:501;padding:10px 12px;min-width:180px;max-width:320px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px">
+    <span id="chord-enrich-pop-title" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.08em;text-transform:uppercase"></span>
+    <button onclick="_closeChordEnrichPop()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;padding:0 2px">&times;</button>
+  </div>
+  <div id="chord-enrich-pop-btns" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+</div>
 
 <!-- ── SÉLECTEUR GAMME POPOVER ── -->
 <div class="scale-popover" id="scale-popover">
