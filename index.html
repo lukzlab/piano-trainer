@@ -5612,7 +5612,7 @@ function _tlDraw(){
   if(cv.height!==H)cv.height=H;
   var ctx=cv.getContext('2d');
   var state=_practiceState;
-  var cs=getComputedStyle(document.documentElement);
+  var cs=getComputedStyle(document.body);
   var cTonic=cs.getPropertyValue('--tonic').trim()||'#888';
   var cAccent=cs.getPropertyValue('--accent').trim()||cTonic;
   var cTonicBg=cs.getPropertyValue('--tonic-bg').trim()||'rgba(128,128,128,0.15)';
