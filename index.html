@@ -412,11 +412,11 @@ body.peda-hidden .harmony-note{display:none!important}
 .practice-btn{font-size:11px;padding:4px 12px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'DM Sans',sans-serif;transition:all .15s}
 .practice-btn:hover{border-color:var(--accent);color:var(--accent)}
 .practice-btn.active{background:var(--tonic);color:#fff;border-color:var(--tonic)}
-.practice-overlay{display:none;position:fixed;top:0;right:0;bottom:0;width:var(--rp-width,280px);background:var(--surface);border-left:1px solid var(--border);z-index:150;flex-direction:column;padding:.5rem .875rem;overflow-y:auto}
+.practice-overlay{display:none;position:fixed;top:0;right:0;bottom:0;width:var(--rp-width,280px);background:var(--surface);border-left:1px solid var(--border);z-index:150;flex-direction:column;padding:.25rem .875rem;overflow-y:auto}
 .practice-overlay.open{display:flex}
 .practice-close{align-self:flex-start;font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:.75rem}
 .practice-title{display:none}
-.practice-chord-display{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:.75rem}
+.practice-chord-display{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:.375rem}
 .practice-chord-prev{font-size:26px;font-weight:500;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:-.02em;text-align:right;min-width:70px}
 .practice-chord-current{font-size:72px;font-weight:600;color:var(--text);font-family:'DM Sans',sans-serif;letter-spacing:-.04em;text-align:center;min-width:120px;transition:opacity .1s}
 .practice-chord-next{font-size:26px;font-weight:500;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:-.02em;text-align:left;min-width:70px}
@@ -989,10 +989,10 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     <div class="practice-chord-current" id="practice-current">—</div>
     <div class="practice-chord-next" id="practice-next"></div>
   </div>
-  <div id="practice-enrich-row" class="enrich-row" style="justify-content:center;min-height:18px;margin-bottom:14px;margin-top:4px"></div>
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem">
+  <div id="practice-enrich-row" class="enrich-row" style="justify-content:center;min-height:18px;margin-bottom:8px;margin-top:2px"></div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:.75rem">
     <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;flex-shrink:0">tempo</span>
-    <div class="practice-beat" id="practice-beat" style="margin-bottom:0"></div>
+    <div class="practice-beat" id="practice-beat"></div>
   </div>
   <div class="practice-controls">
     <div class="practice-bpm-ctrl">
@@ -1009,9 +1009,11 @@ body.peda-hidden .cof-arrow-lbl{display:none}
       <span class="practice-bpm-label">mesure</span>
     </div>
     <button class="practice-bpm-btn" onclick="_ytSeekStart()" id="practice-seek-start-btn" title="Remettre la vidéo au début" style="font-size:13px;min-width:34px;display:none">⏮</button>
-    <button class="practice-bpm-btn" onclick="practiceTapTempo()" id="practice-tap-btn" title="Tap tempo" style="font-size:9px;letter-spacing:.08em;min-width:34px;border-color:var(--accent);color:var(--accent)">TAP</button>
   </div>
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:.5rem">
+  <div style="display:flex;justify-content:center;margin-top:8px;margin-bottom:4px">
+    <button onclick="practiceTapTempo()" id="practice-tap-btn" title="Tap tempo" style="font-size:14px;font-weight:600;letter-spacing:.1em;padding:10px 32px;border-radius:99px;border:2px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;font-family:'DM Mono',monospace;transition:background .1s,color .1s">TAP</button>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;margin-bottom:.5rem">
     <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;flex-shrink:0">progression</span>
     <div class="practice-prog-dots" id="practice-prog-dots" style="margin-bottom:0"></div>
   </div>
