@@ -1638,8 +1638,10 @@ function paintPiano(chordMidiSet, overlayScale){
     if(chordMidiSet&&chordMidiSet[m]){
       /* clip-path: laisse passer le glow vers le haut seulement, coupe côtés + bas */
       if(isB(sm)){
-        el.style.clipPath='inset(-40px 0 0 0)';
-        el.style.boxShadow='0 -7px 5px 0px rgba(200,135,58,0.95),0 -14px 12px 0px rgba(200,135,58,0.5),0 -26px 22px 0px rgba(200,135,58,0.18)';
+        /* inset: profondeur + glow côtés et bas pour lisibilité */
+        el.style.clipPath='inset(0 -10px -12px -10px)';
+        el.style.background='#1c1810';
+        el.style.boxShadow='inset 0 6px 14px rgba(0,0,0,0.9),inset 0 2px 5px rgba(0,0,0,0.7),0 3px 10px 3px rgba(200,135,58,0.5),0 0 6px 2px rgba(200,135,58,0.3)';
       }else{
         el.style.clipPath='inset(-30px 0 0 0)';
         el.style.background='#eeeade';
