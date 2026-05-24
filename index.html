@@ -5688,24 +5688,24 @@ function _tlDraw(){
         var isAB=(b2===state.beat);
         ctx.beginPath();ctx.arc(dotX,dotY,isAB?3.5:2,0,Math.PI*2);
         if(isAB){ctx.shadowColor=cAccent;ctx.shadowBlur=8;}
-        ctx.fillStyle=cAccent;ctx.globalAlpha=isAB?0.95:0.35;ctx.fill();
+        ctx.fillStyle='#fff';ctx.globalAlpha=isAB?1:0.4;ctx.fill();
         ctx.globalAlpha=1;ctx.shadowBlur=0;
       }
     }
     /* Label accord — zoom + glow sur l'actif */
     ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.globalAlpha=isPast?0.5:1;
+    ctx.globalAlpha=isPast?0.45:1;
     if(isAct){
       ctx.font='700 17px "DM Mono",monospace';
-      ctx.fillStyle=cAccent;
       ctx.shadowColor=cAccent;ctx.shadowBlur=18;
+      ctx.fillStyle='#fff';
       ctx.fillText(chord.label,cx+CHORD_W/2,H/2-3);
       ctx.shadowBlur=8;
       ctx.fillText(chord.label,cx+CHORD_W/2,H/2-3);
       ctx.shadowBlur=0;
     } else {
       ctx.font='500 12px "DM Mono",monospace';
-      ctx.fillStyle=isPast?cText3:cText2;
+      ctx.fillStyle='#fff';
       ctx.fillText(chord.label,cx+CHORD_W/2,H/2);
     }
     ctx.globalAlpha=1;
