@@ -1639,7 +1639,10 @@ function paintPiano(chordMidiSet, overlayScale){
     if(showScale&&dot){
       var isTonic=(sm===tonic);
       var inScale=notes.indexOf(sm)>=0;
-      if(!inScale)el.style.opacity='0.5';
+      if(!inScale){
+        if(isB(sm))el.style.background='#666';
+        else el.style.opacity='0.5';
+      }
       if(inScale){
         dot.style.background=isTonic?'var(--tonic)':'rgba(255,255,255,0.92)';
         dot.style.border=isB(sm)?'1px solid rgba(255,255,255,0.5)':'1px solid var(--piano-border)';
