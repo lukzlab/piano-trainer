@@ -137,6 +137,9 @@ body.light .rbtn.active{background:#1A1814;border-color:#1A1814}
 .practice-overlay.fullscreen .practice-chord-prev,.practice-overlay.fullscreen .practice-chord-next{font-size:32px}
 .practice-overlay.fullscreen .practice-beat-dot{width:18px;height:18px}
 .practice-overlay.fullscreen .practice-prog-dot{width:20px;height:20px}
+.practice-overlay.fullscreen .practice-play-btn{width:64px;height:64px;font-size:22px}
+#prac-cof-section{display:none}
+.practice-overlay.fullscreen #prac-cof-section{display:flex;flex-direction:column;align-items:center;gap:6px;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
 .cof-hint{font-size:10px;color:var(--text3);text-align:center;margin-top:.375rem;transition:color .2s}
 .cof-hint.build{color:var(--tonic);font-weight:500}
 
@@ -1060,8 +1063,12 @@ body.peda-hidden .cof-arrow-lbl{display:none}
       <div id="practice-yt-picker" style="display:none;margin-top:4px"></div>
     </div>
   </div>
-  <!-- LEFT : séquence + outils -->
+  <!-- LEFT : COF + séquence + outils -->
   <div id="prac-fs-left">
+    <div id="prac-cof-section">
+      <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">roue des quintes</span>
+      <svg id="cof-practice" style="display:block;max-width:100%;cursor:pointer"></svg>
+    </div>
     <div id="practice-seq-section" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);flex-shrink:0">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
         <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase">Séquence</span>
@@ -1395,7 +1402,11 @@ function _cofSelectChord(semi,type){
 }
 
 function drawCOF(){
-  var svg=document.getElementById('cof');
+  _drawCOFCore(document.getElementById('cof'));
+  var _c2=document.getElementById('cof-practice');
+  if(_c2&&_c2.offsetWidth>0) _drawCOFCore(_c2);
+}
+function _drawCOFCore(svg){
   if(!svg)return;
   svg.innerHTML='';
   /* Responsive sizing */
@@ -1734,7 +1745,7 @@ function drawCOF(){
       if(t===svg){if(e.clientX<_cx)navigateCircle(-1);else navigateCircle(1);}
     });
   }
-}
+} /* end _drawCOFCore */
 
 function _refreshActiveChord(){
   if(scaleState.activeDeg<0)return;
@@ -5452,6 +5463,7 @@ function _practiceToggleFullscreen(){
   var fs=overlay.classList.toggle('fullscreen');
   if(btn)btn.textContent=fs?'⤡':'⤢';
   if(typeof buildPiano==='function')buildPiano();
+  drawCOF();
 }
 
 /* ── PRACTICE RESIZE HANDLE ── */
