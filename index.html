@@ -452,7 +452,7 @@ body.peda-hidden .harmony-note{display:none!important}
 .practice-bpm-val{font-size:14px;font-family:'DM Mono',monospace;color:var(--text);width:40px;text-align:center;font-weight:500}
 .practice-bpm-label{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace}
 .practice-section-name{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);font-family:'DM Mono',monospace;text-align:center;margin-bottom:.5rem}
-.practice-prog-dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;max-width:100%;margin-bottom:.5rem}
+.practice-prog-dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;max-width:100%;margin-bottom:.5rem;min-height:34px;align-items:center;padding:4px;border-radius:8px;transition:background .1s,outline .1s}
 .practice-prog-chip{font-size:12px;font-family:'DM Mono',monospace;font-weight:500;padding:5px 12px;border-radius:99px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .1s;white-space:nowrap;user-select:none}
 .practice-prog-chip.active{background:var(--tonic);color:#fff;border-color:var(--tonic)}
 .practice-prog-chip.done{background:var(--tonic-bg);color:var(--tonic);border-color:transparent}
@@ -1026,7 +1026,11 @@ body.peda-hidden .cof-arrow-lbl{display:none}
       <button class="practice-play-btn" id="practice-play-btn" onclick="practiceToggle()">&#9654;</button>
     </div>
     <div id="prac-prog-section" style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:.5rem">
-      <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">progression</span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">progression</span>
+        <button onclick="_practiceResetSeq()" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace" title="Réinitialiser">↺</button>
+        <button onclick="_practiceClearSeq()" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #c0392b;background:transparent;color:#e05445;cursor:pointer;font-family:'DM Mono',monospace" title="Vider">✕</button>
+      </div>
       <div class="practice-prog-dots" id="practice-prog-dots" style="margin-bottom:0"></div>
     </div>
   </div>
@@ -1070,16 +1074,6 @@ body.peda-hidden .cof-arrow-lbl{display:none}
         </select>
         <button class="yt-launch-btn" onclick="openYouTubeBacking()" style="flex-shrink:0;white-space:nowrap">&#9654; Backing track</button>
       </div>
-    </div>
-    <div id="practice-seq-section" style="margin-top:12px;padding-top:8px;border-top:1px solid var(--border);flex-shrink:0;width:100%">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase">Séquence</span>
-        <div style="display:flex;gap:5px">
-          <button onclick="_practiceResetSeq()" style="font-size:12px;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace" title="Réinitialiser">↺ reset</button>
-          <button onclick="_practiceClearSeq()" style="font-size:12px;padding:4px 10px;border-radius:5px;border:1px solid #c0392b;background:transparent;color:#e05445;cursor:pointer;font-family:'DM Mono',monospace" title="Vider la séquence">✕ clear</button>
-        </div>
-      </div>
-      <div id="practice-seq-list" style="display:flex;flex-wrap:wrap;gap:4px;min-height:22px"></div>
     </div>
     <div id="practice-yt-section" style="display:none;margin-top:14px;flex-shrink:0">
       <div style="position:relative;padding-top:56.25%;background:#000;border-radius:6px;overflow:hidden">
@@ -5176,7 +5170,7 @@ function _cofDragMove(e){
     var g=document.createElement('div');
     g.id='cof-drag-ghost';g.textContent=_cofDrag.chord.label;
     document.body.appendChild(g);_cofDrag.ghost=g;
-    var seq=document.getElementById('practice-seq-list');
+    var seq=document.getElementById('practice-prog-dots');
     if(seq)seq.classList.add('cof-drop-target');
   }
   if(!_cofDrag.dragging)return;
@@ -5185,7 +5179,7 @@ function _cofDragMove(e){
   if(g)g.style.display='none';
   var el=document.elementFromPoint(e.clientX,e.clientY);
   if(g)g.style.display='';
-  var seq=document.getElementById('practice-seq-list');
+  var seq=document.getElementById('practice-prog-dots');
   if(seq)seq.classList.toggle('cof-drop-active',!!(el&&el.closest('#practice-overlay')));
 }
 
@@ -5197,11 +5191,12 @@ function _cofDragEnd(e){
     if(g)g.style.display='none';
     var el=document.elementFromPoint(e.clientX,e.clientY);
     if(g){g.remove();_cofDrag.ghost=null;}
-    var seq=document.getElementById('practice-seq-list');
+    var seq=document.getElementById('practice-prog-dots');
     if(seq){seq.classList.remove('cof-drop-target');seq.classList.remove('cof-drop-active');}
     if(el&&el.closest('#practice-overlay')){
       _practiceState.chords.push(_cofDrag.chord);
-      _practiceBuildDots();_practiceBuildSeq();
+      _practiceState.allChords=_practiceState.chords.slice();
+      _practiceBuildDots();
       _ytSaveCfg();
     }
     document.addEventListener('click',function _nc(ev){ev.stopImmediatePropagation();document.removeEventListener('click',_nc,true);},true);
