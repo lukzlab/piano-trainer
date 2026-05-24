@@ -478,6 +478,12 @@ body.peda-hidden .harmony-note{display:none!important}
 .prac-vue-btn.on{background:var(--tonic-bg);border-color:var(--tonic);color:var(--tonic)}
 .prac-vue-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;transition:box-shadow .12s}
 .prac-vue-btn.on .prac-vue-dot{box-shadow:0 0 5px currentColor}
+.prac-ctrl-btn{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:.07em;text-transform:uppercase;padding:7px 4px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all .12s;text-align:center;line-height:1.3}
+.prac-ctrl-btn.on{background:var(--tonic-bg);border-color:var(--tonic);color:var(--tonic)}
+.prac-ctrl-btn.act{color:var(--text2)}
+.prac-ctrl-btn.act:active{background:var(--tonic-bg);color:var(--tonic)}
+#practice-fs-btn{background:var(--tonic);border-color:var(--tonic);color:#fff}
+#practice-fs-btn.fs-exit{background:#b83232;border-color:#b83232;color:#fff}
 .prac-col-label{display:none}
 .practice-overlay.fullscreen #prac-fs-left.collapsed .prac-col-label,
 .practice-overlay.fullscreen #prac-fs-right.collapsed .prac-col-label{display:flex;flex:1;align-items:center;justify-content:center;writing-mode:vertical-lr;font-size:11px;font-family:'DM Mono',monospace;font-weight:500;color:var(--text2);letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;cursor:pointer;transition:color .1s}
@@ -1037,7 +1043,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
   <!-- HEADER -->
   <div id="prac-fs-header" style="display:flex;align-items:center;gap:8px;margin-top:.25rem;margin-bottom:.25rem">
     <button class="practice-close" style="margin:0;font-size:14px;padding:6px 16px" onclick="closePracticeMode()">✕ Fermer</button>
-    <button id="practice-fs-btn" class="practice-close" style="margin:0;font-size:14px;padding:6px 16px;background:#2a7a3b;border-color:#2a7a3b;color:#fff" onclick="_practiceToggleFullscreen()" title="Plein écran">⤢ Plein écran</button>
+    <button id="practice-fs-btn" class="practice-close" style="margin:0;font-size:14px;padding:6px 16px" onclick="_practiceToggleFullscreen()" title="Plein écran">⤢ Plein écran</button>
   </div>
   <!-- CENTER : accord + tempo + play + progression -->
   <div id="prac-fs-center">
@@ -1088,33 +1094,34 @@ body.peda-hidden .cof-arrow-lbl{display:none}
       </div>
       <button class="practice-bpm-btn" onclick="_ytSeekStart()" id="practice-seek-start-btn" title="Remettre la vidéo au début" style="font-size:13px;min-width:34px;display:none">⏮</button>
     </div>
-    <div id="prac-tap-section" style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:18px;margin-bottom:4px">
-      <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">tempo manuel</span>
-      <button onclick="practiceTapTempo()" id="practice-tap-btn" title="Tap tempo" style="font-size:14px;font-weight:600;letter-spacing:.1em;padding:10px 32px;border-radius:99px;border:2px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;font-family:'DM Mono',monospace;transition:background .1s,color .1s">TAP</button>
-    </div>
+    <!-- Grille de contrôle unifiée 2 colonnes -->
     <div id="practice-tools" style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;flex-shrink:0;width:100%">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;flex-shrink:0;letter-spacing:.06em">TRACKLINE</span>
-        <button id="prac-tl-toggle" onclick="_pracToggleTrackline()" style="font-size:9px;padding:2px 10px;border-radius:4px;border:1px solid var(--tonic);background:var(--tonic-bg);color:var(--tonic);cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.06em;transition:all .1s">ON</button>
-      </div>
       <div style="display:flex;align-items:center;gap:8px">
         <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;flex-shrink:0;letter-spacing:.06em">METRO VOL</span>
         <input type="range" min="0" max="10" value="5" id="practice-metro-vol" style="flex:1" oninput="metroSetVol(this.value);_syncSlider('metro-vol',this.value)">
       </div>
-      <div style="display:flex;align-items:center;gap:6px">
-        <select class="atb-select" id="practice-yt-style" style="flex:1;min-width:0" onchange="ytSetStyleSelect(this.value)">
-          <option value="pad">Pad</option>
-          <option value="jazz" selected>Jazz</option>
-          <option value="bossa">Bossa</option>
-          <option value="funk">Funk</option>
-          <option value="rock">Rock</option>
-          <option value="blues">Blues</option>
-          <option value="latin">Latin</option>
-          <option value="rnb">R&amp;B</option>
-          <option value="drums">Drums</option>
-        </select>
-        <button class="yt-launch-btn" onclick="openYouTubeBacking()" style="flex-shrink:0;white-space:nowrap">&#9654; Backing track</button>
-      </div>
+      <select class="atb-select" id="practice-yt-style" style="width:100%" onchange="ytSetStyleSelect(this.value)">
+        <option value="pad">Pad</option>
+        <option value="jazz" selected>Jazz</option>
+        <option value="bossa">Bossa</option>
+        <option value="funk">Funk</option>
+        <option value="rock">Rock</option>
+        <option value="blues">Blues</option>
+        <option value="latin">Latin</option>
+        <option value="rnb">R&amp;B</option>
+        <option value="drums">Drums</option>
+      </select>
+    </div>
+    <div id="prac-ctrl-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);width:100%;flex-shrink:0">
+      <button class="prac-ctrl-btn on" id="ctrl-trackline" onclick="_pracToggleTrackline()">Trackline</button>
+      <button class="prac-ctrl-btn on" id="ctrl-vol" onclick="_pracToggleVol()">Vol métr.</button>
+      <button class="prac-ctrl-btn act" id="ctrl-backing" onclick="openYouTubeBacking()">Backing</button>
+      <button class="prac-ctrl-btn act" id="ctrl-tap" onclick="practiceTapTempo()">TAP</button>
+      <div style="grid-column:1/-1;height:1px;background:var(--border);margin:2px 0"></div>
+      <button class="prac-ctrl-btn on" id="vue-accord" onclick="_pracVueToggle('accord')">Accord</button>
+      <button class="prac-ctrl-btn on" id="vue-tonalite" onclick="_pracVueToggle('tonalite')">Tonalité</button>
+      <button class="prac-ctrl-btn on" id="vue-enrich" onclick="_pracVueToggle('enrich')">Enrichiss.</button>
+      <button class="prac-ctrl-btn on" id="vue-prog" onclick="_pracVueToggle('prog')">Progression</button>
     </div>
     <div id="practice-yt-section" style="display:none;margin-top:14px;flex-shrink:0;width:100%">
       <div style="position:relative;padding-top:56.25%;background:#000;border-radius:6px;overflow:hidden">
@@ -1127,14 +1134,6 @@ body.peda-hidden .cof-arrow-lbl{display:none}
         <span id="practice-yt-alt-status" style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace"></span>
       </div>
       <div id="practice-yt-picker" style="display:none;margin-top:4px"></div>
-    </div>
-    <!-- VUE : tableau de bord minimaliste -->
-    <div id="prac-vue-section" style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:4px;width:100%;flex-shrink:0">
-      <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px">VUE</span>
-      <button class="prac-vue-btn on" id="vue-accord" onclick="_pracVueToggle('accord')"><span>Accord</span><span class="prac-vue-dot"></span></button>
-      <button class="prac-vue-btn on" id="vue-tonalite" onclick="_pracVueToggle('tonalite')"><span>Tonalité</span><span class="prac-vue-dot"></span></button>
-      <button class="prac-vue-btn on" id="vue-enrich" onclick="_pracVueToggle('enrich')"><span>Enrichiss.</span><span class="prac-vue-dot"></span></button>
-      <button class="prac-vue-btn on" id="vue-prog" onclick="_pracVueToggle('prog')"><span>Progression</span><span class="prac-vue-dot"></span></button>
     </div>
   </div>
   <!-- LEFT : COF uniquement -->
@@ -5602,15 +5601,23 @@ function _pracToggleTrackline(){
   _tlVisible=!_tlVisible;
   var cv=document.getElementById('prac-trackline');
   var dots=document.getElementById('practice-beat');
-  var btn=document.getElementById('prac-tl-toggle');
+  var btn=document.getElementById('ctrl-trackline');
   if(cv)cv.style.display=_tlVisible?'':'none';
   if(dots)dots.style.display=_tlVisible?'none':'flex';
-  if(btn){
-    btn.textContent=_tlVisible?'ON':'OFF';
-    btn.style.borderColor=_tlVisible?'var(--tonic)':'var(--border)';
-    btn.style.background=_tlVisible?'var(--tonic-bg)':'transparent';
-    btn.style.color=_tlVisible?'var(--tonic)':'var(--text3)';
+  if(btn)btn.classList.toggle('on',_tlVisible);
+}
+var _metroMuted=false,_metroSavedVol=5;
+function _pracToggleVol(){
+  _metroMuted=!_metroMuted;
+  var slider=document.getElementById('practice-metro-vol');
+  if(_metroMuted){
+    _metroSavedVol=slider?parseFloat(slider.value):5;
+    metroSetVol(0);if(slider)slider.value=0;
+  } else {
+    metroSetVol(_metroSavedVol);if(slider)slider.value=_metroSavedVol;
   }
+  var btn=document.getElementById('ctrl-vol');
+  if(btn)btn.classList.toggle('on',!_metroMuted);
 }
 /* ── PRACTICE VUE TOGGLES ── */
 var _pracVue={accord:true,tonalite:true,enrich:true,prog:true};
@@ -5756,8 +5763,8 @@ function _tlDraw(){
   ctx.shadowBlur=0;
   ctx.fillStyle='rgba(255,255,255,0.95)';ctx.fillText(chords[state.idx].label,acMidX,acMidY-2);
   ctx.restore();
-  /* Playhead — dépasse la cellule active (tirets hors zone, trait plein dans zone) */
-  var phTop=AHY-6,phBot=AHH+AHY+6;
+  /* Playhead — pleine hauteur du canvas */
+  var phTop=0,phBot=H;
   ctx.shadowColor=cAccent;ctx.shadowBlur=8;
   ctx.strokeStyle=cAccent;ctx.lineWidth=2;ctx.globalAlpha=0.9;
   ctx.beginPath();ctx.moveTo(PH,phTop);ctx.lineTo(PH,phBot);ctx.stroke();
@@ -5818,8 +5825,7 @@ function _practiceToggleFullscreen(){
   var fs=overlay.classList.toggle('fullscreen');
   if(btn){
     btn.textContent=fs?'⤡ Quitter':'⤢ Plein écran';
-    btn.style.background=fs?'#b83232':'#2a7a3b';
-    btn.style.borderColor=fs?'#b83232':'#2a7a3b';
+    btn.classList.toggle('fs-exit',fs);
   }
   if(!fs){
     var lEl=document.getElementById('prac-fs-left');var rEl=document.getElementById('prac-fs-right');
