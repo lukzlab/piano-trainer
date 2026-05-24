@@ -690,8 +690,20 @@ body.light .wheel-eyebrow{fill:var(--text3)}
 .scale-selector-btn:hover{color:var(--accent);border-color:var(--accent2)}
 .scale-selector-chevron{font-size:10px;transition:transform 180ms ease;display:inline-block}
 .scale-selector-chevron.open{transform:rotate(180deg)}
-.scale-popover{display:none;position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:500;width:300px;overflow:hidden;max-height:80vh;overflow-y:auto}
-.scale-popover.open{display:block}
+.scale-popover{display:none;position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:500;overflow:hidden;max-height:80vh}
+.scale-popover.open{display:flex;align-items:stretch}
+.scale-pop-left{width:260px;overflow-y:auto;border-right:1px solid var(--border);flex-shrink:0}
+.scale-pop-right{width:200px;overflow-y:auto;display:flex;flex-direction:column}
+.scale-pop-prog-none{padding:10px 14px;cursor:pointer;font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;transition:background .1s;letter-spacing:.05em}
+.scale-pop-prog-none:hover{background:var(--bg2)}
+.scale-pop-prog-none.active{color:var(--tonic);background:var(--tonic-bg)}
+.scale-pop-prog-cat{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.18em;color:var(--text3);padding:.375rem 14px .2rem;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.scale-pop-prog-item{padding:8px 14px;cursor:pointer;transition:background .1s;border-left:2px solid transparent}
+.scale-pop-prog-item:hover{background:var(--accent-bg)}
+.scale-pop-prog-item.active{border-left-color:var(--tonic);background:var(--tonic-bg)}
+.scale-pop-prog-name{font-size:12px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace}
+.scale-pop-prog-item.active .scale-pop-prog-name{color:var(--tonic)}
+.scale-pop-prog-chords{font-size:10px;color:var(--text3);margin-top:1px}
 .scale-pop-group{display:grid;grid-template-columns:1fr 1fr;padding:.25rem 0}
 .scale-pop-group+.scale-pop-group{border-top:1px solid var(--border)}
 .scale-pop-label{grid-column:1/-1;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.18em;color:var(--text3);padding:.375rem 14px .2rem;text-transform:uppercase}
@@ -1073,8 +1085,8 @@ function _authSubmit(){
 function initTheme(){
   var saved=localStorage.getItem('piano_trainer_theme');
   if(!saved||['light','graphite'].indexOf(saved)<0){
-    saved='light';
-    localStorage.setItem('piano_trainer_theme','light');
+    saved='graphite';
+    localStorage.setItem('piano_trainer_theme','graphite');
   }
   document.body.className=saved;
   _updateThemeBtn(saved);
@@ -3352,12 +3364,16 @@ function _metroSchedule(){
 
 
 /* ── TOGGLE PÉDAGOGIE ── */
-var _pedaOn=true;
-function togglePeda(){
-  _pedaOn=!_pedaOn;
+var _pedaOn=(localStorage.getItem('piano_peda')==='1');
+function _applyPeda(){
   var nav=document.getElementById('peda-tog-nav');
   if(nav)nav.className='peda-tog'+(_pedaOn?' on':'');
   document.body.classList.toggle('peda-hidden',!_pedaOn);
+}
+function togglePeda(){
+  _pedaOn=!_pedaOn;
+  localStorage.setItem('piano_peda',_pedaOn?'1':'0');
+  _applyPeda();
 }
 
 
@@ -5176,6 +5192,46 @@ function _updateScalePopBtn(){
   });
 }
 
+function _buildScalePopProgList(){
+  var list=document.getElementById('scale-pop-prog-list');
+  if(!list)return;
+  list.innerHTML='';
+  var isProgMode=st.viewMode==='prog'&&customProg.idx<0;
+  var noProgEl=document.getElementById('scale-pop-no-prog');
+  if(noProgEl)noProgEl.className='scale-pop-prog-none'+(isProgMode?'':' active');
+  var cat='';
+  PROGS.forEach(function(p,i){
+    if(p.cat!==cat){
+      cat=p.cat;
+      var cl=document.createElement('div');cl.className='scale-pop-prog-cat';cl.textContent=cat;list.appendChild(cl);
+    }
+    var isActive=isProgMode&&stdProg.idx===i;
+    var item=document.createElement('div');item.className='scale-pop-prog-item'+(isActive?' active':'');
+    var chords=progChords(p.degs);
+    item.innerHTML='<div class="scale-pop-prog-name">'+p.name+'</div>'+(chords?'<div class="scale-pop-prog-chords">'+chords+'</div>':'');
+    item.onclick=(function(idx){return function(e){e.stopPropagation();setProgFromScalePop(idx);};})(i);
+    list.appendChild(item);
+  });
+}
+
+function setProgFromScalePop(idx){
+  stdProg.idx=idx;stdProg.activeStep=-1;stdProg.enrichPerStep={};stdProg.invPerStep={};
+  customProg.idx=-1;
+  st.viewMode='prog';
+  _scalePopOpen=false;
+  var pop=document.getElementById('scale-popover');
+  if(pop)pop.classList.remove('open');
+  updateAll();_updateScalePopBtn();
+}
+
+function clearProgFromScalePop(){
+  st.viewMode='scale';
+  _scalePopOpen=false;
+  var pop=document.getElementById('scale-popover');
+  if(pop)pop.classList.remove('open');
+  updateAll();_updateScalePopBtn();
+}
+
 function toggleScalePop(e){
   e.stopPropagation();
   _scalePopOpen=!_scalePopOpen;
@@ -5183,11 +5239,13 @@ function toggleScalePop(e){
   if(pop){
     pop.classList.toggle('open',_scalePopOpen);
     if(_scalePopOpen){
+      _buildScalePopProgList();
       var cofEl=document.getElementById('cof');
       var rect=cofEl?cofEl.getBoundingClientRect():{left:window.innerWidth/2,top:window.innerHeight/2};
       var cx=rect.left+rect.width/2;
       var cy=rect.top+rect.height/2;
-      pop.style.left=Math.min(cx-150,window.innerWidth-310)+'px';
+      var pw=460;
+      pop.style.left=Math.min(cx-pw/2,window.innerWidth-pw-8)+'px';
       pop.style.top=Math.max(10,cy-pop.offsetHeight/2)+'px';
     }
   }
@@ -5195,6 +5253,7 @@ function toggleScalePop(e){
 
 function setScaleFromPop(scaleId){
   st.scale=scaleId;
+  st.viewMode='scale';
   _scalePopOpen=false;
   var pop=document.getElementById('scale-popover');
   if(pop)pop.classList.remove('open');
@@ -5280,6 +5339,7 @@ window.addEventListener('resize',_positionCofArrows);
 
 window.addEventListener('load',function(){
   initTheme();
+  _applyPeda();
   loadFromStorage();
   buildScaleBtns();
   buildPiano();
@@ -5372,6 +5432,7 @@ window._highlightChord=function(semi){window._songChordHighlight=semi;drawCOF();
 
 <!-- ── SÉLECTEUR GAMME POPOVER ── -->
 <div class="scale-popover" id="scale-popover">
+  <div class="scale-pop-left">
   <div class="scale-pop-group">
     <div class="scale-pop-label">Communs</div>
     <div class="scale-pop-item" onclick="setScaleFromPop('major')"><span class="scale-pop-name">Majeure</span></div>
@@ -5394,6 +5455,11 @@ window._highlightChord=function(semi){window._songChordHighlight=semi;drawCOF();
     <div class="scale-pop-item" onclick="setScaleFromPop('penta_maj')"><span class="scale-pop-name">Penta majeure</span></div>
     <div class="scale-pop-item" onclick="setScaleFromPop('penta_min')"><span class="scale-pop-name">Penta mineure</span></div>
     <div class="scale-pop-item" onclick="setScaleFromPop('blues')"><span class="scale-pop-name">Blues</span></div>
+  </div>
+  </div><!-- /.scale-pop-left -->
+  <div class="scale-pop-right">
+    <div class="scale-pop-prog-none" id="scale-pop-no-prog" onclick="clearProgFromScalePop()">— Gamme seule</div>
+    <div id="scale-pop-prog-list"></div>
   </div>
 </div>
 
