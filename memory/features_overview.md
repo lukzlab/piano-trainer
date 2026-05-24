@@ -461,3 +461,36 @@ var _autoSound = false;
 - **`display:contents`** sur `#atb-left` : préserve le flex layout sous-jacent
 - **`body:has(.practice-overlay.open) #atb-left`** : masquage CSS pur sans JS
 - **Exponential ramps Web Audio** : `Math.max(0.001, ...)` pour éviter les erreurs à volume 0
+
+---
+
+## 22. Notes de développement
+
+Notes ouvertes à traiter dans les prochaines sessions, classées par priorité.
+
+### 🔴 En cours / prioritaire
+
+**Compatibilité tablette / écran vertical**
+Le drag COF fonctionne déjà (Pointer Events + `touch-action:none`). Reste à optimiser :
+- Layout responsive pour portrait et écrans ≤ 1024px
+- Panneau Practice : largeur `--rp-width` à adapter en portrait
+- Grille principale (`left-col` / `main-panel`) : empilage vertical à prévoir
+- Cible principale : iPad en orientation verticale
+
+### 🟡 Idées validées, pas encore implementées
+
+**Menu central gamme — overlay progressions standard**
+Ajouter un second tableau à droite en overlay sur le menu gamme, listant les progressions standard. Permet une multi-sélection gamme + progression pour construire la séquence practice.
+
+**Normalisation nomenclature accords**
+Choisir un standard cohérent : `M7` au lieu de `Maj7`, `m7` au lieu de `min7`, etc. À appliquer dans toute l'interface (labels pills, affichage practice, enrichissements).
+
+**Traduction notation internationale → française (option)**
+Do Ré Mi Fa Sol La Si vs C D E F G A B. Option de bascule, les deux notations coexisteraient.
+
+### 🔵 Sécurité / accès
+
+**Auth Gate — protection légère**
+Implémentée : écran de connexion avec mot de passe `pianolab` (base64 dans le code). Protection contre la copie casual du template, pas contre un accès technique. Envisager :
+- Mot de passe configurable sans modifier le code
+- Option session uniquement (sessionStorage) vs persistant (localStorage) — actuellement localStorage
