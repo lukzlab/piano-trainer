@@ -125,9 +125,9 @@ body.light .rbtn.active{background:#1A1814;border-color:#1A1814}
 /* Normal mode: wrappers transparent so children flow inline in the overlay column */
 #prac-fs-left,#prac-fs-center,#prac-fs-right{display:contents}
 /* Fullscreen: 3-column grid layout */
-.practice-overlay.fullscreen{left:0!important;width:100%!important;display:grid!important;grid-template-rows:auto 1fr;grid-template-columns:300px 1fr 280px;grid-template-areas:"header header header" "left center right";overflow:hidden;padding:0!important}
+.practice-overlay.fullscreen{left:0!important;width:100%!important;display:grid!important;grid-template-rows:auto 1fr;grid-template-columns:380px 1fr 280px;grid-template-areas:"header header header" "left center right";overflow:hidden;padding:0!important}
 .practice-overlay.fullscreen #prac-fs-header{grid-area:header;padding:.375rem .875rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
-.practice-overlay.fullscreen #prac-fs-left{display:flex;flex-direction:column;grid-area:left;overflow-y:auto;border-right:1px solid var(--border);padding:.75rem}
+.practice-overlay.fullscreen #prac-fs-left{display:flex;flex-direction:column;grid-area:left;overflow:hidden;border-right:1px solid var(--border);padding:.375rem}
 .practice-overlay.fullscreen #prac-fs-center{display:flex;flex-direction:column;align-items:center;justify-content:center;grid-area:center;overflow-y:auto;padding:1.5rem 2rem}
 .practice-overlay.fullscreen #prac-fs-right{display:flex;flex-direction:column;align-items:center;grid-area:right;overflow-y:auto;border-left:1px solid var(--border);padding:.75rem}
 .practice-overlay.fullscreen #prac-beat-section{margin-bottom:1.75rem!important}
@@ -139,7 +139,7 @@ body.light .rbtn.active{background:#1A1814;border-color:#1A1814}
 .practice-overlay.fullscreen .practice-prog-chip{font-size:14px;padding:7px 16px}
 .practice-overlay.fullscreen .practice-play-btn{width:64px;height:64px;font-size:22px}
 #prac-cof-section{display:none}
-.practice-overlay.fullscreen #prac-cof-section{display:flex;flex-direction:column;align-items:center;gap:6px;padding-bottom:.75rem;border-bottom:1px solid var(--border);min-height:180px}
+.practice-overlay.fullscreen #prac-cof-section{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;flex:1;min-height:0}
 .cof-hint{font-size:10px;color:var(--text3);text-align:center;margin-top:.375rem;transition:color .2s}
 .cof-hint.build{color:var(--tonic);font-weight:500}
 
@@ -456,7 +456,8 @@ body.peda-hidden .harmony-note{display:none!important}
 .practice-prog-chip{font-size:12px;font-family:'DM Mono',monospace;font-weight:500;padding:5px 12px;border-radius:99px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .1s;white-space:nowrap;user-select:none}
 .practice-prog-chip.active{background:var(--tonic);color:#fff;border-color:var(--tonic)}
 .practice-prog-chip.done{background:var(--tonic-bg);color:var(--tonic);border-color:transparent}
-.practice-prog-chip.drag-over{border-color:var(--tonic);opacity:.7}
+.practice-prog-chip.drop-before{box-shadow:-3px 0 0 0 var(--tonic)}
+.practice-prog-chip.drop-after{box-shadow:3px 0 0 0 var(--tonic)}
 .yt-alt-btn{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.03em;transition:all .15s;flex-shrink:0}
 .yt-alt-btn:hover{border-color:var(--accent);color:var(--accent)}
 .yt-alt-btn:disabled{opacity:.4;cursor:default;pointer-events:none}
@@ -1092,7 +1093,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
   <div id="prac-fs-left">
     <div id="prac-cof-section">
       <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">roue des quintes</span>
-      <svg id="cof-practice" style="display:block;max-width:100%;cursor:pointer"></svg>
+      <svg id="cof-practice" style="display:block;width:100%;cursor:pointer"></svg>
     </div>
   </div>
 </div>
@@ -4116,17 +4117,30 @@ function _practiceBuildDots(){
       e.dataTransfer.setData('text/prac-chip',String(i));
       chip.style.opacity='.4';
     });
-    chip.addEventListener('dragend',function(){chip.style.opacity='';});
-    chip.addEventListener('dragover',function(e){e.preventDefault();chip.classList.add('drag-over');});
-    chip.addEventListener('dragleave',function(){chip.classList.remove('drag-over');});
+    chip.addEventListener('dragend',function(){
+      chip.style.opacity='';
+      chip.classList.remove('drop-before','drop-after');
+    });
+    chip.addEventListener('dragover',function(e){
+      e.preventDefault();
+      var rect=chip.getBoundingClientRect();
+      chip.classList.remove('drop-before','drop-after');
+      chip.classList.add(e.clientX<rect.left+rect.width/2?'drop-before':'drop-after');
+    });
+    chip.addEventListener('dragleave',function(){
+      chip.classList.remove('drop-before','drop-after');
+    });
     chip.addEventListener('drop',function(e){
-      e.preventDefault();chip.classList.remove('drag-over');
+      e.preventDefault();
+      var isBefore=chip.classList.contains('drop-before');
+      chip.classList.remove('drop-before','drop-after');
       var from=parseInt(e.dataTransfer.getData('text/prac-chip'));
       var to=parseInt(chip.dataset.idx);
       if(isNaN(from)||from===to)return;
       var arr=_practiceState.chords;
       var moved=arr.splice(from,1)[0];
-      arr.splice(to,0,moved);
+      var adjusted=from<to?to-1:to;
+      arr.splice(isBefore?adjusted:adjusted+1,0,moved);
       _practiceState.idx=Math.min(_practiceState.idx,arr.length-1);
       _practiceBuildDots();_practiceBuildSeq();_practiceRender();
       _ytSaveCfg();
