@@ -11,6 +11,10 @@ Roadmap discutée le 2026-05-24. Aucun délai fixé, ordre indicatif.
 
 ## Court terme (prochaines sessions)
 
+**Compatibilité tablette / écran vertical**
+Optimiser le layout pour les orientations portrait et les écrans ≤ 1024px. Le drag COF fonctionne déjà (Pointer Events + touch-action:none), mais la grille principale et le panneau practice nécessitent des ajustements responsives. Priorité : pratique sur iPad en vertical.
+
+
 **Menu central gamme — overlay progression standard**
 Ajouter un second tableau à droite en overlay sur le menu gamme, listant les progressions standard. Permet une multi-sélection gamme + progression. Améliore le mode practice (combinaison des deux contextes pour construire la séquence).
 
