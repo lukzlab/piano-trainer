@@ -1487,15 +1487,16 @@ function drawCOF(){
 
     /* Roman numeral — pointer-events:none so clicks reach the path */
     var mp=polar((ROUT+RMID)/2,i*30);
+    var dIdx=notes.indexOf(semi);
     if(role==='tonic'||role==='degree'){
-      var dIdx=notes.indexOf(semi);
       var rom=dIdx>=0?_roman[dIdx]:'';
       if(rom){var _tr=txt(mp[0],mp[1]-14,rom,'wheel-roman '+labelCls);_tr.style.pointerEvents='none';svg.appendChild(_tr);}
     }
     var _tn=txt(mp[0],mp[1]+6,COF_MAJ[i],'wheel-major '+(isHlOuter?'wheel-label-sel':role==='tonic'?'wheel-label-active':role==='degree'?'wheel-label-dim':'wheel-label-ghost'));
     _tn.style.pointerEvents='none';
     svg.appendChild(_tn);
-    if(isHlOuter&&hl.enrichId){var _el=txt(mp[0],mp[1]+22,hl.enrichId,'wheel-enrich-lbl');_el.style.pointerEvents='none';svg.appendChild(_el);}
+    var _enrichShow=isHlOuter?hl.enrichId:(dIdx>=0?scaleState.enrichPerDeg[dIdx]:'');
+    if(_enrichShow){var _el=txt(mp[0],mp[1]+22,_enrichShow,'wheel-enrich-lbl '+labelCls);_el.style.pointerEvents='none';svg.appendChild(_el);}
   });
 
   /* Draw inner (minor) ring */
@@ -1572,7 +1573,9 @@ function drawCOF(){
       updateAll();drawCOF();
     };})(minSemi,i);
     svg.appendChild(minLbl);
-    if(isHlInner&&hl.enrichId){var _iel=txt(mp[0],mp[1]+18,hl.enrichId,'wheel-enrich-lbl');_iel.style.pointerEvents='none';svg.appendChild(_iel);}
+    var mDIdx=notes.indexOf(minSemi);
+    var _mEnrichShow=isHlInner?hl.enrichId:(mDIdx>=0?scaleState.enrichPerDeg[mDIdx]:'');
+    if(_mEnrichShow){var _iel=txt(mp[0],mp[1]+18,_mEnrichShow,'wheel-enrich-lbl '+minLblCls);_iel.style.pointerEvents='none';svg.appendChild(_iel);}
   });
 
   /* Gap ring — fond */
@@ -1668,7 +1671,11 @@ function _refreshActiveChord(){
   while(Math.min.apply(null,midis)<MIDI_START)midis=midis.map(function(m){return m+12;});
   var chSet={};midis.forEach(function(m){chSet[m]=true;});
   paintPiano(chSet,true);
-  window._songChordHighlight={semi:notes[dIdx],type:type,enrichId:eid};
+  var _newSemi=notes[dIdx];
+  window._songChordHighlight={semi:_newSemi,type:type,enrichId:eid};
+  var sub=document.getElementById('piano-sub');
+  if(sub)sub.textContent=chordNameDeg(dIdx,eid)+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');
+  _updatePianoEnrichBtns();
 }
 function navigateCircle(dir){
   if(st.viewMode==='prog'&&customProg.idx>=0){
@@ -2146,7 +2153,7 @@ function renderScalePanel(header,body){
           var ez=document.createElement('div');ez.className='enrich-zone';
           var er=document.createElement('div');er.className='enrich-row';
           enrList.forEach(function(e){var eb=document.createElement('button');eb.className='enrich-btn'+(scaleState.activeEnrich===e.id?' active':'');eb.textContent=e.l;
-            eb.onclick=(function(eid,idx){return function(ev){ev.stopPropagation();scaleState.activeEnrich=(scaleState.activeEnrich===eid?'':eid);scaleState.activeInv=0;renderMainPanel();var rn=mod(st.root+sc.iv[idx]);var midis=getInvertedMidis(rn,scaleState.activeEnrich,sc.ch[idx],0);var chSet={};midis.forEach(function(m){chSet[m]=true;});paintPiano(chSet,true);document.getElementById('piano-sub').textContent=chordNameDeg(idx,scaleState.activeEnrich)+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');};})(e.id,i);
+            eb.onclick=(function(eid,idx){return function(ev){ev.stopPropagation();scaleState.activeEnrich=(scaleState.activeEnrich===eid?'':eid);scaleState.activeInv=0;renderMainPanel();var rn=mod(st.root+sc.iv[idx]);var midis=getInvertedMidis(rn,scaleState.activeEnrich,sc.ch[idx],0);var chSet={};midis.forEach(function(m){chSet[m]=true;});paintPiano(chSet,true);scaleState.enrichPerDeg[idx]=scaleState.activeEnrich;window._songChordHighlight={semi:rn,type:sc.ch[idx],enrichId:scaleState.activeEnrich};drawCOF();document.getElementById('piano-sub').textContent=chordNameDeg(idx,scaleState.activeEnrich)+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');};})(e.id,i);
             er.appendChild(eb);
           });
           var rn=mod(st.root+sc.iv[i]);var iv=ENRICH_IV[scaleState.activeEnrich]||ENRICH_IV[t]||[0,4,7];
@@ -2626,7 +2633,7 @@ function updateAll(){
   if(ptl){var sc2=getSC();ptl.textContent=EN[st.root]+' '+sc2.label;}
   drawCOF();renderMainPanel();buildProgList();
   if(scaleState.activeDeg<0&&customProg.activeStep<0&&stdProg.activeStep<0)paintPiano(null);
-  document.getElementById('piano-sub').textContent='tonique en ocre';
+  if(scaleState.activeDeg<0&&customProg.activeStep<0&&stdProg.activeStep<0)document.getElementById('piano-sub').textContent='tonique en ocre';
   audioUpdateLabel();
   if(_audioPlaying) audioStop();
   /* Show prog list panel only in prog mode */
