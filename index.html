@@ -5614,6 +5614,7 @@ function _tlDraw(){
   var state=_practiceState;
   var cs=getComputedStyle(document.documentElement);
   var cTonic=cs.getPropertyValue('--tonic').trim()||'#888';
+  var cAccent=cs.getPropertyValue('--accent').trim()||cTonic;
   var cTonicBg=cs.getPropertyValue('--tonic-bg').trim()||'rgba(128,128,128,0.15)';
   var cText=cs.getPropertyValue('--text').trim()||'#ccc';
   var cText2=cs.getPropertyValue('--text2').trim()||'#888';
@@ -5660,7 +5661,7 @@ function _tlDraw(){
     /* Fond cellule */
     ctx.beginPath();_ctxRR(ctx,cx+2,3,CHORD_W-4,H-6,5);
     if(isAct){
-      ctx.shadowColor=cTonic;ctx.shadowBlur=14;
+      ctx.shadowColor=cAccent;ctx.shadowBlur=14;
       ctx.fillStyle=cTonicBg;
     } else {
       ctx.globalAlpha=isPast?0.5:0.3;ctx.fillStyle=cBorder;ctx.globalAlpha=1;
@@ -5669,8 +5670,8 @@ function _tlDraw(){
     ctx.shadowBlur=0;
     /* Bordure cellule active */
     if(isAct){
-      ctx.shadowColor=cTonic;ctx.shadowBlur=8;
-      ctx.strokeStyle=cTonic;ctx.lineWidth=1;ctx.globalAlpha=0.7;ctx.stroke();
+      ctx.shadowColor=cAccent;ctx.shadowBlur=8;
+      ctx.strokeStyle=cAccent;ctx.lineWidth=1;ctx.globalAlpha=0.7;ctx.stroke();
       ctx.globalAlpha=1;ctx.shadowBlur=0;
     }
     /* Séparateurs de beat */
@@ -5686,8 +5687,8 @@ function _tlDraw(){
         var dotX=cx+(b2+0.5)*BEAT_PX,dotY=H-9;
         var isAB=(b2===state.beat);
         ctx.beginPath();ctx.arc(dotX,dotY,isAB?3.5:2,0,Math.PI*2);
-        if(isAB){ctx.shadowColor=cTonic;ctx.shadowBlur=8;}
-        ctx.fillStyle=cTonic;ctx.globalAlpha=isAB?0.95:0.35;ctx.fill();
+        if(isAB){ctx.shadowColor=cAccent;ctx.shadowBlur=8;}
+        ctx.fillStyle=cAccent;ctx.globalAlpha=isAB?0.95:0.35;ctx.fill();
         ctx.globalAlpha=1;ctx.shadowBlur=0;
       }
     }
@@ -5696,8 +5697,8 @@ function _tlDraw(){
     ctx.globalAlpha=isPast?0.5:1;
     if(isAct){
       ctx.font='700 17px "DM Mono",monospace';
-      ctx.fillStyle=cTonic;
-      ctx.shadowColor=cTonic;ctx.shadowBlur=18;
+      ctx.fillStyle=cAccent;
+      ctx.shadowColor=cAccent;ctx.shadowBlur=18;
       ctx.fillText(chord.label,cx+CHORD_W/2,H/2-3);
       ctx.shadowBlur=8;
       ctx.fillText(chord.label,cx+CHORD_W/2,H/2-3);
@@ -5711,11 +5712,12 @@ function _tlDraw(){
   }
   ctx.restore();
   /* Playhead */
-  ctx.strokeStyle=cTonic;ctx.lineWidth=2;ctx.globalAlpha=0.7;
+  ctx.shadowColor=cAccent;ctx.shadowBlur=6;
+  ctx.strokeStyle=cAccent;ctx.lineWidth=2;ctx.globalAlpha=0.8;
   ctx.beginPath();ctx.moveTo(PH,0);ctx.lineTo(PH,H);ctx.stroke();
-  ctx.fillStyle=cTonic;ctx.globalAlpha=0.9;
+  ctx.fillStyle=cAccent;ctx.globalAlpha=1;
   ctx.beginPath();ctx.moveTo(PH-4,0);ctx.lineTo(PH+4,0);ctx.lineTo(PH,6);ctx.closePath();ctx.fill();
-  ctx.globalAlpha=1;
+  ctx.shadowBlur=0;ctx.globalAlpha=1;
 }
 
 /* ── PRACTICE COLLAPSIBLE COLUMNS ── */
