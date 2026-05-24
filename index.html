@@ -5587,9 +5587,11 @@ function _tlLoop(){
 var _tlVisible=true;
 function _pracToggleTrackline(){
   _tlVisible=!_tlVisible;
-  var sec=document.getElementById('prac-beat-section');
+  var cv=document.getElementById('prac-trackline');
+  var dots=document.getElementById('practice-beat');
   var btn=document.getElementById('prac-tl-toggle');
-  if(sec)sec.style.display=_tlVisible?'':'none';
+  if(cv)cv.style.display=_tlVisible?'':'none';
+  if(dots)dots.style.display=_tlVisible?'none':'flex';
   if(btn){
     btn.textContent=_tlVisible?'ON':'OFF';
     btn.style.borderColor=_tlVisible?'var(--tonic)':'var(--border)';
