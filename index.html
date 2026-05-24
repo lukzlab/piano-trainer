@@ -5653,9 +5653,9 @@ function _tlDraw(){
   var curX=PH-beatInChord*BEAT_PX;
   var offStart=Math.floor((-CHORD_W-curX)/CHORD_W)-1;
   var offEnd=Math.ceil((W+CHORD_W-curX)/CHORD_W)+1;
-  /* Zones verticales : non-actifs centrés sur 50px, actif pleine hauteur */
-  var NHY=Math.round((H-50)/2),NHH=50; /* non-actif : y=10, h=50 */
-  var AHY=2,AHH=H-4;                   /* actif    : y=2,  h=66 */
+  /* Zones verticales : non-actifs centrés sur 70px, actif pleine hauteur */
+  var NHY=Math.round((H-70)/2),NHH=70; /* non-actif : y=8, h=70 */
+  var AHY=2,AHH=H-4;                   /* actif    : y=2,  h=82 */
   /* Passe 1 : accords non-actifs */
   ctx.save();ctx.beginPath();ctx.rect(0,0,W,H);ctx.clip();
   for(var off=offStart;off<=offEnd;off++){
@@ -5676,7 +5676,7 @@ function _tlDraw(){
     for(var b2=1;b2<sig;b2++){var bx2=cx+b2*BEAT_PX;ctx.beginPath();ctx.moveTo(bx2,NHY+NHH*0.3);ctx.lineTo(bx2,NHY+NHH*0.7);ctx.stroke();}
     ctx.globalAlpha=1;
     ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.font='500 12px "DM Mono",monospace';
+    ctx.font='500 14px "DM Mono",monospace';
     ctx.fillStyle='rgba(255,255,255,'+(isPast?'0.38':'0.65')+')';
     ctx.fillText(chord.label,cx+CHORD_W/2,NHY+NHH/2);
   }
@@ -5684,9 +5684,13 @@ function _tlDraw(){
   /* Passe 2 : accord actif — cellule plus haute, passe au-dessus */
   ctx.save();ctx.beginPath();ctx.rect(0,0,W,H);ctx.clip();
   var acx=curX,acMidX=acx+CHORD_W/2,acMidY=AHY+AHH/2;
+  /* Glow extérieur — dessiné avant le fond, sans clip, shadowBlur large */
+  ctx.beginPath();_ctxRR(ctx,acx+2,AHY,CHORD_W-4,AHH,6);
+  ctx.shadowColor=cAccent;ctx.shadowBlur=32;
+  ctx.strokeStyle=cAccent;ctx.lineWidth=3;ctx.globalAlpha=0.7;ctx.stroke();
+  ctx.globalAlpha=1;ctx.shadowBlur=0;
   /* Fond */
   ctx.beginPath();_ctxRR(ctx,acx+2,AHY,CHORD_W-4,AHH,6);
-  ctx.shadowColor=cAccent;ctx.shadowBlur=20;
   ctx.fillStyle=cAccent;ctx.globalAlpha=0.32;ctx.fill();ctx.globalAlpha=1;
   /* Bordure extérieure glow accent */
   ctx.shadowColor=cAccent;ctx.shadowBlur=10;
@@ -5717,7 +5721,7 @@ function _tlDraw(){
   }
   /* Label — couleur accent + glow */
   ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.font='700 16px "DM Mono",monospace';
+  ctx.font='700 20px "DM Mono",monospace';
   ctx.shadowColor=cAccent;ctx.shadowBlur=16;
   ctx.fillStyle='rgba(255,255,255,0.95)';ctx.fillText(chords[state.idx].label,acMidX,acMidY-2);
   ctx.shadowBlur=6;ctx.fillText(chords[state.idx].label,acMidX,acMidY-2);
