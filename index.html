@@ -5667,7 +5667,7 @@ function _tlDraw(){
     ctx.globalAlpha=1;
     ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.font='500 12px "DM Mono",monospace';
-    ctx.fillStyle='#fff';ctx.globalAlpha=isPast?0.35:0.6;
+    ctx.fillStyle=isPast?cText3:cText2;ctx.globalAlpha=isPast?0.7:1;
     ctx.fillText(chord.label,cx+CHORD_W/2,H/2);
     ctx.globalAlpha=1;
   }
