@@ -122,7 +122,21 @@ body.light .rbtn.active{background:#1A1814;border-color:#1A1814}
 .rp-resizer:hover,.rp-resizer.dragging{background:var(--tonic)}
 .practice-resizer{position:absolute;left:0;top:0;bottom:0;width:6px;cursor:col-resize;z-index:10;background:transparent;transition:background .15s}
 .practice-resizer:hover,.practice-resizer.dragging{background:var(--tonic)}
-.practice-overlay.fullscreen{left:0!important;width:100%!important}
+/* Normal mode: wrappers transparent so children flow inline in the overlay column */
+#prac-fs-left,#prac-fs-center,#prac-fs-right{display:contents}
+/* Fullscreen: 3-column grid layout */
+.practice-overlay.fullscreen{left:0!important;width:100%!important;display:grid!important;grid-template-rows:auto 1fr;grid-template-columns:220px 1fr 260px;grid-template-areas:"header header header" "left center right";overflow:hidden;padding:0!important}
+.practice-overlay.fullscreen #prac-fs-header{grid-area:header;padding:.375rem .875rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.practice-overlay.fullscreen #prac-fs-left{display:flex;flex-direction:column;grid-area:left;overflow-y:auto;border-right:1px solid var(--border);padding:.75rem}
+.practice-overlay.fullscreen #prac-fs-center{display:flex;flex-direction:column;align-items:center;justify-content:center;grid-area:center;overflow-y:auto;padding:1.5rem 2rem}
+.practice-overlay.fullscreen #prac-fs-right{display:flex;flex-direction:column;align-items:center;grid-area:right;overflow-y:auto;border-left:1px solid var(--border);padding:.75rem}
+.practice-overlay.fullscreen #prac-beat-section{margin-bottom:1.75rem!important}
+.practice-overlay.fullscreen #prac-play-row{margin-bottom:1.75rem!important}
+.practice-overlay.fullscreen #prac-prog-section{margin-bottom:0!important}
+.practice-overlay.fullscreen .practice-chord-current{font-size:96px}
+.practice-overlay.fullscreen .practice-chord-prev,.practice-overlay.fullscreen .practice-chord-next{font-size:32px}
+.practice-overlay.fullscreen .practice-beat-dot{width:18px;height:18px}
+.practice-overlay.fullscreen .practice-prog-dot{width:20px;height:20px}
 .cof-hint{font-size:10px;color:var(--text3);text-align:center;margin-top:.375rem;transition:color .2s}
 .cof-hint.build{color:var(--tonic);font-weight:500}
 
@@ -985,87 +999,99 @@ body.peda-hidden .cof-arrow-lbl{display:none}
 <!-- ── PRACTICE MODE ── -->
 <div class="practice-overlay" id="practice-overlay">
   <div class="practice-resizer" id="practice-resizer"></div>
-  <div style="display:flex;align-items:center;gap:6px;margin-top:.25rem;margin-bottom:.25rem">
-    <button class="practice-close" style="margin:0" onclick="closePracticeMode()">✕ Fermer</button>
-    <button id="practice-fs-btn" class="practice-close" style="margin:0" onclick="_practiceToggleFullscreen()" title="Plein écran">⤢</button>
+  <!-- HEADER -->
+  <div id="prac-fs-header" style="display:flex;align-items:center;gap:8px;margin-top:.25rem;margin-bottom:.25rem">
+    <button class="practice-close" style="margin:0;font-size:14px;padding:6px 16px" onclick="closePracticeMode()">✕ Fermer</button>
+    <button id="practice-fs-btn" class="practice-close" style="margin:0;font-size:16px;padding:5px 14px;line-height:1" onclick="_practiceToggleFullscreen()" title="Plein écran">⤢</button>
   </div>
-  <div class="practice-title" id="practice-title">Practice</div>
-  <div class="practice-section-name" id="practice-section-name"></div>
-  <div class="practice-chord-display">
-    <div class="practice-chord-prev" id="practice-prev"></div>
-    <div class="practice-chord-current" id="practice-current">—</div>
-    <div class="practice-chord-next" id="practice-next"></div>
-  </div>
-  <div id="practice-enrich-row" class="enrich-row" style="justify-content:center;min-height:18px;margin-bottom:16px;margin-top:2px"></div>
-  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:1.25rem">
-    <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">tempo</span>
-    <div class="practice-beat" id="practice-beat"></div>
-  </div>
-  <div class="practice-controls">
-    <div class="practice-bpm-ctrl">
-      <button class="practice-bpm-btn" onclick="practiceChangeBpm(-5)">−</button>
-      <span class="practice-bpm-val" id="practice-bpm-val">120</span>
-      <button class="practice-bpm-btn" onclick="practiceChangeBpm(+5)">+</button>
-      <span class="practice-bpm-label">BPM</span>
+  <!-- CENTER : accord + tempo + play + progression -->
+  <div id="prac-fs-center">
+    <div class="practice-title" id="practice-title">Practice</div>
+    <div class="practice-section-name" id="practice-section-name"></div>
+    <div class="practice-chord-display">
+      <div class="practice-chord-prev" id="practice-prev"></div>
+      <div class="practice-chord-current" id="practice-current">—</div>
+      <div class="practice-chord-next" id="practice-next"></div>
     </div>
-    <button class="practice-play-btn" id="practice-play-btn" onclick="practiceToggle()">&#9654;</button>
-    <div class="practice-bpm-ctrl">
-      <button class="practice-bpm-btn" onclick="practiceChangeSig(-1)">−</button>
-      <span class="practice-bpm-val" id="practice-sig-val">4/4</span>
-      <button class="practice-bpm-btn" onclick="practiceChangeSig(+1)">+</button>
-      <span class="practice-bpm-label">mesure</span>
+    <div id="practice-enrich-row" class="enrich-row" style="justify-content:center;min-height:18px;margin-bottom:16px;margin-top:2px"></div>
+    <div id="prac-beat-section" style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:1.25rem">
+      <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">tempo</span>
+      <div class="practice-beat" id="practice-beat"></div>
     </div>
-    <button class="practice-bpm-btn" onclick="_ytSeekStart()" id="practice-seek-start-btn" title="Remettre la vidéo au début" style="font-size:13px;min-width:34px;display:none">⏮</button>
+    <div id="prac-play-row" style="display:flex;justify-content:center;margin-bottom:1.25rem">
+      <button class="practice-play-btn" id="practice-play-btn" onclick="practiceToggle()">&#9654;</button>
+    </div>
+    <div id="prac-prog-section" style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:.5rem">
+      <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">progression</span>
+      <div class="practice-prog-dots" id="practice-prog-dots" style="margin-bottom:0"></div>
+    </div>
   </div>
-  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:18px;margin-bottom:4px">
-    <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">tempo manuel</span>
-    <button onclick="practiceTapTempo()" id="practice-tap-btn" title="Tap tempo" style="font-size:14px;font-weight:600;letter-spacing:.1em;padding:10px 32px;border-radius:99px;border:2px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;font-family:'DM Mono',monospace;transition:background .1s,color .1s">TAP</button>
+  <!-- RIGHT : BPM + TAP + YT -->
+  <div id="prac-fs-right">
+    <div id="prac-bpm-section" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:18px;margin-bottom:.75rem">
+      <div class="practice-bpm-ctrl">
+        <button class="practice-bpm-btn" onclick="practiceChangeBpm(-5)">−</button>
+        <span class="practice-bpm-val" id="practice-bpm-val">120</span>
+        <button class="practice-bpm-btn" onclick="practiceChangeBpm(+5)">+</button>
+        <span class="practice-bpm-label">BPM</span>
+      </div>
+      <div class="practice-bpm-ctrl">
+        <button class="practice-bpm-btn" onclick="practiceChangeSig(-1)">−</button>
+        <span class="practice-bpm-val" id="practice-sig-val">4/4</span>
+        <button class="practice-bpm-btn" onclick="practiceChangeSig(+1)">+</button>
+        <span class="practice-bpm-label">mesure</span>
+      </div>
+      <button class="practice-bpm-btn" onclick="_ytSeekStart()" id="practice-seek-start-btn" title="Remettre la vidéo au début" style="font-size:13px;min-width:34px;display:none">⏮</button>
+    </div>
+    <div id="prac-tap-section" style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:18px;margin-bottom:4px">
+      <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">tempo manuel</span>
+      <button onclick="practiceTapTempo()" id="practice-tap-btn" title="Tap tempo" style="font-size:14px;font-weight:600;letter-spacing:.1em;padding:10px 32px;border-radius:99px;border:2px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;font-family:'DM Mono',monospace;transition:background .1s,color .1s">TAP</button>
+    </div>
+    <div id="practice-yt-section" style="display:none;margin-top:14px;flex-shrink:0">
+      <div style="position:relative;padding-top:56.25%;background:#000;border-radius:6px;overflow:hidden">
+        <iframe id="practice-yt-iframe" style="position:absolute;inset:0;width:100%;height:100%;border:none" allow="autoplay" allowfullscreen></iframe>
+        <div id="practice-yt-loading" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:#fff;font-size:11px;font-family:'DM Sans',sans-serif">Chargement…</div>
+      </div>
+      <div id="practice-yt-title" style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:4px;letter-spacing:.04em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
+        <button id="practice-yt-alt-btn" class="yt-alt-btn" onclick="loadYtAlternatives()">⟳ Autres vidéos</button>
+        <span id="practice-yt-alt-status" style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace"></span>
+      </div>
+      <div id="practice-yt-picker" style="display:none;margin-top:4px"></div>
+    </div>
   </div>
-  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:18px;margin-bottom:.5rem">
-    <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">progression</span>
-    <div class="practice-prog-dots" id="practice-prog-dots" style="margin-bottom:0"></div>
-  </div>
-  <div id="practice-seq-section" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);flex-shrink:0">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase">Séquence</span>
-      <div style="display:flex;gap:5px">
-        <button onclick="_practiceResetSeq()" style="font-size:12px;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace" title="Réinitialiser">↺ reset</button>
-        <button onclick="_practiceClearSeq()" style="font-size:12px;padding:4px 10px;border-radius:5px;border:1px solid #c0392b;background:transparent;color:#e05445;cursor:pointer;font-family:'DM Mono',monospace" title="Vider la séquence">✕ clear</button>
+  <!-- LEFT : séquence + outils -->
+  <div id="prac-fs-left">
+    <div id="practice-seq-section" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);flex-shrink:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase">Séquence</span>
+        <div style="display:flex;gap:5px">
+          <button onclick="_practiceResetSeq()" style="font-size:12px;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace" title="Réinitialiser">↺ reset</button>
+          <button onclick="_practiceClearSeq()" style="font-size:12px;padding:4px 10px;border-radius:5px;border:1px solid #c0392b;background:transparent;color:#e05445;cursor:pointer;font-family:'DM Mono',monospace" title="Vider la séquence">✕ clear</button>
+        </div>
+      </div>
+      <div id="practice-seq-list" style="display:flex;flex-wrap:wrap;gap:4px;min-height:22px"></div>
+    </div>
+    <div id="practice-tools" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;flex-shrink:0;letter-spacing:.06em">METRO VOL</span>
+        <input type="range" min="0" max="10" value="5" id="practice-metro-vol" style="flex:1" oninput="metroSetVol(this.value);_syncSlider('metro-vol',this.value)">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <select class="atb-select" id="practice-yt-style" style="flex:1;min-width:0" onchange="ytSetStyleSelect(this.value)">
+          <option value="pad">Pad</option>
+          <option value="jazz" selected>Jazz</option>
+          <option value="bossa">Bossa</option>
+          <option value="funk">Funk</option>
+          <option value="rock">Rock</option>
+          <option value="blues">Blues</option>
+          <option value="latin">Latin</option>
+          <option value="rnb">R&amp;B</option>
+          <option value="drums">Drums</option>
+        </select>
+        <button class="yt-launch-btn" onclick="openYouTubeBacking()" style="flex-shrink:0;white-space:nowrap">&#9654; Backing track</button>
       </div>
     </div>
-    <div id="practice-seq-list" style="display:flex;flex-wrap:wrap;gap:4px;min-height:22px"></div>
-  </div>
-  <div id="practice-tools" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;flex-shrink:0">
-    <div style="display:flex;align-items:center;gap:8px">
-      <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;flex-shrink:0;letter-spacing:.06em">METRO VOL</span>
-      <input type="range" min="0" max="10" value="5" id="practice-metro-vol" style="flex:1" oninput="metroSetVol(this.value);_syncSlider('metro-vol',this.value)">
-    </div>
-    <div style="display:flex;align-items:center;gap:6px">
-      <select class="atb-select" id="practice-yt-style" style="flex:1;min-width:0" onchange="ytSetStyleSelect(this.value)">
-        <option value="pad">Pad</option>
-        <option value="jazz" selected>Jazz</option>
-        <option value="bossa">Bossa</option>
-        <option value="funk">Funk</option>
-        <option value="rock">Rock</option>
-        <option value="blues">Blues</option>
-        <option value="latin">Latin</option>
-        <option value="rnb">R&amp;B</option>
-        <option value="drums">Drums</option>
-      </select>
-      <button class="yt-launch-btn" onclick="openYouTubeBacking()" style="flex-shrink:0;white-space:nowrap">&#9654; Backing track</button>
-    </div>
-  </div>
-  <div id="practice-yt-section" style="display:none;margin-top:12px;flex-shrink:0">
-    <div style="position:relative;padding-top:56.25%;background:#000;border-radius:6px;overflow:hidden">
-      <iframe id="practice-yt-iframe" style="position:absolute;inset:0;width:100%;height:100%;border:none" allow="autoplay" allowfullscreen></iframe>
-      <div id="practice-yt-loading" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:#fff;font-size:11px;font-family:'DM Sans',sans-serif">Chargement…</div>
-    </div>
-    <div id="practice-yt-title" style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:4px;letter-spacing:.04em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"></div>
-    <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
-      <button id="practice-yt-alt-btn" class="yt-alt-btn" onclick="loadYtAlternatives()">⟳ Autres vidéos</button>
-      <span id="practice-yt-alt-status" style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace"></span>
-    </div>
-    <div id="practice-yt-picker" style="display:none;margin-top:4px"></div>
   </div>
 </div>
 
