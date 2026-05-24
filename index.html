@@ -353,8 +353,8 @@ body.peda-hidden .harmony-note{display:none!important}
 .sb-on-dot.on{opacity:1}
 
 /* ── PIANO DOTS ── */
-.key-dot{position:absolute;top:5px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;pointer-events:none;background:transparent;border:1.5px solid rgba(0,0,0,0.14);transition:background .1s,border-color .1s;z-index:3}
-.bk .key-dot{top:4px;width:7px;height:7px}
+.key-dot{position:absolute;top:5px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;pointer-events:none;background:transparent;border:1px solid rgba(0,0,0,0.08);transition:background .1s,border-color .1s;z-index:3}
+.bk .key-dot{top:3px;width:6px;height:6px}
 
  body.graphite .nl { color: var(--text2); }
  body.graphite .nl.active { color: var(--tonic); border-bottom-color: var(--tonic); }
@@ -1638,19 +1638,17 @@ function paintPiano(chordMidiSet, overlayScale){
       if(isB(sm)){
         el.style.background='#38332e';
         el.style.zIndex='3';
-        el.style.boxShadow='inset 0 10px 22px rgba(0,0,0,0.92),inset 0 4px 9px rgba(0,0,0,0.75),0 0 7px 3px rgba(200,135,58,0.55)';
+        el.style.boxShadow='inset 0 10px 22px rgba(0,0,0,0.92),inset 0 4px 9px rgba(0,0,0,0.75),0 -6px 10px 2px rgba(200,135,58,0.55)';
       }else{
         el.style.background='#ede5d4';
         el.style.zIndex='3';
-        el.style.boxShadow='inset 0 12px 24px rgba(0,0,0,0.26),inset 0 4px 10px rgba(0,0,0,0.16),0 0 9px 3px rgba(200,135,58,0.5)';
+        el.style.boxShadow='inset 0 12px 24px rgba(0,0,0,0.26),inset 0 4px 10px rgba(0,0,0,0.16),0 -7px 12px 3px rgba(200,135,58,0.5)';
       }
     }
     /* Pastille — appartenance à la gamme */
     if(showScale&&dot){
-      var isTonic=(sm===tonic);
       var inScale=notes.indexOf(sm)>=0;
-      if(isTonic){dot.style.background='var(--tonic)';dot.style.borderColor='rgba(0,0,0,0.25)';}
-      else if(inScale){dot.style.background='#c8922a';dot.style.borderColor='rgba(0,0,0,0.18)';}
+      if(inScale){dot.style.background='var(--tonic)';dot.style.borderColor='rgba(0,0,0,0.12)';}
     }
   }
 }
