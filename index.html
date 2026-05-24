@@ -473,6 +473,9 @@ body.peda-hidden .harmony-note{display:none!important}
 #prac-right-toggle-wrap{justify-content:flex-start}
 .prac-col-toggle-btn{font-size:13px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;line-height:1;font-family:'DM Mono',monospace;transition:all .1s}
 .prac-col-toggle-btn:hover{border-color:var(--tonic);color:var(--tonic)}
+.prac-col-label{display:none}
+.practice-overlay.fullscreen #prac-fs-left.collapsed .prac-col-label,
+.practice-overlay.fullscreen #prac-fs-right.collapsed .prac-col-label{display:flex;flex:1;align-items:center;justify-content:center;writing-mode:vertical-lr;font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;cursor:pointer}
 .practice-overlay.fullscreen #prac-fs-left.collapsed #prac-cof-section{display:none}
 .practice-overlay.fullscreen #prac-fs-right.collapsed #prac-bpm-section,
 .practice-overlay.fullscreen #prac-fs-right.collapsed #prac-tap-section,
@@ -1062,6 +1065,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     <div class="prac-col-toggle-wrap" id="prac-right-toggle-wrap">
       <button id="prac-right-toggle" class="prac-col-toggle-btn" onclick="_pracToggleRight()" title="Masquer/afficher les réglages">›</button>
     </div>
+    <div class="prac-col-label" onclick="_pracToggleRight()">Backing track</div>
     <div id="prac-bpm-section" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:18px;margin-bottom:.75rem">
       <div class="practice-bpm-ctrl">
         <button class="practice-bpm-btn" onclick="practiceChangeBpm(-5)">−</button>
@@ -1120,6 +1124,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     <div class="prac-col-toggle-wrap" id="prac-left-toggle-wrap">
       <button id="prac-left-toggle" class="prac-col-toggle-btn" onclick="_pracToggleLeft()" title="Masquer/afficher la roue">‹</button>
     </div>
+    <div class="prac-col-label" onclick="_pracToggleLeft()">Roue des quintes</div>
     <div id="prac-cof-section">
       <span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;text-transform:uppercase">roue des quintes</span>
       <svg id="cof-practice" style="display:block;width:100%;cursor:pointer"></svg>
