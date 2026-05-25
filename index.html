@@ -5720,8 +5720,8 @@ function _pracToggleCfgPanel(){
   if(panel)panel.classList.toggle('collapsed',_cfgPanelCollapsed);
   if(tog)tog.textContent=_cfgPanelCollapsed?'‹':'›';
 }
-/* ── PRACTICE WIDTH RESIZE HANDLE ── */
-(function(){
+/* ── PRACTICE WIDTH RESIZE HANDLE ── init après load (élément hors script) */
+function _initPracWidthHandle(){
   var handle=document.getElementById('prac-width-handle');
   if(!handle)return;
   var grid=document.querySelector('.main-grid');
@@ -5745,7 +5745,8 @@ function _pracToggleCfgPanel(){
   }
   function startDrag(cx){
     startX=cx;
-    startW=document.getElementById('practice-overlay').offsetWidth;
+    var ov=document.getElementById('practice-overlay');
+    startW=ov?ov.offsetWidth:(parseInt(getComputedStyle(document.documentElement).getPropertyValue('--rp-width'))||280);
     handle.classList.add('dragging');
     document.body.style.cursor='col-resize';
     document.body.style.userSelect='none';
@@ -5756,7 +5757,7 @@ function _pracToggleCfgPanel(){
   }
   handle.addEventListener('mousedown',function(e){e.preventDefault();startDrag(e.clientX);});
   handle.addEventListener('touchstart',function(e){e.preventDefault();startDrag(e.touches[0].clientX);},{passive:false});
-})();
+}
 /* ── PRACTICE VUE TOGGLES ── */
 var _pracVue={accord:true,tonalite:true,enrich:true,prog:true};
 var _pracVueMap={
@@ -6064,6 +6065,7 @@ window.addEventListener('load',function(){
   buildProgList();
   updateAll();
   sbBuildProgs();
+  _initPracWidthHandle();
   /* Keyboard shortcuts when practice overlay is open */
   document.addEventListener('keydown',function(e){
     if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT'||e.target.tagName==='BUTTON'))return;
