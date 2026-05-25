@@ -9,6 +9,16 @@ metadata:
 
 Roadmap discutée le 2026-05-24. Aucun délai fixé, ordre indicatif.
 
+## Design piano — pistes à approfondir
+
+Deux directions à explorer pour le rendu visuel du clavier piano :
+- **Version effet 3D** — profondeur, ombres, perspective sur les touches
+- **Version aplat couleur** — design flat, sans ombres, touches différenciées par couleur franche
+
+Ces deux directions sont à prototyper et comparer. Ne pas implémenter sans validation visuelle préalable.
+
+---
+
 ## Court terme (prochaines sessions)
 
 **Compatibilité tablette / écran vertical**
