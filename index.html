@@ -451,7 +451,7 @@ body.peda-hidden .harmony-note{display:none!important}
 .practice-beat-dot.active{background:var(--tonic);transform:scale(1.4)}
 .practice-beat-dot.strong{background:var(--tonic)}
 .practice-controls{display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;justify-content:center}
-.practice-play-btn{width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--tonic);color:#fff;transition:all .15s}
+.practice-play-btn{width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--tonic);color:#fff;transition:all .15s}
 .practice-play-btn:hover{opacity:.88}
 .practice-bpm-ctrl{display:flex;align-items:center;gap:8px}
 .practice-bpm-btn{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;line-height:1}
@@ -474,12 +474,31 @@ body.peda-hidden .harmony-note{display:none!important}
 .prac-col-toggle-btn{font-size:13px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;line-height:1;font-family:'DM Mono',monospace;transition:all .1s}
 .prac-col-toggle-btn:hover{border-color:var(--tonic);color:var(--tonic)}
 .prac-hidden{display:none!important}
+/* ── CONTROL PANEL FLOTTANT ── */
+#prac-width-handle{position:fixed;right:var(--rp-width,280px);top:18px;width:24px;height:38px;background:var(--surface);border:1px solid var(--border);border-radius:8px 0 0 8px;border-right:none;z-index:152;cursor:col-resize;display:flex;align-items:center;justify-content:center;box-shadow:-3px 2px 18px rgba(0,0,0,.28);touch-action:none;user-select:none;font-size:11px;color:var(--text3);transition:color .12s,background .12s,border-color .12s}
+#prac-width-handle:hover,#prac-width-handle.dragging{background:var(--tonic-bg,rgba(100,180,255,.08));color:var(--tonic);border-color:var(--tonic)}
+#prac-cfg-panel{position:fixed;right:var(--rp-width,280px);top:60px;width:136px;background:var(--surface);border:1px solid var(--border);border-radius:8px 0 0 8px;display:flex;flex-direction:column;gap:3px;padding:6px;z-index:152;box-shadow:-3px 2px 18px rgba(0,0,0,.28);overflow:hidden;transition:width .18s}
+#prac-cfg-panel.collapsed{width:30px;padding:4px 2px}
+.prac-cfg-header{display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;padding:3px 0 5px;width:100%;border-bottom:1px solid var(--border);margin-bottom:5px;transition:opacity .1s}
+.prac-cfg-header:hover{opacity:.75}
+#prac-cfg-panel.collapsed .prac-cfg-header{display:none}
+.prac-cfg-title{font-size:11px;font-weight:600;color:var(--text2);font-family:'DM Mono',monospace;letter-spacing:.12em;text-transform:uppercase;text-align:center}
+#prac-cfg-toggle{position:absolute;right:0;font-size:13px;color:var(--text2);line-height:1;background:none;border:none;padding:0;cursor:pointer}
+.prac-cfg-content{display:flex;flex-direction:column;gap:3px;width:100%}
+#prac-cfg-panel.collapsed .prac-cfg-content{display:none}
+.prac-cfg-vert-label{display:none;align-items:center;justify-content:center;writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;font-family:'DM Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--text2);cursor:pointer;min-height:90px;white-space:nowrap;transition:color .1s}
+.prac-cfg-vert-label:hover{color:var(--tonic)}
+#prac-cfg-panel.collapsed .prac-cfg-vert-label{display:flex}
+/* Fullscreen: panel ancré sur la colonne de droite */
+.practice-overlay.fullscreen #prac-cfg-panel{right:20%;left:auto;top:60px;border-radius:8px 0 0 8px;box-shadow:-3px 2px 18px rgba(0,0,0,.35)}
+.practice-overlay.fullscreen #prac-cfg-panel.collapsed{width:30px}
+.practice-overlay.fullscreen #prac-width-handle{right:20%}
 .prac-vue-btn{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all .12s;width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between}
 .prac-vue-btn.on{background:var(--tonic-bg);border-color:var(--tonic);color:var(--tonic)}
 .prac-vue-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;transition:box-shadow .12s}
 .prac-vue-btn.on .prac-vue-dot{box-shadow:0 0 5px currentColor}
 .prac-ctrl-btn{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:.07em;text-transform:uppercase;padding:7px 4px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all .12s;text-align:center;line-height:1.3}
-.prac-ctrl-btn.on{background:var(--tonic-bg);border-color:var(--tonic);color:var(--tonic)}
+.prac-ctrl-btn.on{background:var(--tonic-bg);border-color:var(--tonic);color:var(--text)}
 .prac-ctrl-btn.act{color:var(--text2)}
 .prac-ctrl-btn.act:active{background:var(--tonic-bg);color:var(--tonic)}
 #practice-fs-btn{background:var(--tonic);border-color:var(--tonic);color:#fff}
@@ -822,6 +841,39 @@ body.peda-hidden .cof-arrow-lbl{display:none}
 .auth-btn{width:100%;padding:11px;background:#c0a060;border:none;border-radius:8px;color:#0a0a0f;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;letter-spacing:.05em;transition:opacity .15s;}
 .auth-btn:hover{opacity:.85;}
 .auth-err{font-family:'DM Mono',monospace;font-size:11px;color:#e05555;display:none;}
+/* ── ROADMAP & FEEDBACK PANEL ── */
+#roadmap-panel{position:fixed;left:180px;top:8px;width:420px;max-height:calc(100vh - 16px);background:var(--surface);border:1px solid var(--border);border-radius:0 10px 10px 0;z-index:400;display:none;flex-direction:column;box-shadow:4px 0 32px rgba(0,0,0,.35);overflow:hidden}
+#roadmap-panel.open{display:flex}
+body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
+#rm-header{display:flex;align-items:center;justify-content:space-between;padding:.5rem .75rem;border-bottom:1px solid var(--border);flex-shrink:0;gap:8px}
+#rm-title{font-size:11px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--text2)}
+.rm-tab{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all .12s}
+.rm-tab.active{background:var(--tonic-bg);border-color:var(--tonic);color:var(--text)}
+#rm-body{flex:1;overflow-y:auto;padding:.75rem}
+#rm-roadmap-content{font-size:12px;line-height:1.6;color:var(--text2)}
+#rm-roadmap-content h3{font-size:13px;font-weight:700;color:var(--text);margin:1rem 0 .375rem;font-family:'DM Sans',sans-serif}
+#rm-roadmap-content h4{font-size:11px;font-weight:600;color:var(--text);margin:.625rem 0 .2rem;font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase}
+#rm-roadmap-content hr{border:none;border-top:1px solid var(--border);margin:.625rem 0}
+#rm-roadmap-content ul{padding-left:1.1rem;margin:.2rem 0}
+#rm-roadmap-content li{margin:.1rem 0}
+#rm-roadmap-content strong{color:var(--text);font-weight:600}
+#rm-roadmap-content p{margin:.2rem 0}
+#rm-roadmap-content br{display:block;margin:.1rem 0;content:''}
+.rm-fb-add-btn{width:100%;padding:8px;border-radius:6px;border:1px dashed var(--border);background:transparent;color:var(--text3);cursor:pointer;font-size:9px;font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;transition:all .12s;margin-bottom:.5rem;display:block}
+.rm-fb-add-btn:hover{border-color:var(--tonic);color:var(--tonic)}
+#rm-fb-form{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:.5rem;margin-bottom:.5rem;display:none}
+#rm-fb-input{width:100%;min-height:68px;background:transparent;border:none;color:var(--text);font-size:11px;font-family:'DM Sans',sans-serif;resize:vertical;outline:none;line-height:1.5;box-sizing:border-box}
+.rm-fb-form-btns{display:flex;gap:6px;margin-top:.375rem}
+.rm-fb-item{border:1px solid var(--border);border-radius:6px;padding:.5rem .625rem;margin-bottom:.375rem;transition:opacity .2s}
+.rm-fb-item.treated{opacity:.4}
+.rm-fb-meta{display:flex;align-items:center;gap:6px;margin-bottom:.3rem}
+.rm-fb-date{font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.04em;flex:1}
+.rm-fb-check{width:15px;height:15px;border:1px solid var(--border);border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all .1s;background:transparent;color:transparent;padding:0;line-height:1}
+.rm-fb-item.treated .rm-fb-check{background:var(--tonic);border-color:var(--tonic);color:#fff}
+.rm-fb-text{font-size:11px;color:var(--text2);line-height:1.45;white-space:pre-wrap;word-break:break-word}
+.rm-fb-del{font-size:9px;padding:2px 5px;border-radius:3px;border:1px solid transparent;background:transparent;color:var(--text3);cursor:pointer;transition:all .1s;flex-shrink:0;font-family:'DM Mono',monospace}
+.rm-fb-del:hover{border-color:#c0392b;color:#e05445}
+.rm-offline-note{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;text-align:center;padding:4px 0;opacity:.7}
 </style>
 
 <!-- ── AUTH GATE ── -->
@@ -862,6 +914,18 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     <button class="sidebar-item" id="sb-practice" onclick="openPracticeMode()">
       <span class="sidebar-icon">&#9654;</span>
       <span class="sidebar-label">Practice</span>
+    </button>
+    <div class="sidebar-divider"></div>
+    <div class="sb-section-hdr">Développement</div>
+    <button class="sidebar-item" id="sb-roadmap" onclick="openRoadmapPanel()">
+      <span class="sidebar-icon" style="font-size:11px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:.04em">RD</span>
+      <span class="sidebar-label">Roadmap</span>
+      <span class="sidebar-tooltip">Roadmap &amp; Feedbacks</span>
+    </button>
+    <button class="sidebar-item" id="sb-midi" style="opacity:.45;cursor:default" title="Bientôt disponible">
+      <span class="sidebar-icon" style="font-size:15px">⎍</span>
+      <span class="sidebar-label" style="display:flex;flex-direction:column;line-height:1.2">Live MIDI<span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.04em">bientôt</span></span>
+      <span class="sidebar-tooltip">Live MIDI — bientôt disponible</span>
     </button>
     <div class="sidebar-divider"></div>
     <div class="sb-section-hdr">Entrée</div>
@@ -1045,12 +1109,33 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     <button class="practice-close" style="margin:0;font-size:14px;padding:6px 16px" onclick="closePracticeMode()">✕ Fermer</button>
     <button id="practice-fs-btn" class="practice-close" style="margin:0;font-size:14px;padding:6px 16px" onclick="_practiceToggleFullscreen()" title="Plein écran">⤢ Plein écran</button>
   </div>
+  <!-- RESIZE HANDLE : redimensionner la largeur practice (drag) -->
+  <div id="prac-width-handle" title="Glisser pour redimensionner">⠿</div>
+  <!-- CONTROL PANEL : visibilité des modules (collapsible) -->
+  <div id="prac-cfg-panel" class="collapsed">
+    <div class="prac-cfg-header" onclick="_pracToggleCfgPanel()">
+      <span class="prac-cfg-title">Affichage</span>
+      <span id="prac-cfg-toggle">‹</span>
+    </div>
+    <div class="prac-cfg-content">
+      <button class="prac-ctrl-btn on" id="ctrl-trackline" onclick="_pracToggleTrackline()">Trackline</button>
+      <button class="prac-ctrl-btn on" id="vue-accord" onclick="_pracVueToggle('accord')">Accord</button>
+      <button class="prac-ctrl-btn on" id="vue-tonalite" onclick="_pracVueToggle('tonalite')">Tonalité</button>
+      <button class="prac-ctrl-btn on" id="vue-enrich" onclick="_pracVueToggle('enrich')">Enrichiss.</button>
+      <button class="prac-ctrl-btn on" id="vue-prog" onclick="_pracVueToggle('prog')">Progression</button>
+      <div style="height:1px;background:var(--border);margin:3px 0"></div>
+      <button class="prac-ctrl-btn on" id="ctrl-vol" onclick="_pracToggleVol()">Vol métr.</button>
+      <button class="prac-ctrl-btn on" id="ctrl-bpm" onclick="_pracToggleBpm()">BPM</button>
+      <button class="prac-ctrl-btn act" id="ctrl-tap" onclick="practiceTapTempo()">TAP</button>
+    </div>
+    <div class="prac-cfg-vert-label" onclick="_pracToggleCfgPanel()">Control Panel</div>
+  </div>
   <!-- CENTER : accord + tempo + play + progression -->
   <div id="prac-fs-center">
     <div class="practice-title" id="practice-title">Practice</div>
     <div class="practice-section-name" id="practice-section-name"></div>
     <div class="practice-tonality" id="practice-tonality"></div>
-    <div class="practice-chord-display">
+    <div class="practice-chord-display" id="practice-chord-display">
       <div class="practice-chord-prev" id="practice-prev"></div>
       <div class="practice-chord-current" id="practice-current">—</div>
       <div class="practice-chord-next" id="practice-next"></div>
@@ -1096,10 +1181,11 @@ body.peda-hidden .cof-arrow-lbl{display:none}
     </div>
     <!-- Grille de contrôle unifiée 2 colonnes -->
     <div id="practice-tools" style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;flex-shrink:0;width:100%">
-      <div style="display:flex;align-items:center;gap:8px">
+      <div id="prac-vol-row" style="display:flex;align-items:center;gap:8px">
         <span style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;flex-shrink:0;letter-spacing:.06em">METRO VOL</span>
         <input type="range" min="0" max="10" value="5" id="practice-metro-vol" style="flex:1" oninput="metroSetVol(this.value);_syncSlider('metro-vol',this.value)">
       </div>
+      <div style="font-size:8px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;margin-top:4px;text-align:center">Choisir un style pour orienter la recherche</div>
       <select class="atb-select" id="practice-yt-style" style="width:100%" onchange="ytSetStyleSelect(this.value)">
         <option value="pad">Pad</option>
         <option value="jazz" selected>Jazz</option>
@@ -1112,16 +1198,8 @@ body.peda-hidden .cof-arrow-lbl{display:none}
         <option value="drums">Drums</option>
       </select>
     </div>
-    <div id="prac-ctrl-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);width:100%;flex-shrink:0">
-      <button class="prac-ctrl-btn on" id="ctrl-trackline" onclick="_pracToggleTrackline()">Trackline</button>
-      <button class="prac-ctrl-btn on" id="ctrl-vol" onclick="_pracToggleVol()">Vol métr.</button>
-      <button class="prac-ctrl-btn act" id="ctrl-backing" onclick="openYouTubeBacking()">Backing</button>
-      <button class="prac-ctrl-btn act" id="ctrl-tap" onclick="practiceTapTempo()">TAP</button>
-      <div style="grid-column:1/-1;height:1px;background:var(--border);margin:2px 0"></div>
-      <button class="prac-ctrl-btn on" id="vue-accord" onclick="_pracVueToggle('accord')">Accord</button>
-      <button class="prac-ctrl-btn on" id="vue-tonalite" onclick="_pracVueToggle('tonalite')">Tonalité</button>
-      <button class="prac-ctrl-btn on" id="vue-enrich" onclick="_pracVueToggle('enrich')">Enrichiss.</button>
-      <button class="prac-ctrl-btn on" id="vue-prog" onclick="_pracVueToggle('prog')">Progression</button>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);width:100%;flex-shrink:0">
+      <button class="prac-ctrl-btn act" id="ctrl-backing" onclick="openYouTubeBacking()" style="width:100%">&#9654; Backing track</button>
     </div>
     <div id="practice-yt-section" style="display:none;margin-top:14px;flex-shrink:0;width:100%">
       <div style="position:relative;padding-top:56.25%;background:#000;border-radius:6px;overflow:hidden">
@@ -1130,7 +1208,7 @@ body.peda-hidden .cof-arrow-lbl{display:none}
       </div>
       <div id="practice-yt-title" style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:4px;letter-spacing:.04em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"></div>
       <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
-        <button id="practice-yt-alt-btn" class="yt-alt-btn" onclick="loadYtAlternatives()">⟳ Autres vidéos</button>
+        <button id="practice-yt-alt-btn" class="prac-ctrl-btn act" onclick="loadYtAlternatives()">⟳ Autres vidéos</button>
         <span id="practice-yt-alt-status" style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace"></span>
       </div>
       <div id="practice-yt-picker" style="display:none;margin-top:4px"></div>
@@ -1935,8 +2013,16 @@ function paintPiano(chordMidiSet, overlayScale){
     var inScale=notes.indexOf(sm)>=0;
     /* Pastille gamme */
     if(showScale&&dot&&inScale){
-      dot.style.background=isTonic?'var(--tonic)':'rgba(255,255,255,0.92)';
-      dot.style.border=isB(sm)?'1px solid rgba(255,255,255,0.5)':'1px solid var(--piano-border)';
+      if(isTonic){
+        dot.style.background='var(--tonic)';
+        dot.style.border=isB(sm)?'1px solid rgba(255,255,255,0.5)':'1px solid rgba(0,0,0,0.2)';
+      }else if(isB(sm)){
+        dot.style.background='rgba(255,255,255,0.92)';
+        dot.style.border='1px solid rgba(255,255,255,0.5)';
+      }else{
+        dot.style.background='rgba(30,30,30,0.68)';
+        dot.style.border='1px solid rgba(0,0,0,0.25)';
+      }
     }
     /* Touche enfoncée — accord sélectionné */
     if(chordMidiSet&&chordMidiSet[m]){
@@ -4249,8 +4335,8 @@ function practiceTapTempo(){
   if(_tapTimer)clearTimeout(_tapTimer);
   _tapTimes.push(now);
   if(_tapTimes.length>8)_tapTimes=_tapTimes.slice(-8);
-  var btn=document.getElementById('practice-tap-btn');
-  if(btn){btn.style.background='var(--accent)';btn.style.color='#fff';setTimeout(function(){btn.style.background='';btn.style.color='var(--accent)';},120);}
+  var btn=document.getElementById('ctrl-tap');
+  if(btn){btn.style.background='var(--accent)';btn.style.color='#fff';setTimeout(function(){btn.style.background='';btn.style.color='';},120);}
   /* BPM calculated and applied once tapping stops (2.5s silence) — rounded to nearest 10 */
   _tapTimer=setTimeout(function(){
     if(_tapTimes.length>=2){
@@ -5130,6 +5216,7 @@ function openYouTubeBacking(){
   var loading=document.getElementById('practice-yt-loading');
   var titleEl=document.getElementById('practice-yt-title');
   if(ytSection)ytSection.style.display='block';
+  var backBtn=document.getElementById('ctrl-backing');if(backBtn)backBtn.classList.add('on');
   if(loading)loading.style.display='none';
   if(iframe)iframe.src='';
   if(titleEl)titleEl.textContent=root+' '+genre+' · '+style;
@@ -5380,6 +5467,12 @@ function _syncPracticeTools(){
   if(pv){var mv=document.getElementById('metro-vol');pv.value=mv?mv.value:Math.round(_metroVol*10);}
   var ps=document.getElementById('practice-yt-style');
   if(ps)ps.value=_bt.style;
+  /* sync ctrl buttons state */
+  var volRow=document.getElementById('prac-vol-row');
+  if(volRow)volRow.style.display=_metroMuted?'none':'flex';
+  var backBtn=document.getElementById('ctrl-backing');
+  var ytSection=document.getElementById('practice-yt-section');
+  if(backBtn)backBtn.classList.toggle('on',!!(ytSection&&ytSection.style.display!=='none'));
 }
 
 function _ytPracticeCmd(cmd,args){
@@ -5609,16 +5702,63 @@ function _pracToggleTrackline(){
 var _metroMuted=false,_metroSavedVol=5;
 function _pracToggleVol(){
   _metroMuted=!_metroMuted;
-  var slider=document.getElementById('practice-metro-vol');
-  if(_metroMuted){
-    _metroSavedVol=slider?parseFloat(slider.value):5;
-    metroSetVol(0);if(slider)slider.value=0;
-  } else {
-    metroSetVol(_metroSavedVol);if(slider)slider.value=_metroSavedVol;
-  }
+  var row=document.getElementById('prac-vol-row');
+  if(row)row.style.display=_metroMuted?'none':'flex';
   var btn=document.getElementById('ctrl-vol');
   if(btn)btn.classList.toggle('on',!_metroMuted);
 }
+function _pracToggleBpm(){
+  var sec=document.getElementById('prac-bpm-section');
+  var btn=document.getElementById('ctrl-bpm');
+  var vis=sec&&sec.style.display!=='none';
+  if(sec)sec.style.display=vis?'none':'flex';
+  if(btn)btn.classList.toggle('on',!vis);
+}
+var _cfgPanelCollapsed=true;
+function _pracToggleCfgPanel(){
+  _cfgPanelCollapsed=!_cfgPanelCollapsed;
+  var panel=document.getElementById('prac-cfg-panel');
+  var tog=document.getElementById('prac-cfg-toggle');
+  if(panel)panel.classList.toggle('collapsed',_cfgPanelCollapsed);
+  if(tog)tog.textContent=_cfgPanelCollapsed?'‹':'›';
+}
+/* ── PRACTICE WIDTH RESIZE HANDLE ── */
+(function(){
+  var handle=document.getElementById('prac-width-handle');
+  if(!handle)return;
+  var grid=document.querySelector('.main-grid');
+  var startX,startW;
+  function onMove(e){
+    var cx=e.touches?e.touches[0].clientX:e.clientX;
+    var newW=Math.max(240,Math.min(600,startW+(startX-cx)));
+    document.documentElement.style.setProperty('--rp-width',newW+'px');
+    if(grid)grid.style.gridTemplateColumns='1fr '+newW+'px';
+    if(typeof buildPiano==='function')buildPiano();
+    _positionCofArrows();
+  }
+  function onUp(){
+    handle.classList.remove('dragging');
+    document.body.style.cursor='';
+    document.body.style.userSelect='';
+    document.removeEventListener('mousemove',onMove);
+    document.removeEventListener('mouseup',onUp);
+    document.removeEventListener('touchmove',onMove);
+    document.removeEventListener('touchend',onUp);
+  }
+  function startDrag(cx){
+    startX=cx;
+    startW=document.getElementById('practice-overlay').offsetWidth;
+    handle.classList.add('dragging');
+    document.body.style.cursor='col-resize';
+    document.body.style.userSelect='none';
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+    document.addEventListener('touchmove',onMove,{passive:false});
+    document.addEventListener('touchend',onUp);
+  }
+  handle.addEventListener('mousedown',function(e){e.preventDefault();startDrag(e.clientX);});
+  handle.addEventListener('touchstart',function(e){e.preventDefault();startDrag(e.touches[0].clientX);},{passive:false});
+})();
 /* ── PRACTICE VUE TOGGLES ── */
 var _pracVue={accord:true,tonalite:true,enrich:true,prog:true};
 var _pracVueMap={
@@ -5974,7 +6114,183 @@ window._highlightChord=function(semi){window._songChordHighlight=semi;drawCOF();
   }catch(e){}
 })();
 
+/* ══════════════════════════════════════════════
+   ROADMAP & FEEDBACK PANEL
+   ══════════════════════════════════════════════ */
+var _rmRoadmapLoaded=false;
+
+function openRoadmapPanel(){
+  var panel=document.getElementById('roadmap-panel');
+  if(panel)panel.classList.add('open');
+  var sbRd=document.getElementById('sb-roadmap');
+  if(sbRd)sbRd.classList.add('active');
+  if(!_rmRoadmapLoaded){_rmRoadmapLoaded=true;_rmLoadRoadmap();}
+  _rmTab('feedback'); /* ouvre feedbacks en priorité */
+}
+function closeRoadmapPanel(){
+  var panel=document.getElementById('roadmap-panel');
+  if(panel)panel.classList.remove('open');
+  var sbRd=document.getElementById('sb-roadmap');
+  if(sbRd)sbRd.classList.remove('active');
+}
+function _rmTab(tab){
+  var rm=document.getElementById('rm-roadmap-content');
+  var fb=document.getElementById('rm-feedback-content');
+  var trm=document.getElementById('rm-tab-rm');
+  var tfb=document.getElementById('rm-tab-fb');
+  if(tab==='roadmap'){
+    rm.style.display='';fb.style.display='none';
+    trm.classList.add('active');tfb.classList.remove('active');
+  }else{
+    rm.style.display='none';fb.style.display='';
+    trm.classList.remove('active');tfb.classList.add('active');
+    _rmRenderFeedbacks();
+  }
+}
+
+/* ── ROADMAP CONTENT ── */
+function _rmLoadRoadmap(){
+  var el=document.getElementById('rm-roadmap-content');
+  if(!el)return;
+  /* Fichier statique — fonctionne local et Vercel */
+  fetch('/memory/project_roadmap.md')
+    .then(function(r){if(!r.ok)throw new Error(r.status);return r.text();})
+    .then(function(md){el.innerHTML=_rmMdToHtml(md);})
+    .catch(function(){el.innerHTML='<p style="color:var(--text3);font-size:11px;text-align:center;padding:1rem 0">Roadmap non trouvée.</p>';});
+}
+function _rmMdToHtml(md){
+  md=md.replace(/^---[\s\S]*?---\n?/,'');
+  var lines=md.split('\n');var html='';var inList=false;
+  for(var i=0;i<lines.length;i++){
+    var l=lines[i];
+    if(/^## /.test(l)){if(inList){html+='</ul>';inList=false;}html+='<h3>'+_rmInline(l.replace(/^## /,''))+'</h3>';}
+    else if(/^### /.test(l)){if(inList){html+='</ul>';inList=false;}html+='<h4>'+_rmInline(l.replace(/^### /,''))+'</h4>';}
+    else if(/^---$/.test(l.trim())){if(inList){html+='</ul>';inList=false;}html+='<hr>';}
+    else if(/^[*\-] /.test(l)){if(!inList){html+='<ul>';inList=true;}html+='<li>'+_rmInline(l.replace(/^[*\-] /,''))+'</li>';}
+    else if(l.trim()===''){if(inList){html+='</ul>';inList=false;}html+='<br>';}
+    else{if(inList){html+='</ul>';inList=false;}html+='<p>'+_rmInline(l)+'</p>';}
+  }
+  if(inList)html+='</ul>';
+  return html;
+}
+function _rmInline(s){
+  s=_rmEsc(s);
+  s=s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  s=s.replace(/`(.+?)`/g,'<code style="font-family:DM Mono,monospace;font-size:.88em;background:rgba(255,255,255,.07);padding:0 3px;border-radius:3px">$1</code>');
+  return s;
+}
+function _rmEsc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ── FEEDBACKS ── */
+var _rmApiAvailable=null;
+
+function _rmGetFeedbacks(){
+  try{return JSON.parse(localStorage.getItem('pianolab-feedbacks')||'[]');}catch(e){return[];}
+}
+function _rmSaveFeedbacks(fbs){
+  try{localStorage.setItem('pianolab-feedbacks',JSON.stringify(fbs));}catch(e){}
+}
+function _rmOpenFeedbackForm(){
+  var form=document.getElementById('rm-fb-form');
+  var addBtn=document.getElementById('rm-fb-add-btn');
+  if(form){form.style.display='block';document.getElementById('rm-fb-input').focus();}
+  if(addBtn)addBtn.style.display='none';
+}
+function _rmCloseFeedbackForm(){
+  var form=document.getElementById('rm-fb-form');
+  var addBtn=document.getElementById('rm-fb-add-btn');
+  var input=document.getElementById('rm-fb-input');
+  if(form)form.style.display='none';
+  if(addBtn)addBtn.style.display='block';
+  if(input)input.value='';
+}
+function _rmSubmitFeedback(){
+  var input=document.getElementById('rm-fb-input');
+  var text=input?input.value.trim():'';
+  if(!text)return;
+  var now=new Date();
+  var dateStr=now.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  var entry={id:Date.now(),text:text,date:dateStr,isoDate:now.toISOString(),treated:false};
+  var fbs=_rmGetFeedbacks();fbs.unshift(entry);_rmSaveFeedbacks(fbs);
+  /* Try server sync */
+  fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(entry)})
+    .then(function(r){if(r.ok)_rmApiAvailable=true;})
+    .catch(function(){_rmApiAvailable=false;});
+  _rmCloseFeedbackForm();
+  _rmRenderFeedbacksList(fbs);
+}
+function _rmToggleFeedback(id){
+  var fbs=_rmGetFeedbacks();
+  var fb=fbs.find(function(f){return f.id===id;});
+  if(fb){fb.treated=!fb.treated;_rmSaveFeedbacks(fbs);}
+  fetch('/api/feedback',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id})}).catch(function(){});
+  _rmRenderFeedbacksList(fbs);
+}
+function _rmDeleteFeedback(id){
+  var fbs=_rmGetFeedbacks().filter(function(f){return f.id!==id;});
+  _rmSaveFeedbacks(fbs);
+  fetch('/api/feedback',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id})}).catch(function(){});
+  _rmRenderFeedbacksList(fbs);
+}
+function _rmRenderFeedbacks(){
+  /* Show local immediately, try to load server version */
+  var local=_rmGetFeedbacks();
+  _rmRenderFeedbacksList(local);
+  fetch('/api/feedback')
+    .then(function(r){if(!r.ok)throw r;return r.json();})
+    .then(function(serverFbs){
+      if(Array.isArray(serverFbs)&&serverFbs.length){
+        _rmSaveFeedbacks(serverFbs);_rmRenderFeedbacksList(serverFbs);_rmApiAvailable=true;
+      }
+    })
+    .catch(function(){_rmApiAvailable=false;});
+}
+function _rmRenderFeedbacksList(fbs){
+  var list=document.getElementById('rm-fb-list');
+  if(!list)return;
+  if(!fbs.length){
+    list.innerHTML='<p style="font-size:11px;color:var(--text3);text-align:center;padding:1.25rem 0;font-family:DM Mono,monospace">Aucun feedback pour l\'instant.</p>';
+    return;
+  }
+  list.innerHTML=fbs.map(function(fb){
+    return '<div class="rm-fb-item'+(fb.treated?' treated':'')+'">'+
+      '<div class="rm-fb-meta">'+
+        '<button class="rm-fb-check" onclick="_rmToggleFeedback('+fb.id+')" title="Marquer comme traité">'+(fb.treated?'✓':'')+'</button>'+
+        '<span class="rm-fb-date">'+_rmEsc(fb.date||'')+'</span>'+
+        '<button class="rm-fb-del" onclick="_rmDeleteFeedback('+fb.id+')" title="Supprimer">✕ suppr.</button>'+
+      '</div>'+
+      '<div class="rm-fb-text">'+_rmEsc(fb.text)+'</div>'+
+    '</div>';
+  }).join('');
+}
+
 </script>
+  </div>
+</div>
+
+<!-- ── ROADMAP & FEEDBACK PANEL ── -->
+<div id="roadmap-panel" onclick="event.stopPropagation()">
+  <div id="rm-header">
+    <span id="rm-title">Roadmap</span>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button class="rm-tab active" id="rm-tab-rm" onclick="_rmTab('roadmap')">Roadmap</button>
+      <button class="rm-tab" id="rm-tab-fb" onclick="_rmTab('feedback')">Feedbacks</button>
+      <button onclick="closeRoadmapPanel()" style="font-size:11px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace;margin-left:4px">✕</button>
+    </div>
+  </div>
+  <div id="rm-body">
+    <div id="rm-roadmap-content">Chargement…</div>
+    <div id="rm-feedback-content" style="display:none">
+      <div id="rm-fb-form">
+        <textarea id="rm-fb-input" placeholder="Décrire votre feedback, bug ou idée…"></textarea>
+        <div class="rm-fb-form-btns">
+          <button class="prac-ctrl-btn on" onclick="_rmSubmitFeedback()" style="flex:1;padding:6px">Enregistrer</button>
+          <button class="prac-ctrl-btn act" onclick="_rmCloseFeedbackForm()" style="flex:1;padding:6px">Annuler</button>
+        </div>
+      </div>
+      <button class="rm-fb-add-btn" id="rm-fb-add-btn" onclick="_rmOpenFeedbackForm()">+ Nouveau feedback</button>
+      <div id="rm-fb-list"></div>
+    </div>
   </div>
 </div>
 
