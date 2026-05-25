@@ -475,8 +475,9 @@ body.peda-hidden .harmony-note{display:none!important}
 .prac-col-toggle-btn:hover{border-color:var(--tonic);color:var(--tonic)}
 .prac-hidden{display:none!important}
 /* ── CONTROL PANEL FLOTTANT ── */
-#prac-width-handle{position:fixed;right:var(--rp-width,280px);top:18px;width:24px;height:38px;background:var(--surface);border:1px solid var(--border);border-radius:8px 0 0 8px;border-right:none;z-index:152;cursor:col-resize;display:flex;align-items:center;justify-content:center;box-shadow:-3px 2px 18px rgba(0,0,0,.28);touch-action:none;user-select:none;font-size:11px;color:var(--text3);transition:color .12s,background .12s,border-color .12s}
+#prac-width-handle{position:fixed;right:var(--rp-width,280px);top:50%;transform:translateY(-50%);width:30px;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px 0 0 8px;border-right:none;z-index:155;cursor:col-resize;display:flex;align-items:center;justify-content:center;box-shadow:-3px 2px 18px rgba(0,0,0,.28);touch-action:none;user-select:none;font-size:13px;color:var(--text3);transition:color .12s,background .12s,border-color .12s}
 #prac-width-handle:hover,#prac-width-handle.dragging{background:var(--tonic-bg,rgba(100,180,255,.08));color:var(--tonic);border-color:var(--tonic)}
+body:has(.practice-overlay.fullscreen) #prac-width-handle{display:none}
 #prac-cfg-panel{position:fixed;right:var(--rp-width,280px);top:60px;width:136px;background:var(--surface);border:1px solid var(--border);border-radius:8px 0 0 8px;display:flex;flex-direction:column;gap:3px;padding:6px;z-index:152;box-shadow:-3px 2px 18px rgba(0,0,0,.28);overflow:hidden;transition:width .18s}
 #prac-cfg-panel.collapsed{width:30px;padding:4px 2px}
 .prac-cfg-header{display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;padding:3px 0 5px;width:100%;border-bottom:1px solid var(--border);margin-bottom:5px;transition:opacity .1s}
@@ -492,7 +493,6 @@ body.peda-hidden .harmony-note{display:none!important}
 /* Fullscreen: panel ancré sur la colonne de droite */
 .practice-overlay.fullscreen #prac-cfg-panel{right:20%;left:auto;top:60px;border-radius:8px 0 0 8px;box-shadow:-3px 2px 18px rgba(0,0,0,.35)}
 .practice-overlay.fullscreen #prac-cfg-panel.collapsed{width:30px}
-.practice-overlay.fullscreen #prac-width-handle{right:20%}
 .prac-vue-btn{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all .12s;width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between}
 .prac-vue-btn.on{background:var(--tonic-bg);border-color:var(--tonic);color:var(--tonic)}
 .prac-vue-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;transition:box-shadow .12s}
@@ -1109,8 +1109,6 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
     <button class="practice-close" style="margin:0;font-size:14px;padding:6px 16px" onclick="closePracticeMode()">✕ Fermer</button>
     <button id="practice-fs-btn" class="practice-close" style="margin:0;font-size:14px;padding:6px 16px" onclick="_practiceToggleFullscreen()" title="Plein écran">⤢ Plein écran</button>
   </div>
-  <!-- RESIZE HANDLE : redimensionner la largeur practice (drag) -->
-  <div id="prac-width-handle" title="Glisser pour redimensionner">⠿</div>
   <!-- CONTROL PANEL : visibilité des modules (collapsible) -->
   <div id="prac-cfg-panel" class="collapsed">
     <div class="prac-cfg-header" onclick="_pracToggleCfgPanel()">
@@ -6267,6 +6265,9 @@ function _rmRenderFeedbacksList(fbs){
 </script>
   </div>
 </div>
+
+<!-- ── RESIZE HANDLE : toujours visible, resize colonne droite par drag ── -->
+<div id="prac-width-handle" title="Glisser pour redimensionner la colonne">⠿</div>
 
 <!-- ── ROADMAP & FEEDBACK PANEL ── -->
 <div id="roadmap-panel" onclick="event.stopPropagation()">
