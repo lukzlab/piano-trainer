@@ -478,13 +478,12 @@ body.peda-hidden .harmony-note{display:none!important}
 #prac-width-handle{position:fixed;right:var(--rp-width,280px);top:50%;transform:translateY(-50%);width:30px;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px 0 0 8px;border-right:none;z-index:155;cursor:col-resize;display:flex;align-items:center;justify-content:center;box-shadow:-3px 2px 18px rgba(0,0,0,.28);touch-action:none;user-select:none;font-size:13px;color:var(--text3);transition:color .12s,background .12s,border-color .12s}
 #prac-width-handle:hover,#prac-width-handle.dragging{background:var(--tonic-bg,rgba(100,180,255,.08));color:var(--tonic);border-color:var(--tonic)}
 body:has(.practice-overlay.fullscreen) #prac-width-handle{display:none}
-/* Handles colonnes fullscreen */
-.prac-col-handle{position:absolute;top:50%;transform:translateY(-50%);width:16px;height:56px;background:var(--surface);border:1px solid var(--border);z-index:25;cursor:col-resize;display:none;align-items:center;justify-content:center;font-size:9px;color:var(--text3);touch-action:none;user-select:none;transition:color .12s,background .12s,border-color .12s;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+/* Handles colonnes fullscreen — positionnés dans l'overlay, sur le trait de séparation */
+.prac-col-handle{position:absolute;top:50%;width:16px;height:56px;background:var(--surface);border:1px solid var(--border);border-radius:8px;z-index:155;cursor:col-resize;display:none;align-items:center;justify-content:center;font-size:9px;color:var(--text3);touch-action:none;user-select:none;transition:color .12s,background .12s,border-color .12s;box-shadow:0 2px 10px rgba(0,0,0,.2)}
 .prac-col-handle:hover,.prac-col-handle.dragging{background:var(--tonic-bg,rgba(100,180,255,.08));color:var(--tonic);border-color:var(--tonic)}
-.practice-overlay.fullscreen .prac-col-handle{display:flex}
-.practice-overlay.fullscreen .collapsed .prac-col-handle{display:none!important}
-#prac-left-handle{right:-1px;border-radius:0 8px 8px 0;border-left:none}
-#prac-right-handle{left:-1px;border-radius:8px 0 0 8px;border-right:none}
+.practice-overlay.fullscreen .prac-col-handle{display:flex;transform:translate(-50%,-50%)}
+#prac-left-handle{left:30%}
+#prac-right-handle{left:80%}
 /* Handle sidebar */
 #sb-handle{position:fixed;top:50%;transform:translateY(-50%);width:14px;height:56px;background:var(--surface);border:1px solid var(--border);border-left:none;border-radius:0 8px 8px 0;z-index:101;cursor:col-resize;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text3);touch-action:none;user-select:none;transition:color .12s,background .12s,border-color .12s;box-shadow:3px 0 12px rgba(0,0,0,.18)}
 #sb-handle:hover,#sb-handle.dragging{background:var(--tonic-bg,rgba(100,180,255,.08));color:var(--tonic);border-color:var(--tonic)}
@@ -501,7 +500,7 @@ body:has(.practice-overlay.fullscreen) #prac-width-handle{display:none}
 .prac-cfg-vert-label:hover{color:var(--tonic)}
 #prac-cfg-panel.collapsed .prac-cfg-vert-label{display:flex}
 /* Fullscreen: panel ancré sur la colonne de droite */
-.practice-overlay.fullscreen #prac-cfg-panel{right:20%;left:auto;top:60px;border-radius:8px 0 0 8px;box-shadow:-3px 2px 18px rgba(0,0,0,.35)}
+.practice-overlay.fullscreen #prac-cfg-panel{right:20%;left:auto;top:50%;transform:translateY(-50%);border-radius:8px 0 0 8px;box-shadow:-3px 2px 18px rgba(0,0,0,.35)}
 .practice-overlay.fullscreen #prac-cfg-panel.collapsed{width:30px}
 .prac-vue-btn{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all .12s;width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between}
 .prac-vue-btn.on{background:var(--tonic-bg);border-color:var(--tonic);color:var(--tonic)}
@@ -1168,7 +1167,6 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
   <!-- RIGHT : BPM + TAP + YT -->
   <div id="prac-fs-right">
     <div class="prac-col-resizer" id="prac-right-resizer"></div>
-    <div class="prac-col-handle" id="prac-right-handle">⠿</div>
     <div class="prac-col-toggle-wrap" id="prac-right-toggle-wrap">
       <button id="prac-right-toggle" class="prac-col-toggle-btn" onclick="_pracToggleRight()" title="Masquer/afficher les réglages">›</button>
     </div>
@@ -1226,7 +1224,6 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
   <!-- LEFT : COF uniquement -->
   <div id="prac-fs-left">
     <div class="prac-col-resizer" id="prac-left-resizer"></div>
-    <div class="prac-col-handle" id="prac-left-handle">⠿</div>
     <div class="prac-col-toggle-wrap" id="prac-left-toggle-wrap">
       <button id="prac-left-toggle" class="prac-col-toggle-btn" onclick="_pracToggleLeft()" title="Masquer/afficher la roue">‹</button>
     </div>
@@ -1236,6 +1233,9 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
       <svg id="cof-practice" style="display:block;width:100%;cursor:pointer"></svg>
     </div>
   </div>
+  <!-- Handles séparateurs colonnes fullscreen (hors colonnes pour éviter overflow:hidden) -->
+  <div class="prac-col-handle" id="prac-left-handle">⠿</div>
+  <div class="prac-col-handle" id="prac-right-handle">⠿</div>
 </div>
 
 <!-- ── MODALE IMPORT ── -->
@@ -5816,7 +5816,14 @@ function _initPracWidthHandle(){
   function startDrag(cx){
     startX=cx;
     var ov=document.getElementById('practice-overlay');
-    startW=ov?ov.offsetWidth:(parseInt(getComputedStyle(document.documentElement).getPropertyValue('--rp-width'))||280);
+    var mp=document.getElementById('main-panel');
+    if(ov&&ov.classList.contains('open')){
+      startW=ov.offsetWidth;
+    }else if(mp&&mp.offsetWidth>0){
+      startW=mp.offsetWidth;
+    }else{
+      startW=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--rp-width'))||280;
+    }
     handle.classList.add('dragging');
     document.body.style.cursor='col-resize';
     document.body.style.userSelect='none';
@@ -6028,6 +6035,17 @@ function _pracToggleRight(){
 }
 
 /* ── PRACTICE FULLSCREEN ── */
+function _updatePracColHandles(){
+  var overlay=document.getElementById('practice-overlay');
+  if(!overlay||!overlay.classList.contains('fullscreen'))return;
+  var lEl=document.getElementById('prac-fs-left');
+  var rEl=document.getElementById('prac-fs-right');
+  var lh=document.getElementById('prac-left-handle');
+  var rh=document.getElementById('prac-right-handle');
+  if(lh&&lEl)lh.style.left=lEl.offsetWidth+'px';
+  if(rh&&rEl)rh.style.left=(overlay.offsetWidth-rEl.offsetWidth)+'px';
+}
+
 function _practiceToggleFullscreen(){
   var overlay=document.getElementById('practice-overlay');
   var btn=document.getElementById('practice-fs-btn');
@@ -6044,7 +6062,7 @@ function _practiceToggleFullscreen(){
     if(lb)lb.textContent='‹';if(rb)rb.textContent='›';
   }
   if(typeof buildPiano==='function')buildPiano();
-  requestAnimationFrame(function(){ requestAnimationFrame(function(){ drawCOF(); }); });
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ drawCOF();_updatePracColHandles(); }); });
 }
 
 /* ── PRACTICE FULLSCREEN COLUMN RESIZERS ── */
@@ -6078,7 +6096,7 @@ function _practiceToggleFullscreen(){
       var lw=side==='left'?newW:(_pracLeftCollapsed?40:(document.getElementById('prac-fs-left')||{offsetWidth:480}).offsetWidth);
       var rw=side==='right'?newW:(_pracRightCollapsed?40:(document.getElementById('prac-fs-right')||{offsetWidth:280}).offsetWidth);
       overlay.style.gridTemplateColumns=lw+'px 1fr '+rw+'px';
-      requestAnimationFrame(function(){drawCOF();});
+      requestAnimationFrame(function(){drawCOF();_updatePracColHandles();});
     }
     function onUp(){
       resizer.classList.remove('dragging');
@@ -6109,7 +6127,7 @@ function _practiceToggleFullscreen(){
       var lw=side==='left'?newW:(_pracLeftCollapsed?40:(document.getElementById('prac-fs-left')||{offsetWidth:480}).offsetWidth);
       var rw=side==='right'?newW:(_pracRightCollapsed?40:(document.getElementById('prac-fs-right')||{offsetWidth:280}).offsetWidth);
       overlay.style.gridTemplateColumns=lw+'px 1fr '+rw+'px';
-      requestAnimationFrame(function(){drawCOF();});
+      requestAnimationFrame(function(){drawCOF();_updatePracColHandles();});
     }
     function onUp(){
       handle.classList.remove('dragging');
