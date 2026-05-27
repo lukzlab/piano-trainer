@@ -1,5 +1,12 @@
 [
   {
+    "id": 1779905259832,
+    "text": "ajouter le piano en version compact bas en mode full screen. \npossibilité d'afficher ou non le piano.",
+    "date": "27/05/2026 20:07",
+    "isoDate": "2026-05-27T18:07:39.832Z",
+    "treated": false
+  },
+  {
     "id": 1779905248867,
     "text": "faire en sorte que \"progression\" et \"gammes\" dans le .rp passe en mode onglet comme pour le control panel.\nlorsque gamme est actif (par défault) le texte est en blanc\non peut passer facilement d'un onglet à l'autre comme ca.\non peut aussi ajouter l'onglet practice pou améliorer l'interface.",
     "date": "27/05/2026 20:07",
