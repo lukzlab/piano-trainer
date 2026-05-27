@@ -6308,6 +6308,7 @@ function _pracToggleLeft(){
   }
   var btn=document.getElementById('prac-left-toggle');
   if(btn)btn.textContent=_pracLeftCollapsed?'›':'‹';
+  requestAnimationFrame(function(){_updatePracColHandles();});
 }
 function _pracToggleRight(){
   var overlay=document.getElementById('practice-overlay');
@@ -6327,6 +6328,7 @@ function _pracToggleRight(){
   }
   var btn=document.getElementById('prac-right-toggle');
   if(btn)btn.textContent=_pracRightCollapsed?'‹':'›';
+  requestAnimationFrame(function(){_updatePracColHandles();});
 }
 
 /* ── PRACTICE FULLSCREEN ── */
@@ -6337,10 +6339,12 @@ function _updatePracColHandles(){
   var rEl=document.getElementById('prac-fs-right');
   var lh=document.getElementById('prac-left-handle');
   var rh=document.getElementById('prac-right-handle');
-  if(lh&&lEl)lh.style.left=lEl.offsetWidth+'px';
-  if(rh&&rEl)rh.style.left=(overlay.offsetWidth-rEl.offsetWidth)+'px';
+  var lCollapsed=lEl&&lEl.classList.contains('collapsed');
+  var rCollapsed=rEl&&rEl.classList.contains('collapsed');
+  if(lh&&lEl){lh.style.left=lEl.offsetWidth+'px';lh.style.display=lCollapsed?'none':'';}
+  if(rh&&rEl){rh.style.left=(overlay.offsetWidth-rEl.offsetWidth)+'px';rh.style.display=rCollapsed?'none':'';}
   var cfg=document.getElementById('prac-cfg-panel');
-  if(cfg&&rEl)cfg.style.right=rEl.offsetWidth+'px';
+  if(cfg&&rEl){cfg.style.right=rEl.offsetWidth+'px';cfg.style.display=rCollapsed?'none':'';}
 }
 
 var _fsPianoOrigParent=null,_fsPianoOrigNext=null,_fsPianoVisible=true;
