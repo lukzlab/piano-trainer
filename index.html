@@ -4209,7 +4209,12 @@ function openPracticeMode(){
   _practiceState.bpm=_audioBpm;
   _practiceState.playing=false;
   if(!chords.length)document.getElementById('practice-title').textContent='Métronome';
-  document.documentElement.style.setProperty('--rp-width',(document.getElementById('main-panel').offsetWidth||280)+'px');
+  var _pracMinW=320;
+  var _curW=document.getElementById('main-panel').offsetWidth||280;
+  var _pracW=Math.max(_pracMinW,_curW);
+  document.documentElement.style.setProperty('--rp-width',_pracW+'px');
+  var _grid=document.querySelector('.main-grid');if(_grid)_grid.style.gridTemplateColumns='1fr '+_pracW+'px';
+  var _mp=document.getElementById('main-panel');if(_mp)_mp.classList.remove('rp-compact');
   document.getElementById('practice-overlay').classList.add('open');
   _syncPracticeTools();
   if(chords.length)_setPianoMode('accord');
