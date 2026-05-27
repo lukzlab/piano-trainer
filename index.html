@@ -726,7 +726,7 @@ body.graphite .deg-row:hover{background:rgba(255,255,255,0.04)}
 .rp-tabs{padding:12px 16px 16px;background:var(--nav-bg);flex-shrink:0;border-bottom:1px solid var(--border)}
 .rp-tabs-seg{display:flex;background:var(--bg2);border-radius:8px;padding:3px;gap:2px}
 .rp-tab{flex:1;font-size:12px;padding:7px 0;border:none;background:transparent;color:var(--text2);cursor:pointer;font-weight:400;transition:background .15s,color .15s,box-shadow .15s;font-family:var(--ui-font);letter-spacing:.01em;border-radius:6px;text-align:center}
-.rp-tab.active{color:var(--text);background:var(--surface);font-weight:500;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.rp-tab.active{color:#fff;background:var(--tonic);font-weight:500;box-shadow:0 1px 4px rgba(0,0,0,.18)}
 
 /* ── PROG PICKER ── */
 .prog-picker{position:relative;display:flex;justify-content:center;width:100%}
@@ -1100,6 +1100,7 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
           <div class="rp-tabs-seg">
             <button class="rp-tab active" id="rp-tab-scale" onclick="rpSetTab('scale')">Gammes</button>
             <button class="rp-tab" id="rp-tab-prog" onclick="rpSetTab('prog')">Progressions</button>
+            <button class="rp-tab" id="rp-tab-prac" onclick="rpSetTab('prac')">Practice</button>
           </div>
         </div>
         <div class="panel-header" id="panel-header"></div>
@@ -2282,6 +2283,13 @@ function highlightChord(semi,enrichId,baseType){
 
 /* ── PANNEAU PRINCIPAL CONTEXTUEL ── */
 function rpSetTab(mode){
+  if(mode==='prac'){
+    var po=document.getElementById('practice-overlay');
+    if(po&&po.classList.contains('open'))closePracticeMode();
+    else openPracticeMode();
+    _syncRpTabs();
+    return;
+  }
   if(mode==='prog'){
     st.viewMode='prog';
     if(customProg.idx<0&&stdProg.idx<0)stdProg.idx=0;
@@ -2298,10 +2306,13 @@ function rpSetTab(mode){
 function _syncRpTabs(){
   var ts=document.getElementById('rp-tab-scale');
   var tp=document.getElementById('rp-tab-prog');
+  var tpr=document.getElementById('rp-tab-prac');
   if(!ts||!tp)return;
   var isProg=st.viewMode==='prog';
-  ts.classList.toggle('active',!isProg);
-  tp.classList.toggle('active',isProg);
+  var isPrac=!!(document.getElementById('practice-overlay')&&document.getElementById('practice-overlay').classList.contains('open'));
+  ts.classList.toggle('active',!isProg&&!isPrac);
+  tp.classList.toggle('active',isProg&&!isPrac);
+  if(tpr)tpr.classList.toggle('active',isPrac);
 }
 
 function _openProgDropdown(anchor){
@@ -4139,6 +4150,7 @@ function openPracticeMode(){
   _practiceBuildDots();
   _practiceBuildSeq();
   _ytPracticeCmd('playVideo');
+  _syncRpTabs();
 }
 
 function closePracticeMode(){
@@ -4152,6 +4164,7 @@ function closePracticeMode(){
   _setPianoMode('gamme');
   window._songChordHighlight=null;
   paintPiano(null);
+  _syncRpTabs();
 }
 
 function _buildPracticeChords(){
