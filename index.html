@@ -1787,9 +1787,8 @@ function _drawCOFCore(svg){
       scaleState.activeDeg=-1;scaleState.activeEnrich='';scaleState.activeInv=0;
       updateAll();drawCOF();
     };})(semi);
+    path.style.touchAction='none';
     path.addEventListener('pointerdown',(function(s,idx){return function(e){_cofDragChord(e,idx,s,false);};})(semi,i));
-    path.addEventListener('pointermove',_cofDragMove);
-    path.addEventListener('pointerup',_cofDragEnd);
     svg.appendChild(path);
 
     /* Roman numeral — pointer-events:none so clicks reach the path */
@@ -1847,9 +1846,8 @@ function _drawCOFCore(svg){
       scaleState.activeDeg=-1;scaleState.activeEnrich='';scaleState.activeInv=0;
       updateAll();drawCOF();
     };})(minSemi,i);
+    path.style.touchAction='none';
     path.addEventListener('pointerdown',(function(s,idx){return function(e){_cofDragChord(e,idx,s,true);};})(minSemi,i));
-    path.addEventListener('pointermove',_cofDragMove);
-    path.addEventListener('pointerup',_cofDragEnd);
     svg.appendChild(path);
 
     var mp=polar((RMID+RINNER)/2,i*30);
@@ -5664,6 +5662,8 @@ function _practiceBuildEnrich(){
 
 /* ── COF → PRACTICE DRAG (Pointer Events — desktop + tablette) ── */
 var _cofDrag={active:false,dragging:false,startX:0,startY:0,chord:null,ghost:null};
+document.addEventListener('pointermove',function(e){if(_cofDrag.active)_cofDragMove(e);});
+document.addEventListener('pointerup',function(e){if(_cofDrag.active)_cofDragEnd(e);});
 
 function _cofDragChord(e,cofIdx,semi,isMinor){
   var overlay=document.getElementById('practice-overlay');
