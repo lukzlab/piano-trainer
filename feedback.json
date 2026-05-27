@@ -7,13 +7,6 @@
     "treated": false
   },
   {
-    "id": 1779905248867,
-    "text": "faire en sorte que \"progression\" et \"gammes\" dans le .rp passe en mode onglet comme pour le control panel.\nlorsque gamme est actif (par défault) le texte est en blanc\non peut passer facilement d'un onglet à l'autre comme ca.\non peut aussi ajouter l'onglet practice pou améliorer l'interface.",
-    "date": "27/05/2026 20:07",
-    "isoDate": "2026-05-27T18:07:28.867Z",
-    "treated": false
-  },
-  {
     "id": 1779905243876,
     "text": "Possibilité de faire en sorte que le .rp pass en mode COMPACT\" quand le handle force la colonne etre trop petite.\nRésultat on ne vois que les puces  Notes selectionnés.\nexemple:\nI - C\nII - Dm\nIII - Em\nIV - F\netc..",
     "date": "27/05/2026 20:07",
