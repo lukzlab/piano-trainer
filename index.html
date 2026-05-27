@@ -908,6 +908,43 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
 .rm-fb-del{font-size:9px;padding:2px 5px;border-radius:3px;border:1px solid transparent;background:transparent;color:var(--text3);cursor:pointer;transition:all .1s;flex-shrink:0;font-family:'DM Mono',monospace}
 .rm-fb-del:hover{border-color:#c0392b;color:#e05445}
 .rm-offline-note{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;text-align:center;padding:4px 0;opacity:.7}
+
+/* ── RESPONSIVE ── */
+
+/* Fix grid height (audio-top-bar is hidden, no 36px to subtract) */
+.main-grid{height:100%}
+
+/* ── TABLET ≤1024px : sidebar forcée collapsed ── */
+@media (max-width:1024px){
+  .sidebar{width:44px!important;min-width:44px!important;overflow:hidden}
+  .sidebar .sidebar-label,.sidebar .sidebar-logo-text,.sidebar .sb-section-hdr{display:none!important;opacity:0!important;max-width:0!important}
+  .sidebar .sidebar-toggle .sidebar-label{display:none!important}
+}
+
+/* ── PHONE ≤767px : overlay panel ── */
+@media (max-width:767px){
+  .sidebar{display:none!important}
+  .main-grid{grid-template-columns:1fr!important}
+  #main-panel{
+    position:fixed!important;right:0;top:0;bottom:0;
+    width:280px;height:100%!important;
+    z-index:200;
+    transform:translateX(105%);
+    transition:transform .3s ease;
+    box-shadow:-4px 0 28px rgba(0,0,0,.35);
+  }
+  body.rp-mob-open #main-panel{transform:translateX(0)}
+  #rp-side-strip{right:0!important;top:0!important;border-radius:8px 0 0 8px}
+  body.rp-mob-open #rp-side-strip{right:280px!important}
+  #prac-width-handle{display:none!important}
+  #rp-mob-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:195;display:none;-webkit-tap-highlight-color:transparent}
+  body.rp-mob-open #rp-mob-backdrop{display:block}
+  /* Practice fullscreen: single column */
+  .practice-overlay.fullscreen{grid-template-columns:100%!important}
+  .practice-overlay.fullscreen #prac-fs-left,.practice-overlay.fullscreen #prac-fs-right{display:none!important}
+  #prac-cfg-panel{display:none!important}
+  .prac-col-handle{display:none!important}
+}
 </style>
 
 <!-- ── AUTH GATE ── -->
@@ -1064,6 +1101,7 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
       <div class="scale-btns" id="scale-btns"></div>
     </div>
 
+    <div id="rp-mob-backdrop" onclick="_rpMobClose()"></div>
     <div class="main-grid">
       <div class="left-col">
         <div style="flex:1;min-height:0;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.25rem">
@@ -2308,6 +2346,10 @@ function highlightChord(semi,enrichId,baseType){
 }
 
 /* ── PANNEAU PRINCIPAL CONTEXTUEL ── */
+function _rpIsMobile(){return window.innerWidth<=767;}
+function _rpMobOpen(){document.body.classList.add('rp-mob-open');}
+function _rpMobClose(){document.body.classList.remove('rp-mob-open');}
+
 function rpSetTab(mode){
   if(mode==='prac'){
     var po=document.getElementById('practice-overlay');
@@ -2316,6 +2358,7 @@ function rpSetTab(mode){
     _syncRpTabs();
     return;
   }
+  var wasSameTab=(st.viewMode===mode||(mode==='scale'&&st.viewMode!=='prog'));
   if(mode==='prog'){
     st.viewMode='prog';
     if(customProg.idx<0&&stdProg.idx<0)stdProg.idx=0;
@@ -2325,6 +2368,10 @@ function rpSetTab(mode){
     st.viewMode='scale';
     stdProg.activeStep=-1;
     customProg.idx=-1;customProg.activeStep=-1;
+  }
+  if(_rpIsMobile()){
+    if(wasSameTab&&document.body.classList.contains('rp-mob-open')){_rpMobClose();}
+    else{_rpMobOpen();}
   }
   updateAll();
 }
@@ -4236,7 +4283,7 @@ function openPracticeMode(){
   var _curW=document.getElementById('main-panel').offsetWidth||280;
   var _pracW=Math.max(_pracMinW,_curW);
   document.documentElement.style.setProperty('--rp-width',_pracW+'px');
-  var _grid=document.querySelector('.main-grid');if(_grid)_grid.style.gridTemplateColumns='1fr '+_pracW+'px';
+  if(!_rpIsMobile()){var _grid=document.querySelector('.main-grid');if(_grid)_grid.style.gridTemplateColumns='1fr '+_pracW+'px';}
   var _mp=document.getElementById('main-panel');if(_mp)_mp.classList.remove('rp-compact');
   document.getElementById('practice-overlay').classList.add('open');
   _syncPracticeTools();
@@ -4246,6 +4293,7 @@ function openPracticeMode(){
   _practiceBuildSeq();
   _ytPracticeCmd('playVideo');
   _syncRpTabs();
+  if(_rpIsMobile()){_rpMobClose();setTimeout(function(){if(typeof _practiceToggleFullscreen==='function'&&document.getElementById('practice-overlay').classList.contains('open')&&!document.getElementById('practice-overlay').classList.contains('fullscreen'))_practiceToggleFullscreen();},50);}
 }
 
 function closePracticeMode(){
@@ -4260,6 +4308,7 @@ function closePracticeMode(){
   window._songChordHighlight=null;
   paintPiano(null);
   _syncRpTabs();
+  _rpMobClose();
 }
 
 function _buildPracticeChords(){
@@ -5924,6 +5973,7 @@ window.addEventListener('resize',_positionCofArrows);
     e.preventDefault();
   });
   function onMove(e){
+    if(_rpIsMobile())return;
     var newW=Math.max(240,Math.min(600,startW+(startX-e.clientX)));
     grid.style.gridTemplateColumns='1fr '+newW+'px';
     document.documentElement.style.setProperty('--rp-width',newW+'px');
@@ -5998,7 +6048,7 @@ function _initPracWidthHandle(){
   /* Sync --rp-width avec la largeur réelle du panneau droit */
   var mp=document.getElementById('main-panel');
   var grid=document.querySelector('.main-grid');
-  if(mp&&mp.offsetWidth>0){
+  if(mp&&mp.offsetWidth>0&&!_rpIsMobile()){
     var w=mp.offsetWidth;
     document.documentElement.style.setProperty('--rp-width',w+'px');
     if(grid)grid.style.gridTemplateColumns='1fr '+w+'px';
@@ -6017,7 +6067,7 @@ function _initPracWidthHandle(){
     }
     var newW=Math.max(minW,Math.min(600,startW+(startX-cx)));
     document.documentElement.style.setProperty('--rp-width',newW+'px');
-    if(grid)grid.style.gridTemplateColumns='1fr '+newW+'px';
+    if(grid&&!_rpIsMobile())grid.style.gridTemplateColumns='1fr '+newW+'px';
     if(typeof buildPiano==='function')buildPiano();
     _positionCofArrows();
     if(!pracOpen){
@@ -6423,6 +6473,7 @@ function _practiceToggleFullscreen(){
     e.preventDefault();
   });
   function onMove(e){
+    if(_rpIsMobile())return;
     var newW=Math.max(240,Math.min(600,startW+(startX-e.clientX)));
     document.documentElement.style.setProperty('--rp-width',newW+'px');
     if(grid)grid.style.gridTemplateColumns='1fr '+newW+'px';
