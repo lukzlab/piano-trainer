@@ -911,8 +911,8 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
 
 /* ── RESPONSIVE ── */
 
-/* Fix grid height (audio-top-bar is hidden, no 36px to subtract) */
-.main-grid{height:100%}
+/* Fix grid height — flex:1 pour remplir .main-content de façon fiable */
+.main-grid{flex:1;min-height:0;height:auto;grid-template-rows:1fr}
 
 /* ── TABLET ≤1024px : sidebar forcée collapsed ── */
 @media (max-width:1024px){
@@ -921,10 +921,14 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
   .sidebar .sidebar-toggle .sidebar-label{display:none!important}
 }
 
-/* ── PHONE ≤767px : overlay panel ── */
+/* ── PHONE ≤767px : overlay panel, sidebar toujours visible à 44px ── */
 @media (max-width:767px){
-  .sidebar{display:none!important}
+  /* Sidebar : garder les icônes accessibles, 44px */
+  .sidebar{width:44px!important;min-width:44px!important;overflow:hidden}
+  .sidebar .sidebar-label,.sidebar .sidebar-logo-text,.sidebar .sb-section-hdr,.sidebar .sidebar-toggle .sidebar-label{display:none!important;opacity:0!important;max-width:0!important}
+  /* Grille mono-colonne */
   .main-grid{grid-template-columns:1fr!important}
+  /* Panneau droit en overlay */
   #main-panel{
     position:fixed!important;right:0;top:0;bottom:0;
     width:280px;height:100%!important;
@@ -934,9 +938,11 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
     box-shadow:-4px 0 28px rgba(0,0,0,.35);
   }
   body.rp-mob-open #main-panel{transform:translateX(0)}
-  #rp-side-strip{right:0!important;top:0!important;border-radius:8px 0 0 8px}
+  /* Strip : ancré à droite, au-dessus du tout */
+  #rp-side-strip{right:0!important;top:0!important;z-index:210!important;border-radius:8px 0 0 8px}
   body.rp-mob-open #rp-side-strip{right:280px!important}
   #prac-width-handle{display:none!important}
+  /* Backdrop */
   #rp-mob-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:195;display:none;-webkit-tap-highlight-color:transparent}
   body.rp-mob-open #rp-mob-backdrop{display:block}
   /* Practice fullscreen: single column */
