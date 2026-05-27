@@ -118,11 +118,12 @@ body.light .rbtn.active{background:#1A1814;border-color:#1A1814}
 .left-col{display:flex;flex-direction:column;gap:0;height:100%;overflow:hidden;min-width:0;background:var(--bg)}
 .right-col{display:flex;flex-direction:column;gap:0}
 .right-col{border-left:1px solid var(--border);height:100%;overflow-y:auto;padding-left:8px;padding-right:14px;background:var(--nav-bg);position:relative}
-#main-panel{flex-direction:row;overflow:hidden;padding:0}
-.rp-tabs{padding:8px 3px;flex-shrink:0;width:34px;border-right:1px solid var(--border);border-bottom:none;display:flex;flex-direction:column;align-items:center;background:var(--nav-bg)}
-.rp-tabs-seg{display:flex;flex-direction:column;gap:4px;width:100%;background:transparent;border-radius:0;padding:0}
-.rp-tab{writing-mode:vertical-rl;transform:rotate(180deg);width:100%;height:auto;padding:12px 4px;flex:0;font-size:11px;border-radius:6px;text-align:center}
-.rp-content-wrap{flex:1;overflow-y:auto;padding:8px 14px 8px 8px;display:flex;flex-direction:column;min-width:0}
+#rp-side-strip{position:fixed;right:var(--rp-width,280px);top:50%;transform:translateY(-50%);z-index:155;display:flex;flex-direction:column;align-items:stretch;background:var(--surface);border:1px solid var(--border);border-right:none;border-radius:8px 0 0 8px;box-shadow:-3px 2px 18px rgba(0,0,0,.28);overflow:hidden}
+body:has(.practice-overlay.fullscreen) #rp-side-strip{display:none}
+.rp-vtab{writing-mode:vertical-rl;transform:rotate(180deg);padding:18px 7px;font-size:11px;font-family:var(--ui-font);cursor:pointer;text-align:center;color:var(--text2);background:transparent;border:none;border-top:1px solid var(--border);font-weight:400;letter-spacing:.03em;transition:color .12s,background .12s;white-space:nowrap;min-height:56px}
+.rp-vtab:first-child{border-top:none}
+.rp-vtab:hover{color:var(--text)}
+.rp-vtab.active{color:#fff;background:var(--tonic);font-weight:500}
 .rp-resizer{position:absolute;left:-3px;top:0;bottom:0;width:6px;cursor:col-resize;z-index:50;background:transparent;transition:background .15s}
 .rp-resizer:hover,.rp-resizer.dragging{background:var(--tonic)}
 .practice-resizer{position:absolute;left:0;top:0;bottom:0;width:6px;cursor:col-resize;z-index:10;background:transparent;transition:background .15s}
@@ -480,9 +481,8 @@ body.peda-hidden .harmony-note{display:none!important}
 .prac-col-toggle-btn:hover{border-color:var(--tonic);color:var(--tonic)}
 .prac-hidden{display:none!important}
 /* ── CONTROL PANEL FLOTTANT ── */
-#prac-width-handle{position:fixed;right:var(--rp-width,280px);top:50%;transform:translateY(-50%);width:30px;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px 0 0 8px;border-right:none;z-index:155;cursor:col-resize;display:flex;align-items:center;justify-content:center;box-shadow:-3px 2px 18px rgba(0,0,0,.28);touch-action:none;user-select:none;font-size:13px;color:var(--text3);transition:color .12s,background .12s,border-color .12s}
-#prac-width-handle:hover,#prac-width-handle.dragging{background:var(--tonic-bg,rgba(100,180,255,.08));color:var(--tonic);border-color:var(--tonic)}
-body:has(.practice-overlay.fullscreen) #prac-width-handle{display:none}
+#prac-width-handle{padding:10px 7px;cursor:col-resize;color:var(--text3);text-align:center;font-size:14px;touch-action:none;user-select:none;border-top:1px solid var(--border);transition:color .12s,background .12s;display:flex;align-items:center;justify-content:center}
+#prac-width-handle:hover,#prac-width-handle.dragging{background:var(--tonic-bg,rgba(100,180,255,.08));color:var(--tonic)}
 /* Handles colonnes fullscreen — positionnés dans l'overlay, sur le trait de séparation */
 .prac-col-handle{position:absolute;top:50%;width:16px;height:56px;background:var(--surface);border:1px solid var(--border);border-radius:8px;z-index:155;cursor:col-resize;display:none;align-items:center;justify-content:center;font-size:9px;color:var(--text3);touch-action:none;user-select:none;transition:color .12s,background .12s,border-color .12s;box-shadow:0 2px 10px rgba(0,0,0,.2)}
 .prac-col-handle:hover,.prac-col-handle.dragging{background:var(--tonic-bg,rgba(100,180,255,.08));color:var(--tonic);border-color:var(--tonic)}
@@ -727,11 +727,7 @@ body.graphite .deg-row:hover{background:rgba(255,255,255,0.04)}
 .deg-role{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--text2)}
 .deg-desc{font-size:12px;line-height:1.55;color:var(--text2)}
 .qchip{display:inline-flex;align-items:center;justify-content:center;min-width:20px;padding:2px 6px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:var(--text2);flex-shrink:0;border:1px solid var(--border2);border-radius:99px;align-self:start;margin-top:3px}
-/* ── RP MODE TABS ── */
-.rp-tabs{padding:12px 16px 16px;background:var(--nav-bg);flex-shrink:0;border-bottom:1px solid var(--border)}
-.rp-tabs-seg{display:flex;background:var(--bg2);border-radius:8px;padding:3px;gap:2px}
-.rp-tab{flex:1;font-size:12px;padding:7px 0;border:none;background:transparent;color:var(--text2);cursor:pointer;font-weight:400;transition:background .15s,color .15s,box-shadow .15s;font-family:var(--ui-font);letter-spacing:.01em;border-radius:6px;text-align:center}
-.rp-tab.active{color:#fff;background:var(--tonic);font-weight:500;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+/* ── RP MODE TABS ── (voir #rp-side-strip dans le CSS principal) ──*/
 
 /* ── PROG PICKER ── */
 .prog-picker{position:relative;display:flex;justify-content:center;width:100%}
@@ -1101,17 +1097,8 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
       </div>
       <div class="right-col" id="main-panel">
         <div class="rp-resizer" id="rp-resizer"></div>
-        <div class="rp-tabs">
-          <div class="rp-tabs-seg">
-            <button class="rp-tab active" id="rp-tab-scale" onclick="rpSetTab('scale')">Gammes</button>
-            <button class="rp-tab" id="rp-tab-prog" onclick="rpSetTab('prog')">Progressions</button>
-            <button class="rp-tab" id="rp-tab-prac" onclick="rpSetTab('prac')">Practice</button>
-          </div>
-        </div>
-        <div class="rp-content-wrap">
-          <div class="panel-header" id="panel-header"></div>
-          <div class="panel-body" id="panel-body"></div>
-        </div>
+        <div class="panel-header" id="panel-header"></div>
+        <div class="panel-body" id="panel-body"></div>
       </div>
       <div id="song-detail-panel" class="right-col" style="display:none"></div>
     </div>
@@ -6420,8 +6407,13 @@ function _rmRenderFeedbacksList(fbs){
   </div>
 </div>
 
-<!-- ── RESIZE HANDLE : toujours visible, resize colonne droite par drag ── -->
-<div id="prac-width-handle" title="Glisser pour redimensionner la colonne">⠿</div>
+<!-- ── RP SIDE STRIP : onglets + handle resize ── -->
+<div id="rp-side-strip">
+  <button class="rp-vtab active" id="rp-tab-scale" onclick="rpSetTab('scale')">Gammes</button>
+  <button class="rp-vtab" id="rp-tab-prog" onclick="rpSetTab('prog')">Progressions</button>
+  <button class="rp-vtab" id="rp-tab-prac" onclick="rpSetTab('prac')">Practice</button>
+  <div id="prac-width-handle" title="Glisser pour redimensionner">⠿</div>
+</div>
 <!-- ── SIDEBAR RESIZE HANDLE ── -->
 <div id="sb-handle" title="Glisser pour redimensionner le menu">⠿</div>
 
