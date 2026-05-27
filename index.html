@@ -5878,16 +5878,20 @@ function _initPracWidthHandle(){
   var startX,startW;
   function onMove(e){
     var cx=e.touches?e.touches[0].clientX:e.clientX;
-    var newW=Math.max(160,Math.min(600,startW+(startX-cx)));
+    var pracOpen=!!(document.getElementById('practice-overlay')&&document.getElementById('practice-overlay').classList.contains('open'));
+    var minW=pracOpen?240:120;
+    var newW=Math.max(minW,Math.min(600,startW+(startX-cx)));
     document.documentElement.style.setProperty('--rp-width',newW+'px');
     if(grid)grid.style.gridTemplateColumns='1fr '+newW+'px';
     if(typeof buildPiano==='function')buildPiano();
     _positionCofArrows();
-    var mp=document.getElementById('main-panel');
-    if(mp){
-      var wasCompact=mp.classList.contains('rp-compact');
-      var isCompact=newW<220;
-      if(wasCompact!==isCompact){mp.classList.toggle('rp-compact',isCompact);renderMainPanel();}
+    if(!pracOpen){
+      var mp=document.getElementById('main-panel');
+      if(mp){
+        var wasCompact=mp.classList.contains('rp-compact');
+        var isCompact=newW<220;
+        if(wasCompact!==isCompact){mp.classList.toggle('rp-compact',isCompact);renderMainPanel();}
+      }
     }
   }
   function onUp(){
