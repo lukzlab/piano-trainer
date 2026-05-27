@@ -133,14 +133,16 @@ body:has(.practice-overlay.fullscreen) #rp-side-strip{display:none}
 /* Fullscreen: 3-column grid layout */
 .practice-overlay.fullscreen{left:0!important;width:100%!important;display:grid!important;grid-template-rows:auto 1fr;grid-template-columns:30% 50% 20%;grid-template-areas:"header header header" "left center right";overflow:hidden;padding:0!important}
 #prac-fs-piano{display:none}
-.practice-overlay.fullscreen #prac-fs-piano{display:flex;border-top:1px solid var(--border);margin-top:auto;padding:.5rem 1rem;align-items:center;justify-content:center;flex-direction:column;gap:4px;width:100%}
+.practice-overlay.fullscreen #prac-fs-piano{display:flex;position:sticky;bottom:0;border-top:1px solid var(--border);padding:.5rem 1rem;background:var(--nav-bg);align-items:center;justify-content:center;flex-direction:column;gap:4px;width:100%;margin-top:1rem}
 .practice-overlay.fullscreen #prac-fs-piano.fs-piano-hidden{display:none}
 .practice-overlay.fullscreen #prac-fs-piano .piano-wrap{max-width:min(680px,100%)}
 #prac-fs-piano-btn{display:none}
 .practice-overlay.fullscreen #prac-fs-piano-btn{display:inline-flex}
+#prac-close-btn{display:none}
+.practice-overlay.fullscreen #prac-close-btn{display:inline-flex}
 .practice-overlay.fullscreen #prac-fs-header{grid-area:header;padding:.375rem .875rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
 .practice-overlay.fullscreen #prac-fs-left{display:flex;flex-direction:column;grid-area:left;overflow:hidden;border-right:1px solid var(--border);padding:.375rem;position:relative}
-.practice-overlay.fullscreen #prac-fs-center{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;grid-area:center;overflow-y:auto;padding:1.5rem 2rem}
+.practice-overlay.fullscreen #prac-fs-center{display:flex;flex-direction:column;align-items:center;justify-content:center;grid-area:center;overflow-y:auto;padding:1.5rem 2rem}
 .practice-overlay.fullscreen #prac-fs-right{display:flex;flex-direction:column;align-items:stretch;grid-area:right;overflow-y:auto;border-left:1px solid var(--border);padding:.75rem;position:relative}
 .practice-overlay.fullscreen #prac-bpm-section{align-self:center}
 .practice-overlay.fullscreen #prac-tap-section{align-self:center}
@@ -498,7 +500,7 @@ body.peda-hidden .harmony-note{display:none!important}
 /* Handle sidebar */
 #sb-handle{position:fixed;top:50%;transform:translateY(-50%);width:14px;height:56px;background:var(--surface);border:1px solid var(--border);border-left:none;border-radius:0 8px 8px 0;z-index:101;cursor:col-resize;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text3);touch-action:none;user-select:none;transition:color .12s,background .12s,border-color .12s;box-shadow:3px 0 12px rgba(0,0,0,.18)}
 #sb-handle:hover,#sb-handle.dragging{background:var(--tonic-bg,rgba(100,180,255,.08));color:var(--tonic);border-color:var(--tonic)}
-#prac-cfg-panel{position:fixed;right:var(--rp-width,280px);top:60px;width:136px;background:var(--surface);border:1px solid var(--border);border-radius:8px 0 0 8px;display:flex;flex-direction:column;gap:3px;padding:6px;z-index:152;box-shadow:-3px 2px 18px rgba(0,0,0,.28);overflow:hidden;transition:width .18s}
+#prac-cfg-panel{position:fixed;right:var(--rp-width,280px);bottom:20px;width:136px;background:var(--surface);border:1px solid var(--border);border-radius:8px 0 0 8px;display:flex;flex-direction:column;gap:3px;padding:6px;z-index:152;box-shadow:-3px 2px 18px rgba(0,0,0,.28);overflow:hidden;transition:width .18s}
 #prac-cfg-panel.collapsed{width:30px;padding:4px 2px}
 .prac-cfg-header{display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;padding:3px 0 5px;width:100%;border-bottom:1px solid var(--border);margin-bottom:5px;transition:opacity .1s}
 .prac-cfg-header:hover{opacity:.75}
@@ -1125,7 +1127,7 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
   <div class="practice-resizer" id="practice-resizer"></div>
   <!-- HEADER -->
   <div id="prac-fs-header" style="display:flex;align-items:center;gap:8px;margin-top:.25rem;margin-bottom:.25rem">
-    <button class="practice-close" style="margin:0;font-size:14px;padding:6px 16px" onclick="closePracticeMode()">✕ Fermer</button>
+    <button id="prac-close-btn" class="practice-close" style="margin:0;font-size:14px;padding:6px 16px" onclick="closePracticeMode()">✕ Fermer</button>
     <button id="practice-fs-btn" class="practice-close" style="margin:0;font-size:14px;padding:6px 16px" onclick="_practiceToggleFullscreen()" title="Plein écran">⤢ Plein écran</button>
     <button id="prac-fs-piano-btn" class="practice-close on" style="margin:0;font-size:14px;padding:6px 16px" onclick="_pracToggleFsPiano()" title="Afficher/masquer le piano">Piano</button>
   </div>
@@ -1150,7 +1152,6 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
   </div>
   <!-- CENTER : accord + tempo + play + progression -->
   <div id="prac-fs-center">
-    <div id="prac-fs-center-spacer" style="flex:1;min-height:0"></div>
     <div class="practice-title" id="practice-title">Practice</div>
     <div class="practice-section-name" id="practice-section-name"></div>
     <div class="practice-tonality" id="practice-tonality"></div>
@@ -1175,7 +1176,6 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
       </div>
       <div class="practice-prog-dots" id="practice-prog-dots" style="margin-bottom:0"></div>
     </div>
-    <div style="flex:1;min-height:0"></div>
     <!-- Piano compact -->
     <div id="prac-fs-piano"></div>
   </div>
