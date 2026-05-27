@@ -131,7 +131,13 @@ body:has(.practice-overlay.fullscreen) #rp-side-strip{display:none}
 /* Normal mode: wrappers transparent so children flow inline in the overlay column */
 #prac-fs-left,#prac-fs-center,#prac-fs-right{display:contents}
 /* Fullscreen: 3-column grid layout */
-.practice-overlay.fullscreen{left:0!important;width:100%!important;display:grid!important;grid-template-rows:auto 1fr;grid-template-columns:30% 50% 20%;grid-template-areas:"header header header" "left center right";overflow:hidden;padding:0!important}
+.practice-overlay.fullscreen{left:0!important;width:100%!important;display:grid!important;grid-template-rows:auto 1fr auto;grid-template-columns:30% 50% 20%;grid-template-areas:"header header header" "left center right" "piano piano piano";overflow:hidden;padding:0!important}
+#prac-fs-piano{display:none}
+.practice-overlay.fullscreen #prac-fs-piano{display:flex;grid-area:piano;border-top:1px solid var(--border);padding:.5rem 2rem;background:var(--nav-bg);align-items:center;justify-content:center;flex-direction:column;gap:4px}
+.practice-overlay.fullscreen #prac-fs-piano.fs-piano-hidden{display:none}
+.practice-overlay.fullscreen #prac-fs-piano .piano-wrap{max-width:min(960px,85vw)}
+#prac-fs-piano-btn{display:none}
+.practice-overlay.fullscreen #prac-fs-piano-btn{display:inline-flex}
 .practice-overlay.fullscreen #prac-fs-header{grid-area:header;padding:.375rem .875rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
 .practice-overlay.fullscreen #prac-fs-left{display:flex;flex-direction:column;grid-area:left;overflow:hidden;border-right:1px solid var(--border);padding:.375rem;position:relative}
 .practice-overlay.fullscreen #prac-fs-center{display:flex;flex-direction:column;align-items:center;justify-content:center;grid-area:center;overflow-y:auto;padding:1.5rem 2rem}
@@ -1121,6 +1127,7 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
   <div id="prac-fs-header" style="display:flex;align-items:center;gap:8px;margin-top:.25rem;margin-bottom:.25rem">
     <button class="practice-close" style="margin:0;font-size:14px;padding:6px 16px" onclick="closePracticeMode()">✕ Fermer</button>
     <button id="practice-fs-btn" class="practice-close" style="margin:0;font-size:14px;padding:6px 16px" onclick="_practiceToggleFullscreen()" title="Plein écran">⤢ Plein écran</button>
+    <button id="prac-fs-piano-btn" class="practice-close on" style="margin:0;font-size:14px;padding:6px 16px" onclick="_pracToggleFsPiano()" title="Afficher/masquer le piano">Piano</button>
   </div>
   <!-- CONTROL PANEL : visibilité des modules (collapsible) -->
   <div id="prac-cfg-panel" class="collapsed">
@@ -1237,6 +1244,8 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
       <svg id="cof-practice" style="display:block;width:100%;cursor:pointer"></svg>
     </div>
   </div>
+  <!-- Piano compact bas fullscreen -->
+  <div id="prac-fs-piano"></div>
   <!-- Handles séparateurs colonnes fullscreen (hors colonnes pour éviter overflow:hidden) -->
   <div class="prac-col-handle" id="prac-left-handle">⠿</div>
   <div class="prac-col-handle" id="prac-right-handle">⠿</div>
@@ -6141,6 +6150,15 @@ function _updatePracColHandles(){
   if(rh&&rEl)rh.style.left=(overlay.offsetWidth-rEl.offsetWidth)+'px';
 }
 
+var _fsPianoOrigParent=null,_fsPianoOrigNext=null,_fsPianoVisible=true;
+function _pracToggleFsPiano(){
+  _fsPianoVisible=!_fsPianoVisible;
+  var row=document.getElementById('prac-fs-piano');
+  var btn=document.getElementById('prac-fs-piano-btn');
+  if(row)row.classList.toggle('fs-piano-hidden',!_fsPianoVisible);
+  if(btn)btn.classList.toggle('on',_fsPianoVisible);
+  if(_fsPianoVisible&&typeof buildPiano==='function')buildPiano();
+}
 function _practiceToggleFullscreen(){
   var overlay=document.getElementById('practice-overlay');
   var btn=document.getElementById('practice-fs-btn');
@@ -6149,7 +6167,22 @@ function _practiceToggleFullscreen(){
     btn.textContent=fs?'⤡ Quitter':'⤢ Plein écran';
     btn.classList.toggle('fs-exit',fs);
   }
-  if(!fs){
+  var pianoWrap=document.querySelector('.piano-wrap');
+  var pianoRow=document.getElementById('prac-fs-piano');
+  if(fs){
+    if(pianoWrap&&pianoRow){
+      _fsPianoOrigParent=pianoWrap.parentElement;
+      _fsPianoOrigNext=pianoWrap.nextSibling;
+      pianoRow.appendChild(pianoWrap);
+    }
+    _fsPianoVisible=true;
+    if(pianoRow)pianoRow.classList.remove('fs-piano-hidden');
+    var pianoBtnEl=document.getElementById('prac-fs-piano-btn');
+    if(pianoBtnEl)pianoBtnEl.classList.add('on');
+  } else {
+    if(pianoWrap&&_fsPianoOrigParent){
+      _fsPianoOrigParent.insertBefore(pianoWrap,_fsPianoOrigNext||null);
+    }
     var lEl=document.getElementById('prac-fs-left');var rEl=document.getElementById('prac-fs-right');
     if(lEl)lEl.classList.remove('collapsed');if(rEl)rEl.classList.remove('collapsed');
     _pracLeftCollapsed=false;_pracRightCollapsed=false;overlay.style.gridTemplateColumns='';
