@@ -133,8 +133,9 @@ body:has(.practice-overlay.fullscreen) #rp-side-strip{display:none}
 /* Fullscreen: 3-column grid layout */
 .practice-overlay.fullscreen{left:0!important;width:100%!important;display:grid!important;grid-template-rows:auto 1fr;grid-template-columns:30% 50% 20%;grid-template-areas:"header header header" "left center right";overflow:hidden;padding:0!important}
 #prac-fs-piano{display:none}
-.practice-overlay.fullscreen #prac-fs-piano{display:flex;position:sticky;bottom:0;border-top:1px solid var(--border);padding:.5rem 1rem;background:var(--nav-bg);align-items:center;justify-content:center;flex-direction:column;gap:4px;width:100%;margin-top:1rem}
+.practice-overlay.fullscreen #prac-fs-piano{display:flex;position:sticky;bottom:0;border-top:1px solid var(--border);padding:.5rem 0 0;background:var(--nav-bg);align-items:stretch;flex-direction:column;width:100%;margin-top:1rem}
 .practice-overlay.fullscreen #prac-fs-piano.fs-piano-hidden{display:none}
+.practice-overlay.fullscreen #prac-fs-piano #piano-section{width:100%;border-top:none;padding:.25rem 1rem .375rem;box-sizing:border-box}
 .practice-overlay.fullscreen #prac-fs-piano .piano-wrap{width:100%}
 #prac-fs-piano-btn{display:none}
 .practice-overlay.fullscreen #prac-fs-piano-btn{display:inline-flex}
@@ -500,7 +501,7 @@ body.peda-hidden .harmony-note{display:none!important}
 /* Handle sidebar */
 #sb-handle{position:fixed;top:50%;transform:translateY(-50%);width:14px;height:56px;background:var(--surface);border:1px solid var(--border);border-left:none;border-radius:0 8px 8px 0;z-index:101;cursor:col-resize;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text3);touch-action:none;user-select:none;transition:color .12s,background .12s,border-color .12s;box-shadow:3px 0 12px rgba(0,0,0,.18)}
 #sb-handle:hover,#sb-handle.dragging{background:var(--tonic-bg,rgba(100,180,255,.08));color:var(--tonic);border-color:var(--tonic)}
-#prac-cfg-panel{position:fixed;right:var(--rp-width,280px);top:50%;transform:translateY(-50%);width:152px;background:var(--surface);border:1px solid var(--border);border-radius:8px 0 0 8px;display:flex;flex-direction:column;gap:4px;padding:8px;z-index:152;box-shadow:-3px 2px 18px rgba(0,0,0,.28);overflow:hidden;transition:width .18s}
+#prac-cfg-panel{position:fixed;right:var(--rp-width,280px);top:calc(50% + 80px);transform:translateY(-50%);width:152px;background:var(--surface);border:1px solid var(--border);border-radius:8px 0 0 8px;display:flex;flex-direction:column;gap:4px;padding:8px;z-index:152;box-shadow:-3px 2px 18px rgba(0,0,0,.28);overflow:hidden;transition:width .18s}
 #prac-cfg-panel.collapsed{width:30px;padding:4px 2px}
 .prac-cfg-header{display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;padding:3px 0 5px;width:100%;border-bottom:1px solid var(--border);margin-bottom:5px;transition:opacity .1s}
 .prac-cfg-header:hover{opacity:.75}
@@ -512,8 +513,8 @@ body.peda-hidden .harmony-note{display:none!important}
 .prac-cfg-vert-label{display:none;align-items:center;justify-content:center;writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;font-family:'DM Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--text2);cursor:pointer;min-height:90px;white-space:nowrap;transition:color .1s}
 .prac-cfg-vert-label:hover{color:var(--tonic)}
 #prac-cfg-panel.collapsed .prac-cfg-vert-label{display:flex}
-/* Fullscreen: panel mis à jour par JS via _updatePracColHandles */
-.practice-overlay.fullscreen #prac-cfg-panel{top:50%;transform:translateY(-50%);border-radius:8px 0 0 8px;box-shadow:-3px 2px 18px rgba(0,0,0,.35)}
+/* Fullscreen: panel mis à jour par JS via _updatePracColHandles, monté pour éviter le handle */
+.practice-overlay.fullscreen #prac-cfg-panel{top:25%;transform:translateY(-50%);border-radius:8px 0 0 8px;box-shadow:-3px 2px 18px rgba(0,0,0,.35)}
 .practice-overlay.fullscreen #prac-cfg-panel.collapsed{width:30px}
 .prac-vue-btn{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all .12s;width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between}
 .prac-vue-btn.on{background:var(--tonic-bg);border-color:var(--tonic);color:var(--tonic)}
@@ -6192,6 +6193,8 @@ function _practiceToggleFullscreen(){
     if(pianoSection&&_fsPianoOrigParent){
       _fsPianoOrigParent.insertBefore(pianoSection,_fsPianoOrigNext||null);
     }
+    var cfg=document.getElementById('prac-cfg-panel');
+    if(cfg){cfg.style.right='';cfg.style.top='';cfg.style.transform='';}
     var lEl=document.getElementById('prac-fs-left');var rEl=document.getElementById('prac-fs-right');
     if(lEl)lEl.classList.remove('collapsed');if(rEl)rEl.classList.remove('collapsed');
     _pracLeftCollapsed=false;_pracRightCollapsed=false;overlay.style.gridTemplateColumns='';
