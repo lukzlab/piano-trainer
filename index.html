@@ -5898,11 +5898,11 @@ function _initPracWidthHandle(){
     var ov=document.getElementById('practice-overlay');
     var pracOpen=!!(ov&&ov.classList.contains('open'));
     var minW=pracOpen?240:120;
-    var newW=Math.max(minW,Math.min(600,startW+(startX-cx)));
-    if(pracOpen&&newW>window.innerWidth*0.55&&ov&&!ov.classList.contains('fullscreen')){
+    if(pracOpen&&ov&&!ov.classList.contains('fullscreen')&&cx<window.innerWidth*0.45){
       if(typeof _practiceToggleFullscreen==='function')_practiceToggleFullscreen();
       return;
     }
+    var newW=Math.max(minW,Math.min(600,startW+(startX-cx)));
     document.documentElement.style.setProperty('--rp-width',newW+'px');
     if(grid)grid.style.gridTemplateColumns='1fr '+newW+'px';
     if(typeof buildPiano==='function')buildPiano();
