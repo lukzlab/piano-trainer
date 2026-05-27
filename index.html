@@ -729,6 +729,15 @@ body.graphite .deg-row:hover{background:rgba(255,255,255,0.04)}
 .qchip{display:inline-flex;align-items:center;justify-content:center;min-width:20px;padding:2px 6px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:var(--text2);flex-shrink:0;border:1px solid var(--border2);border-radius:99px;align-self:start;margin-top:3px}
 /* ── RP MODE TABS ── (voir #rp-side-strip dans le CSS principal) ──*/
 
+/* ── RP COMPACT MODE ── */
+.rp-compact-list{display:flex;flex-direction:column;gap:2px;padding:10px 8px}
+.rp-compact-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;transition:background .1s;border:1px solid transparent}
+.rp-compact-row:hover{background:var(--bg2);border-color:var(--border)}
+.rp-compact-row.active{background:var(--tonic);border-color:var(--tonic)}
+.rp-compact-deg{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--tonic);min-width:26px;letter-spacing:.04em}
+.rp-compact-row.active .rp-compact-deg{color:rgba(255,255,255,.75)}
+.rp-compact-chord{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--text)}
+.rp-compact-row.active .rp-compact-chord{color:#fff}
 /* ── PROG PICKER ── */
 .prog-picker{position:relative;display:flex;justify-content:center;width:100%}
 .prog-picker-btn{display:inline-flex;flex-direction:column;align-items:center;gap:4px;background:transparent;border:none;cursor:pointer;padding:4px 12px}
@@ -2341,11 +2350,75 @@ function _openProgDropdown(anchor){
   },0);
 }
 
+function renderCompactPanel(body){
+  var sc=getSC();
+  var list=document.createElement('div');list.className='rp-compact-list';
+  if(st.viewMode==='prog'){
+    var isCust=customProg.idx>=0;
+    var prog=isCust?customProgs[customProg.idx]:PROGS[stdProg.idx];
+    if(!prog||!sc.ch){body.appendChild(list);return;}
+    var activeStep=isCust?customProg.activeStep:stdProg.activeStep;
+    prog.degs.forEach(function(d,i){
+      if(d>=sc.iv.length)return;
+      var t=sc.ch[d];
+      var enrichId=(isCust?customProg.enrichPerStep[i]:stdProg.enrichPerStep[i])||'';
+      var cn=chordNameDeg(d,enrichId);
+      var row=document.createElement('div');row.className='rp-compact-row'+(i===activeStep?' active':'');
+      var deg=document.createElement('span');deg.className='rp-compact-deg';deg.textContent=ROMAN[d];
+      var chord=document.createElement('span');chord.className='rp-compact-chord';chord.textContent=cn;
+      row.appendChild(deg);row.appendChild(chord);
+      row.onclick=(function(idx,degIdx,baseType){return function(){
+        var same=(isCust?customProg.activeStep:stdProg.activeStep)===idx;
+        if(isCust)customProg.activeStep=same?-1:idx;else stdProg.activeStep=same?-1:idx;
+        if(!same){
+          var rn=mod(st.root+sc.iv[degIdx]);
+          var eid=(isCust?customProg.enrichPerStep[idx]:stdProg.enrichPerStep[idx])||'';
+          var midis=getInvertedMidis(rn,eid,baseType,0);
+          var chSet={};midis.forEach(function(m){chSet[m]=true;});paintPiano(chSet,true);
+          window._songChordHighlight={semi:rn,type:baseType};drawCOF();
+          if(_autoSound&&!_audioPlaying){var ctx=_getCtx();_playChord(midis,ctx.currentTime+0.05,true);}
+        }else{paintPiano(null);window._songChordHighlight=null;drawCOF();}
+        renderMainPanel();
+      };})(i,d,t);
+      list.appendChild(row);
+    });
+  } else {
+    if(!sc.ch||!sc.iv){body.appendChild(list);return;}
+    sc.iv.forEach(function(_,i){
+      var t=sc.ch[i];var rn=mod(st.root+sc.iv[i]);
+      var cn=EN[rn]+(t==='min'?'m':t==='dim'?'°':t==='aug'?'+':'');
+      var isActive=i===scaleState.activeDeg;
+      var row=document.createElement('div');row.className='rp-compact-row'+(isActive?' active':'');
+      var deg=document.createElement('span');deg.className='rp-compact-deg';deg.textContent=ROMAN[i];
+      var chord=document.createElement('span');chord.className='rp-compact-chord';chord.textContent=cn;
+      row.appendChild(deg);row.appendChild(chord);
+      row.onclick=(function(idx,baseType,rootNote){return function(){
+        var same=scaleState.activeDeg===idx;scaleState.activeDeg=same?-1:idx;scaleState.activeEnrich='';scaleState.activeInv=0;
+        if(!same){
+          var midis=getInvertedMidis(rootNote,'',baseType,0);
+          var chSet={};midis.forEach(function(m){chSet[m]=true;});paintPiano(chSet,true);
+          document.getElementById('piano-sub').textContent=chordNameDeg(idx,'')+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');
+          window._songChordHighlight={semi:rootNote,type:baseType};drawCOF();
+          if(_autoSound&&!_audioPlaying){var ctx=_getCtx();_playChord(midis,ctx.currentTime+0.05,true);}
+        }else{paintPiano(null);window._songChordHighlight=null;drawCOF();}
+        renderMainPanel();
+      };})(i,t,rn);
+      list.appendChild(row);
+    });
+  }
+  body.appendChild(list);
+}
+
 function renderMainPanel(){
   var header=document.getElementById('panel-header');
   var body=document.getElementById('panel-body');
   header.innerHTML='';body.innerHTML='';
   _syncRpTabs();
+  var mp=document.getElementById('main-panel');
+  if(mp&&mp.classList.contains('rp-compact')){
+    renderCompactPanel(body);
+    return;
+  }
   if(st.viewMode==='scale'){
     renderScalePanel(header,body);
   } else {
@@ -5805,11 +5878,17 @@ function _initPracWidthHandle(){
   var startX,startW;
   function onMove(e){
     var cx=e.touches?e.touches[0].clientX:e.clientX;
-    var newW=Math.max(240,Math.min(600,startW+(startX-cx)));
+    var newW=Math.max(160,Math.min(600,startW+(startX-cx)));
     document.documentElement.style.setProperty('--rp-width',newW+'px');
     if(grid)grid.style.gridTemplateColumns='1fr '+newW+'px';
     if(typeof buildPiano==='function')buildPiano();
     _positionCofArrows();
+    var mp=document.getElementById('main-panel');
+    if(mp){
+      var wasCompact=mp.classList.contains('rp-compact');
+      var isCompact=newW<220;
+      if(wasCompact!==isCompact){mp.classList.toggle('rp-compact',isCompact);renderMainPanel();}
+    }
   }
   function onUp(){
     handle.classList.remove('dragging');
