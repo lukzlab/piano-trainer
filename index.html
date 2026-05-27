@@ -481,7 +481,7 @@ body.peda-hidden .harmony-note{display:none!important}
 .prac-col-toggle-btn:hover{border-color:var(--tonic);color:var(--tonic)}
 .prac-hidden{display:none!important}
 /* ── CONTROL PANEL FLOTTANT ── */
-#prac-width-handle{padding:14px 10px;cursor:col-resize;color:var(--text3);text-align:center;font-size:18px;touch-action:none;user-select:none;border-bottom:1px solid var(--border);transition:color .12s,background .12s;display:flex;align-items:center;justify-content:center}
+#prac-width-handle{padding:14px 10px;cursor:col-resize;color:var(--text3);text-align:center;font-size:18px;touch-action:none;user-select:none;border-top:1px solid var(--border);transition:color .12s,background .12s;display:flex;align-items:center;justify-content:center}
 #prac-width-handle:hover,#prac-width-handle.dragging{background:var(--tonic-bg,rgba(100,180,255,.08));color:var(--tonic)}
 /* Handles colonnes fullscreen — positionnés dans l'overlay, sur le trait de séparation */
 .prac-col-handle{position:absolute;top:50%;width:16px;height:56px;background:var(--surface);border:1px solid var(--border);border-radius:8px;z-index:155;cursor:col-resize;display:none;align-items:center;justify-content:center;font-size:9px;color:var(--text3);touch-action:none;user-select:none;transition:color .12s,background .12s,border-color .12s;box-shadow:0 2px 10px rgba(0,0,0,.2)}
@@ -6409,10 +6409,10 @@ function _rmRenderFeedbacksList(fbs){
 
 <!-- ── RP SIDE STRIP : onglets + handle resize ── -->
 <div id="rp-side-strip">
-  <div id="prac-width-handle" title="Glisser pour redimensionner">⠿</div>
   <button class="rp-vtab active" id="rp-tab-scale" onclick="rpSetTab('scale')">Gammes</button>
   <button class="rp-vtab" id="rp-tab-prog" onclick="rpSetTab('prog')">Progressions</button>
   <button class="rp-vtab" id="rp-tab-prac" onclick="rpSetTab('prac')">Practice</button>
+  <div id="prac-width-handle" title="Glisser pour redimensionner">⠿</div>
 </div>
 <!-- ── SIDEBAR RESIZE HANDLE ── -->
 <div id="sb-handle" title="Glisser pour redimensionner le menu">⠿</div>
