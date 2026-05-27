@@ -120,7 +120,7 @@ body.light .rbtn.active{background:#1A1814;border-color:#1A1814}
 .right-col{border-left:1px solid var(--border);height:100%;overflow-y:auto;padding-left:8px;padding-right:14px;background:var(--nav-bg);position:relative}
 #rp-side-strip{position:fixed;right:var(--rp-width,280px);top:50%;transform:translateY(-50%);z-index:155;display:flex;flex-direction:column;align-items:stretch;background:var(--surface);border:1px solid var(--border);border-right:none;border-radius:8px 0 0 8px;box-shadow:-3px 2px 18px rgba(0,0,0,.28);overflow:hidden}
 body:has(.practice-overlay.fullscreen) #rp-side-strip{display:none}
-.rp-vtab{writing-mode:vertical-rl;transform:rotate(180deg);padding:18px 7px;font-size:11px;font-family:var(--ui-font);cursor:pointer;text-align:center;color:var(--text2);background:transparent;border:none;border-top:1px solid var(--border);font-weight:400;letter-spacing:.03em;transition:color .12s,background .12s;white-space:nowrap;min-height:56px}
+.rp-vtab{writing-mode:vertical-rl;transform:rotate(180deg);padding:22px 10px;font-size:13px;font-family:var(--ui-font);cursor:pointer;text-align:center;color:var(--text2);background:transparent;border:none;border-top:1px solid var(--border);font-weight:500;letter-spacing:.06em;transition:color .12s,background .12s;white-space:nowrap;min-height:72px;text-transform:uppercase}
 .rp-vtab:first-child{border-top:none}
 .rp-vtab:hover{color:var(--text)}
 .rp-vtab.active{color:#fff;background:var(--tonic);font-weight:500}
@@ -481,7 +481,7 @@ body.peda-hidden .harmony-note{display:none!important}
 .prac-col-toggle-btn:hover{border-color:var(--tonic);color:var(--tonic)}
 .prac-hidden{display:none!important}
 /* ── CONTROL PANEL FLOTTANT ── */
-#prac-width-handle{padding:10px 7px;cursor:col-resize;color:var(--text3);text-align:center;font-size:14px;touch-action:none;user-select:none;border-top:1px solid var(--border);transition:color .12s,background .12s;display:flex;align-items:center;justify-content:center}
+#prac-width-handle{padding:14px 10px;cursor:col-resize;color:var(--text3);text-align:center;font-size:18px;touch-action:none;user-select:none;border-top:1px solid var(--border);transition:color .12s,background .12s;display:flex;align-items:center;justify-content:center}
 #prac-width-handle:hover,#prac-width-handle.dragging{background:var(--tonic-bg,rgba(100,180,255,.08));color:var(--tonic)}
 /* Handles colonnes fullscreen — positionnés dans l'overlay, sur le trait de séparation */
 .prac-col-handle{position:absolute;top:50%;width:16px;height:56px;background:var(--surface);border:1px solid var(--border);border-radius:8px;z-index:155;cursor:col-resize;display:none;align-items:center;justify-content:center;font-size:9px;color:var(--text3);touch-action:none;user-select:none;transition:color .12s,background .12s,border-color .12s;box-shadow:0 2px 10px rgba(0,0,0,.2)}
