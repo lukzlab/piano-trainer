@@ -775,9 +775,10 @@ body.graphite .deg-row:hover{background:rgba(255,255,255,0.04)}
 .prog-picker-name{font-size:17px;font-weight:600;color:var(--text);font-family:var(--ui-font);letter-spacing:-.01em;display:flex;align-items:center;gap:6px}
 .prog-picker-chevron{font-size:9px;color:var(--text3)}
 .prog-picker-cat{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase}
-.prog-dropdown{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.1);z-index:9999;overflow-y:auto;max-height:min(70vh,420px);padding:4px 0}
+.prog-dropdown{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.1);z-index:9999;overflow-y:auto;max-height:min(80vh,600px);padding:4px 0}
 .prog-dropdown-cat{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);font-family:'DM Mono',monospace;padding:.5rem 16px .2rem}
-.prog-dropdown-item{display:block;width:100%;text-align:left;background:transparent;border:none;font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);padding:.4rem 16px;cursor:pointer;transition:background .1s}
+.prog-dropdown-items{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.prog-dropdown-item{display:block;width:100%;text-align:left;background:transparent;border:none;font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);padding:.4rem 14px;cursor:pointer;transition:background .1s}
 .prog-dropdown-item:hover{background:var(--bg2);color:var(--text)}
 .prog-dropdown-item.active{color:var(--tonic);font-weight:600}
 
@@ -2517,11 +2518,12 @@ function _openProgDropdown(anchor,evt){
   var existing=document.getElementById('prog-dropdown');
   if(existing){existing.remove();return;}
   var dd=document.createElement('div');dd.id='prog-dropdown';dd.className='prog-dropdown';
-  var cat='';
+  var cat='';var grp=null;
   PROGS.forEach(function(p,i){
     if(p.cat!==cat){
       cat=p.cat;
       var cl=document.createElement('div');cl.className='prog-dropdown-cat';cl.textContent=cat;dd.appendChild(cl);
+      grp=document.createElement('div');grp.className='prog-dropdown-items';dd.appendChild(grp);
     }
     var item=document.createElement('button');item.className='prog-dropdown-item'+(i===stdProg.idx&&customProg.idx<0?' active':'');
     item.textContent=p.name;
@@ -2534,13 +2536,13 @@ function _openProgDropdown(anchor,evt){
       if(scaleState.activeDeg<0)paintPiano(null);
       audioUpdateLabel();
     };})(i);
-    dd.appendChild(item);
+    grp.appendChild(item);
   });
   document.body.appendChild(dd);
-  /* Positionner centré sur le bouton cliqué (btn a un getBoundingClientRect fiable) */
+  /* Positionner centré sur le bouton cliqué */
   var br=anchor.getBoundingClientRect();
   var topY=(br.height>0?br.bottom:(evt?evt.clientY+4:60))+8;
-  var dropW=Math.min(280,window.innerWidth-16);
+  var dropW=Math.min(480,window.innerWidth-16);
   var cx=br.left+br.width/2;
   var dropLeft=Math.max(8,Math.min(window.innerWidth-dropW-8,cx-dropW/2));
   dd.style.position='fixed';
