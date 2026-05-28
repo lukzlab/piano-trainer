@@ -1543,7 +1543,12 @@ function chordNameDeg(d,enrichId){
   if(!enrichId||enrichId===t)return n+(t==='min'?'m':t==='dim'?'°':t==='aug'?'+':'');
   return n+(ENRICH_SUF[enrichId]||enrichId);
 }
-function progChords(degs){var sc=getSC();if(!sc.ch)return '';return degs.filter(function(d){return d<sc.iv.length;}).map(function(d){return chordNameDeg(d,'');}).join(' - ');}
+function progChords(prog){
+  if(!prog)return '';
+  if(prog.modal){return prog.steps.map(function(s){return EN[mod(st.root+s.iv)];}).join(' - ');}
+  var degs=prog.degs||prog;var sc=getSC();if(!sc.ch)return '';
+  return degs.filter(function(d){return d<sc.iv.length;}).map(function(d){return chordNameDeg(d,'');}).join(' - ');
+}
 function enrichGroup(type,scId,degIdx){
   if(type==='dim')return 'dim';if(type==='aug')return 'aug';if(type==='min')return 'min';
   if((scId==='major'&&degIdx===4)||type==='dom')return 'dom';return 'maj';
@@ -6277,7 +6282,7 @@ function _buildScalePopProgList(){
     }
     var isActive=isProgMode&&stdProg.idx===i;
     var item=document.createElement('div');item.className='scale-pop-prog-item'+(isActive?' active':'');
-    var chords=progChords(p.degs);
+    var chords=progChords(p);
     item.innerHTML='<div class="scale-pop-prog-name">'+p.name+'</div>'+(chords?'<div class="scale-pop-prog-chords">'+chords+'</div>':'');
     item.onclick=(function(idx){return function(e){e.stopPropagation();setProgFromScalePop(idx);};})(i);
     list.appendChild(item);
