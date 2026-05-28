@@ -777,7 +777,7 @@ body.graphite .deg-row:hover{background:rgba(255,255,255,0.04)}
 .prog-picker-cat{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase}
 .prog-dropdown{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.1);z-index:9999;overflow-y:auto;max-height:min(80vh,600px);padding:4px 0}
 .prog-dropdown-cat{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);font-family:'DM Mono',monospace;padding:.5rem 16px .2rem}
-.prog-dropdown-items{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.prog-dropdown-items{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
 .prog-dropdown-item{display:block;width:100%;text-align:left;background:transparent;border:none;font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);padding:.4rem 14px;cursor:pointer;transition:background .1s}
 .prog-dropdown-item:hover{background:var(--bg2);color:var(--text)}
 .prog-dropdown-item.active{color:var(--tonic);font-weight:600}
@@ -2542,7 +2542,7 @@ function _openProgDropdown(anchor,evt){
   /* Positionner centré sur le bouton cliqué */
   var br=anchor.getBoundingClientRect();
   var topY=(br.height>0?br.bottom:(evt?evt.clientY+4:60))+8;
-  var dropW=Math.min(480,window.innerWidth-16);
+  var dropW=Math.min(540,window.innerWidth-16);
   var cx=br.left+br.width/2;
   var dropLeft=Math.max(8,Math.min(window.innerWidth-dropW-8,cx-dropW/2));
   dd.style.position='fixed';
