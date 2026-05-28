@@ -1041,6 +1041,12 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
       <span class="sb-on-dot" id="sb-peda-dot"></span>
       <span class="sidebar-tooltip">Infos suppl.</span>
     </button>
+    <button class="sidebar-item" id="sb-notation" onclick="setNotationFr(!_notationFr);updateAll()">
+      <span class="sidebar-icon" id="sb-notation-icon" style="font-size:12px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:-.02em">Do</span>
+      <span class="sidebar-label" id="sb-notation-lbl">Notation Do/C</span>
+      <span class="sb-on-dot" id="sb-notation-dot" style="display:none"></span>
+      <span class="sidebar-tooltip" id="sb-notation-tip">Notation : Do Ré Mi</span>
+    </button>
     <div class="sidebar-spacer"></div>
     <button class="sidebar-toggle" onclick="sidebarToggle()" title="Labels" id="sb-toggle-btn"><span class="sidebar-icon" id="sb-toggle-arrow">&#8612;</span><span class="sidebar-label" id="sb-toggle-lbl">Réduire</span></button>
   </aside>
@@ -1432,6 +1438,12 @@ function setNotationFr(fr){
   var frBtn=document.getElementById('notation-fr-btn');
   if(enBtn)enBtn.classList.toggle('active',!_notationFr);
   if(frBtn)frBtn.classList.toggle('active',_notationFr);
+  var icon=document.getElementById('sb-notation-icon');
+  var dot=document.getElementById('sb-notation-dot');
+  var tip=document.getElementById('sb-notation-tip');
+  if(icon)icon.textContent=_notationFr?'Do':'C';
+  if(dot)dot.style.display=_notationFr?'':'none';
+  if(tip)tip.textContent='Notation : '+(_notationFr?'Do Ré Mi':'C D E');
 }
 /* NL : convertit un label de note fixe (ex: 'Eb','C#') vers la notation courante */
 var _enFrMap={'C':'Do','D':'Ré','E':'Mi','F':'Fa','G':'Sol','A':'La','B':'Si','C#':'Do#','Db':'Réb','D#':'Ré#','Eb':'Mib','F#':'Fa#','Gb':'Solb','G#':'Sol#','Ab':'Lab','A#':'La#','Bb':'Sib'};
