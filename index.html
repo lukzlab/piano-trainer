@@ -821,12 +821,14 @@ body.ivoire .wheel-eyebrow{fill:var(--text3)}
 .scale-popover{display:none;position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:500;overflow:hidden;max-height:80vh}
 .scale-popover.open{display:flex;align-items:stretch}
 .scale-pop-left{width:260px;overflow-y:auto;border-right:1px solid var(--border);flex-shrink:0}
-.scale-pop-right{width:200px;overflow-y:auto;display:flex;flex-direction:column}
+.scale-pop-right{width:420px;overflow-y:auto;display:flex;flex-direction:column}
 .scale-pop-prog-none{padding:10px 14px;cursor:pointer;font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;transition:background .1s;letter-spacing:.05em}
 .scale-pop-prog-none:hover{background:var(--bg2)}
 .scale-pop-prog-none.active{color:var(--tonic);background:var(--tonic-bg)}
-.scale-pop-prog-cat{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.18em;color:var(--text3);padding:.375rem 14px .2rem;text-transform:uppercase;border-bottom:1px solid var(--border);grid-column:1/-1}
-#scale-pop-prog-list{display:grid;grid-template-columns:1fr 1fr}
+.scale-pop-prog-cat{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.18em;color:var(--text3);padding:.375rem 14px .2rem;text-transform:uppercase;border-bottom:1px solid var(--border)}
+#scale-pop-prog-list{display:flex;flex-direction:row;flex:1;min-height:0}
+.scale-pop-prog-col{flex:1;min-width:0;border-right:1px solid var(--border);overflow-y:auto}
+.scale-pop-prog-col:last-child{border-right:none}
 .scale-pop-prog-item{padding:8px 14px;cursor:pointer;transition:background .1s;border-left:2px solid transparent}
 .scale-pop-prog-item:hover{background:var(--accent-bg)}
 .scale-pop-prog-item.active{border-left-color:var(--tonic);background:var(--tonic-bg)}
@@ -6276,19 +6278,25 @@ function _buildScalePopProgList(){
   var isProgMode=st.viewMode==='prog'&&customProg.idx<0;
   var noProgEl=document.getElementById('scale-pop-no-prog');
   if(noProgEl)noProgEl.className='scale-pop-prog-none'+(isProgMode?'':' active');
-  var cat='';
+  var col1Cats=['Pop','Jazz','Blues','Rock','Soul'];
+  var col1=document.createElement('div');col1.className='scale-pop-prog-col';
+  var col2=document.createElement('div');col2.className='scale-pop-prog-col';
+  var cat='';var currentCol=col1;
   PROGS.forEach(function(p,i){
     if(p.cat!==cat){
       cat=p.cat;
-      var cl=document.createElement('div');cl.className='scale-pop-prog-cat';cl.textContent=cat;list.appendChild(cl);
+      currentCol=col1Cats.indexOf(cat)>=0?col1:col2;
+      var cl=document.createElement('div');cl.className='scale-pop-prog-cat';cl.textContent=cat;currentCol.appendChild(cl);
     }
     var isActive=isProgMode&&stdProg.idx===i;
     var item=document.createElement('div');item.className='scale-pop-prog-item'+(isActive?' active':'');
     var chords=progChords(p);
     item.innerHTML='<div class="scale-pop-prog-name">'+p.name+'</div>'+(chords?'<div class="scale-pop-prog-chords">'+chords+'</div>':'');
     item.onclick=(function(idx){return function(e){e.stopPropagation();setProgFromScalePop(idx);};})(i);
-    list.appendChild(item);
+    currentCol.appendChild(item);
   });
+  list.appendChild(col1);
+  list.appendChild(col2);
 }
 
 function setProgFromScalePop(idx){
