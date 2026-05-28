@@ -2629,7 +2629,8 @@ function _drawStaff(svgEl,noteObjs){
       svgEl.appendChild(at);
     }
     /* Note head */
-    svgEl.appendChild(mk('ellipse',{cx:x,cy:y,rx:'5',ry:'3.8',fill:'var(--text)',transform:'rotate(-15,'+x+','+y+')'}));
+    var fill=no.isRoot?'var(--tonic)':'var(--text)';
+    svgEl.appendChild(mk('ellipse',{cx:x,cy:y,rx:'5',ry:'3.8',fill:fill,transform:'rotate(-15,'+x+','+y+')'}));
   });
 }
 function _scaleNoteObjs(root,scaleId){
@@ -2640,10 +2641,18 @@ function _scaleNoteObjs(root,scaleId){
   var notes=ivs.map(function(iv){
     var abs=root+iv;return{semi:abs%12,octave:4+Math.floor(abs/12),flat:flat};
   });
-  /* Add octave tonic as last note */
   var topAbs=root+12;
   notes.push({semi:topAbs%12,octave:4+Math.floor(topAbs/12),flat:flat});
   return notes;
+}
+function _chordNoteObjs(rootSemi,enrichId,baseType,invIdx,flat){
+  /* getInvertedMidis anchors at C3 (MIDI 48-59); shift +12 → octave 4 for treble legibility */
+  var midis=getInvertedMidis(rootSemi,enrichId,baseType,invIdx||0);
+  var rootMidi=48+mod(rootSemi-48); /* root MIDI before inversion */
+  return midis.map(function(m){
+    var ms=m+12; /* shift to octave 4 range */
+    return{semi:ms%12,octave:Math.floor(ms/12)-1,flat:flat,chord:true,isRoot:(ms%12===rootSemi%12)};
+  });
 }
 
 /* ── PANNEAU GAMME ── */
@@ -2655,12 +2664,28 @@ function renderScalePanel(header,body){
     var ht=document.createElement('div');ht.className='rp-section-title';ht.textContent='En quelques mots :';body.appendChild(ht);
     var hc=document.createElement('div');hc.className='harmony-card rp-desc';hc.innerHTML=SCALE_HARMONY[sc.id];body.appendChild(hc);
   }
-  /* Portée musicale */
+  /* Portée musicale : gamme ou accord selon sélection */
   var staffWrap=document.createElement('div');staffWrap.className='staff-wrap';
   var staffSvg=document.createElementNS('http://www.w3.org/2000/svg','svg');
   staffSvg.setAttribute('class','staff-svg');
-  _drawStaff(staffSvg,_scaleNoteObjs(st.root,st.scale));
+  var _flat=[5,10,3,8,1,6].indexOf(st.root)>=0;
+  var _staffNotes;
+  if(scaleState.activeDeg>=0&&sc.ch){
+    var _rn=mod(st.root+sc.iv[scaleState.activeDeg]);
+    var _eid=scaleState.activeEnrich||sc.ch[scaleState.activeDeg];
+    _staffNotes=_chordNoteObjs(_rn,_eid,sc.ch[scaleState.activeDeg],scaleState.activeInv,_flat);
+  } else {
+    _staffNotes=_scaleNoteObjs(st.root,st.scale);
+  }
+  _drawStaff(staffSvg,_staffNotes);
+  /* Label sous la portée */
+  var staffLbl=document.createElement('div');
+  staffLbl.style.cssText='font-size:9px;color:var(--text3);font-family:\'DM Mono\',monospace;letter-spacing:.04em;padding:2px 0 0 2px';
+  staffLbl.textContent=scaleState.activeDeg>=0&&sc.ch
+    ? chordNameDeg(scaleState.activeDeg,scaleState.activeEnrich||'')
+    : EN[st.root]+' '+sc.label;
   staffWrap.appendChild(staffSvg);
+  staffWrap.appendChild(staffLbl);
   body.appendChild(staffWrap);
   var lbl=document.createElement('div');lbl.className='ctrl-label';lbl.style.cssText='margin-bottom:4px;margin-top:14px;padding-left:14px';lbl.textContent='Degres';body.appendChild(lbl);
   var dg=document.createElement('div');dg.className='deg-grid';
