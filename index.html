@@ -775,7 +775,7 @@ body.graphite .deg-row:hover{background:rgba(255,255,255,0.04)}
 .prog-picker-name{font-size:17px;font-weight:600;color:var(--text);font-family:var(--ui-font);letter-spacing:-.01em;display:flex;align-items:center;gap:6px}
 .prog-picker-chevron{font-size:9px;color:var(--text3)}
 .prog-picker-cat{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase}
-.prog-dropdown{position:absolute;top:calc(100% + 8px);left:-20px;right:-20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.1);z-index:300;overflow-y:auto;max-height:min(70vh,420px);padding:4px 0}
+.prog-dropdown{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.1);z-index:9999;overflow-y:auto;max-height:min(70vh,420px);padding:4px 0}
 .prog-dropdown-cat{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);font-family:'DM Mono',monospace;padding:.5rem 16px .2rem}
 .prog-dropdown-item{display:block;width:100%;text-align:left;background:transparent;border:none;font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);padding:.4rem 16px;cursor:pointer;transition:background .1s}
 .prog-dropdown-item:hover{background:var(--bg2);color:var(--text)}
@@ -1640,6 +1640,32 @@ function stxt(x,y,s,fs,fw,fill){
   t.style.pointerEvents='none';t.textContent=s;return t;
 }
 
+function _cofSelectProgStep(semi){
+  var prog=PROGS[stdProg.idx];if(!prog)return;
+  var sc=getSC();
+  var idx=-1;
+  if(prog.modal){
+    prog.steps.forEach(function(step,i){if(mod(st.root+step.iv)===semi)idx=i;});
+  } else {
+    if(sc.ch)prog.degs.forEach(function(d,i){if(mod(st.root+sc.iv[d])===semi)idx=i;});
+  }
+  if(idx<0)return;
+  var same=stdProg.activeStep===idx;
+  stdProg.activeStep=same?-1:idx;
+  if(!same){
+    var bt=prog.modal?prog.steps[idx].type:sc.ch[prog.degs[idx]];
+    var eid=stdProg.enrichPerStep[idx]||'';
+    var midis=getInvertedMidis(semi,eid,bt,stdProg.invPerStep[idx]||0);
+    var chSet={};midis.forEach(function(m){chSet[m]=true;});paintPiano(chSet,true);
+    window._songChordHighlight={semi:semi,type:bt};
+    document.getElementById('piano-sub').textContent=inversionLabel(semi,eid,bt,stdProg.invPerStep[idx]||0)+' : '+midis.map(function(m){return EN[mod(m)];}).join(' - ');
+    if(_autoSound&&!_audioPlaying){var ctx=_getCtx();_playChord(midis,ctx.currentTime+0.05,true);}
+  } else {
+    stdProg.invPerStep[idx]=0;paintPiano(null);window._songChordHighlight=null;
+    document.getElementById('piano-sub').textContent='tonique en ocre';
+  }
+  renderMainPanel();drawCOF();
+}
 function _cofSelectChord(semi,type){
   var notes=getNotes();var sc=getSC();
   var dIdx=notes.indexOf(semi);
@@ -1851,6 +1877,10 @@ function _drawCOFCore(svg){
         if(_di>=0&&_sc.ch&&_sc.ch[_di]==='maj'){_cofSelectChord(s,'maj');return;}
         _setPianoMode('gamme');
       }
+      /* In prog mode: clicking a highlighted segment selects/deselects that chord step */
+      if(st.viewMode==='prog'&&customProg.idx<0&&progMajSemis.indexOf(mod(s))>=0){
+        _cofSelectProgStep(mod(s));return;
+      }
       if(st.scale==='penta_min'||st.scale==='blues'){st.root=mod(s+9);}
       else if(['minor','harmonic','melodic'].indexOf(st.scale)>=0){st.root=s;st.scale='major';}
       else{var curSc=getSC();st.root=(curSc.ch&&curSc.ch[0]==='min')?mod(s+9):s;}
@@ -1908,6 +1938,9 @@ function _drawCOFCore(svg){
         if(_di>=0&&_sc.ch&&(_sc.ch[_di]==='min'||_sc.ch[_di]==='dim')){_cofSelectChord(s,_sc.ch[_di]);}
         return;
       }
+      if(st.viewMode==='prog'&&customProg.idx<0&&progMinSemis.indexOf(mod(s))>=0){
+        _cofSelectProgStep(mod(s));return;
+      }
       var curSc=getSC();
       if(st.scale==='major'){st.root=s;st.scale='minor';}
       else if(st.scale==='penta_maj'){st.root=s;st.scale='penta_min';}
@@ -1938,6 +1971,9 @@ function _drawCOFCore(svg){
         var _di=_ns.indexOf(s);
         if(_di>=0&&_sc.ch&&(_sc.ch[_di]==='min'||_sc.ch[_di]==='dim')){_cofSelectChord(s,_sc.ch[_di]);}
         return;
+      }
+      if(st.viewMode==='prog'&&customProg.idx<0&&progMinSemis.indexOf(mod(s))>=0){
+        _cofSelectProgStep(mod(s));return;
       }
       var curSc=getSC();
       if(st.scale==='major'){st.root=s;st.scale='minor';}
@@ -2495,7 +2531,13 @@ function _openProgDropdown(anchor){
     };})(i);
     dd.appendChild(item);
   });
-  anchor.appendChild(dd);
+  document.body.appendChild(dd);
+  var r=anchor.getBoundingClientRect();
+  dd.style.position='fixed';
+  dd.style.top=(r.bottom+8)+'px';
+  dd.style.left=Math.max(8,r.left-20)+'px';
+  dd.style.width=Math.min(r.width+40,window.innerWidth-16)+'px';
+  dd.style.right='auto';
   setTimeout(function(){
     document.addEventListener('click',function _close(){
       var d=document.getElementById('prog-dropdown');if(d)d.remove();
