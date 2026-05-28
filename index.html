@@ -1478,11 +1478,11 @@ var PROGS=[
   {name:'I-IV-VI-V',  cat:'Gospel', degs:[0,3,5,4]}
 ];
 var ENRICHMENTS={
-  maj:[{id:'maj7',l:'Maj7'},{id:'add9',l:'add9'},{id:'6',l:'6'},{id:'sus2',l:'sus2'},{id:'sus4',l:'sus4'}],
+  maj:[{id:'maj7',l:'M7'},{id:'add9',l:'add9'},{id:'6',l:'6'},{id:'sus2',l:'sus2'},{id:'sus4',l:'sus4'}],
   dom:[{id:'7',l:'7'},{id:'9',l:'9'},{id:'11',l:'11'},{id:'13',l:'13'},{id:'7sus4',l:'7sus4'}],
-  min:[{id:'min7',l:'min7'},{id:'min9',l:'min9'},{id:'min11',l:'min11'},{id:'minmaj7',l:'mMaj7'}],
-  dim:[{id:'dim7',l:'Dim7'},{id:'m7b5',l:'m7b5'}],
-  aug:[{id:'aug7',l:'Aug7'}]
+  min:[{id:'min7',l:'m7'},{id:'min9',l:'m9'},{id:'min11',l:'m11'},{id:'minmaj7',l:'mM7'}],
+  dim:[{id:'dim7',l:'°7'},{id:'m7b5',l:'ø7'}],
+  aug:[{id:'aug7',l:'+7'}]
 };
 var ENRICH_IV={
   maj:[0,4,7],maj7:[0,4,7,11],add9:[0,4,7,14],'6':[0,4,7,9],sus2:[0,2,7],sus4:[0,5,7],
@@ -1490,9 +1490,9 @@ var ENRICH_IV={
   '7':[0,4,7,10],'9':[0,4,7,10,14],'11':[0,4,7,10,14,17],'13':[0,4,7,10,14,17,21],'7sus4':[0,5,7,10],
   dim:[0,3,6],dim7:[0,3,6,9],m7b5:[0,3,6,10],aug:[0,4,8],aug7:[0,4,8,10]
 };
-var ENRICH_SUF={maj:'',min:'m',dim:'dim',aug:'aug',maj7:'maj7',add9:'add9','6':'6',sus2:'sus2',sus4:'sus4',
-  min7:'m7',min9:'m9',min11:'m11',minmaj7:'mMaj7','7':'7','9':'9','11':'11','13':'13','7sus4':'7sus4',
-  dim7:'dim7',m7b5:'m7b5',aug7:'aug7'};
+var ENRICH_SUF={maj:'',min:'m',dim:'°',aug:'+',maj7:'M7',add9:'add9','6':'6',sus2:'sus2',sus4:'sus4',
+  min7:'m7',min9:'m9',min11:'m11',minmaj7:'mM7','7':'7','9':'9','11':'11','13':'13','7sus4':'7sus4',
+  dim7:'°7',m7b5:'ø7',aug7:'+7'};
 var ROMAN=['I','II','III','IV','V','VI','VII'];
 var PCOLS=['#F0A830','#F0A830','#F0A830','#F0A830','#F0A830'];
 var COF_MAJ=[0,7,2,9,4,11,6,1,8,3,10,5];
@@ -1524,7 +1524,7 @@ function chordNameDeg(d,enrichId){
   var sc=getSC();if(d>=sc.iv.length)return '?';
   var n=EN[mod(st.root+sc.iv[d])];if(!sc.ch)return n;
   var t=sc.ch[d];
-  if(!enrichId||enrichId===t)return n+(t==='min'?'m':t==='dim'?'dim':t==='aug'?'aug':'');
+  if(!enrichId||enrichId===t)return n+(t==='min'?'m':t==='dim'?'°':t==='aug'?'+':'');
   return n+(ENRICH_SUF[enrichId]||enrichId);
 }
 function progChords(degs){var sc=getSC();if(!sc.ch)return '';return degs.filter(function(d){return d<sc.iv.length;}).map(function(d){return chordNameDeg(d,'');}).join(' - ');}
@@ -5681,7 +5681,7 @@ function closeYtFloat(){
 }
 
 function _practiceChordLabel(semi,type,eid){
-  if(!eid)return EN[semi]+(type==='min'?'m':type==='dim'?'dim':type==='aug'?'aug':'');
+  if(!eid)return EN[semi]+(type==='min'?'m':type==='dim'?'°':type==='aug'?'+':'');
   return EN[semi]+(ENRICH_SUF[eid]||eid);
 }
 
