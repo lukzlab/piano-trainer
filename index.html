@@ -334,6 +334,8 @@ body.ivoire .modal-title{font-family:'DM Mono',monospace;}
 
 /* ── FICHES HARMONIQUES ── */
 .harmony-card{font-size:13px;color:var(--text2);line-height:1.6;padding:.5rem .75rem;border-left:3px solid var(--tonic);margin-bottom:.75rem;font-family:'DM Sans',sans-serif;font-style:normal}
+.staff-wrap{padding:10px 14px 6px;overflow-x:auto;border-bottom:1px solid var(--border)}
+.staff-svg{display:block}
 .harmony-card strong{color:var(--accent);font-weight:600}
 
 
@@ -2566,6 +2568,84 @@ function renderMainPanel(){
   _updatePianoEnrichBtns();
 }
 
+/* ── PORTÉE MUSICALE (SVG) ── */
+var _DIAT_SHARP=[
+  {d:0,a:null},{d:0,a:'#'},{d:1,a:null},{d:1,a:'#'},{d:2,a:null},
+  {d:3,a:null},{d:3,a:'#'},{d:4,a:null},{d:4,a:'#'},{d:5,a:null},{d:5,a:'#'},{d:6,a:null}
+];
+var _DIAT_FLAT=[
+  {d:0,a:null},{d:1,a:'b'},{d:1,a:null},{d:2,a:'b'},{d:2,a:null},
+  {d:3,a:null},{d:4,a:'b'},{d:4,a:null},{d:5,a:'b'},{d:5,a:null},{d:6,a:'b'},{d:6,a:null}
+];
+/* step above E4 (bottom line treble). E4 = diatonic 4*7+2 = 30 */
+function _staffStep(semi12,oct,flat){
+  var info=(flat?_DIAT_FLAT:_DIAT_SHARP)[semi12%12];
+  return (oct*7+info.d)-30;
+}
+function _drawStaff(svgEl,noteObjs){
+  var NS='http://www.w3.org/2000/svg';
+  var LS=10;var clefW=30;var noteSpacing=20;
+  var isChord=noteObjs.length>1&&noteObjs[0].chord;
+  var n=noteObjs.length;
+  var noteX0=clefW+6;
+  var totalW=isChord?noteX0+20:noteX0+(n*noteSpacing)+8;
+  var padTop=22;var padBot=20;
+  var staffBot=padTop+4*LS;
+  var totalH=padTop+4*LS+padBot;
+  svgEl.innerHTML='';
+  svgEl.setAttribute('viewBox','0 0 '+totalW+' '+totalH);
+  svgEl.setAttribute('width',totalW);
+  svgEl.setAttribute('height',totalH);
+  function mk(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  /* Staff lines */
+  for(var i=0;i<5;i++){
+    var ly=staffBot-i*LS;
+    svgEl.appendChild(mk('line',{x1:clefW-2,x2:totalW-4,y1:ly,y2:ly,stroke:'var(--border2)','stroke-width':'0.9'}));
+  }
+  /* Treble clef 𝄞 */
+  var cl=mk('text',{x:'1',y:String(staffBot+7),'font-size':'50','font-family':'Georgia,serif',fill:'var(--text)','dominant-baseline':'auto'});
+  cl.textContent='𝄞';
+  svgEl.appendChild(cl);
+  /* Notes */
+  noteObjs.forEach(function(no,idx){
+    var step=_staffStep(no.semi,no.octave,no.flat);
+    var y=staffBot-step*(LS/2);
+    var x=isChord?noteX0:noteX0+idx*noteSpacing;
+    /* Ledger lines below staff (C4 = step -2) */
+    for(var ls=-2;ls>=step;ls-=2){
+      var lly=staffBot-ls*(LS/2);
+      svgEl.appendChild(mk('line',{x1:x-8,x2:x+8,y1:lly,y2:lly,stroke:'var(--text)','stroke-width':'0.85'}));
+    }
+    /* Ledger lines above staff (A5 = step 10) */
+    for(var ls2=10;ls2<=step;ls2+=2){
+      var lly2=staffBot-ls2*(LS/2);
+      svgEl.appendChild(mk('line',{x1:x-8,x2:x+8,y1:lly2,y2:lly2,stroke:'var(--text)','stroke-width':'0.85'}));
+    }
+    /* Accidental */
+    var ai=(no.flat?_DIAT_FLAT:_DIAT_SHARP)[no.semi%12];
+    if(ai.a){
+      var at=mk('text',{x:String(x-12),y:String(y+5),'font-size':'12','font-family':'serif',fill:'var(--text)'});
+      at.textContent=ai.a==='#'?'♯':'♭';
+      svgEl.appendChild(at);
+    }
+    /* Note head */
+    svgEl.appendChild(mk('ellipse',{cx:x,cy:y,rx:'5',ry:'3.8',fill:'var(--text)',transform:'rotate(-15,'+x+','+y+')'}));
+  });
+}
+function _scaleNoteObjs(root,scaleId){
+  var sc=null;for(var i=0;i<SCALES.length;i++){if(SCALES[i].id===scaleId){sc=SCALES[i];break;}}
+  if(!sc)sc=getSC();
+  var ivs=sc.iv||[0,2,4,5,7,9,11];
+  var flat=[5,10,3,8,1,6].indexOf(root)>=0;
+  var notes=ivs.map(function(iv){
+    var abs=root+iv;return{semi:abs%12,octave:4+Math.floor(abs/12),flat:flat};
+  });
+  /* Add octave tonic as last note */
+  var topAbs=root+12;
+  notes.push({semi:topAbs%12,octave:4+Math.floor(topAbs/12),flat:flat});
+  return notes;
+}
+
 /* ── PANNEAU GAMME ── */
 function renderScalePanel(header,body){
   var sc=getSC();var notes=getNotes();var tonic=mod(st.root);
@@ -2575,6 +2655,13 @@ function renderScalePanel(header,body){
     var ht=document.createElement('div');ht.className='rp-section-title';ht.textContent='En quelques mots :';body.appendChild(ht);
     var hc=document.createElement('div');hc.className='harmony-card rp-desc';hc.innerHTML=SCALE_HARMONY[sc.id];body.appendChild(hc);
   }
+  /* Portée musicale */
+  var staffWrap=document.createElement('div');staffWrap.className='staff-wrap';
+  var staffSvg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  staffSvg.setAttribute('class','staff-svg');
+  _drawStaff(staffSvg,_scaleNoteObjs(st.root,st.scale));
+  staffWrap.appendChild(staffSvg);
+  body.appendChild(staffWrap);
   var lbl=document.createElement('div');lbl.className='ctrl-label';lbl.style.cssText='margin-bottom:4px;margin-top:14px;padding-left:14px';lbl.textContent='Degres';body.appendChild(lbl);
   var dg=document.createElement('div');dg.className='deg-grid';
   if(sc.ch){
