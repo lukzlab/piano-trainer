@@ -1102,6 +1102,16 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
         </div>
       </div>
       <div class="drawer-section">
+        <div class="drawer-section-title">Notation</div>
+        <div class="drawer-row">
+          <span class="drawer-label">Noms des notes</span>
+          <div style="display:flex;gap:4px">
+            <button id="notation-en-btn" class="bt-style-btn active" onclick="setNotationFr(false);updateAll()">C D E</button>
+            <button id="notation-fr-btn" class="bt-style-btn" onclick="setNotationFr(true);updateAll()">Do Ré Mi</button>
+          </div>
+        </div>
+      </div>
+      <div class="drawer-section">
         <div class="drawer-section-title">Backing harmonique <button class="bt-btn" id="bt-play-btn-2" onclick="btToggle()">&#9836;</button> <span class="bt-status" id="bt-status"></span></div>
         <div class="drawer-row">
           <button class="bt-style-btn active" onclick="btSetStyle('pad',this)">Pad</button>
@@ -1409,7 +1419,24 @@ function toggleTheme(){
 }
 
 
-var EN=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+var _EN_EN=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+var _EN_FR=['Do','Do#','Ré','Ré#','Mi','Fa','Fa#','Sol','Sol#','La','La#','Si'];
+var EN=_EN_EN.slice();
+var _notationFr=false;
+function setNotationFr(fr){
+  _notationFr=!!fr;
+  var src=_notationFr?_EN_FR:_EN_EN;
+  for(var i=0;i<12;i++)EN[i]=src[i];
+  try{localStorage.setItem('notation_fr',_notationFr?'1':'0');}catch(e){}
+  var enBtn=document.getElementById('notation-en-btn');
+  var frBtn=document.getElementById('notation-fr-btn');
+  if(enBtn)enBtn.classList.toggle('active',!_notationFr);
+  if(frBtn)frBtn.classList.toggle('active',_notationFr);
+}
+/* NL : convertit un label de note fixe (ex: 'Eb','C#') vers la notation courante */
+var _enFrMap={'C':'Do','D':'Ré','E':'Mi','F':'Fa','G':'Sol','A':'La','B':'Si','C#':'Do#','Db':'Réb','D#':'Ré#','Eb':'Mib','F#':'Fa#','Gb':'Solb','G#':'Sol#','Ab':'Lab','A#':'La#','Bb':'Sib'};
+function NL(s){return _notationFr?(_enFrMap[s]||s):s;}
+(function(){if(localStorage.getItem('notation_fr')==='1')setNotationFr(true);})();
 var ROOTS=[{v:0,l:'C'},{v:2,l:'D'},{v:4,l:'E'},{v:5,l:'F'},{v:7,l:'G'},{v:9,l:'A'},{v:11,l:'B'},{v:1,l:'C#'},{v:3,l:'Eb'},{v:6,l:'F#'},{v:8,l:'Ab'},{v:10,l:'Bb'}];
 var SCALES=[
   {id:'major',    label:'Majeure',    iv:[0,2,4,5,7,9,11], ch:['maj','min','min','maj','maj','min','dim']},
@@ -2007,8 +2034,7 @@ function navigateCircle(dir){
       var iv2=mod(COF_MAJ[newIdx]-(window._songOrigSemi||0));
       transposeSongDetail(iv2);window._songOrigSemi=COF_MAJ[newIdx];
       document.querySelectorAll('.song-transp-btn').forEach(function(b){
-        var EN2=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
-        b.classList.toggle('active',b.textContent===EN2[COF_MAJ[newIdx]]);
+        b.classList.toggle('active',+b.dataset.semi===COF_MAJ[newIdx]);
       });
     } else {updateAll();autoSoundTrigger();}
   } else {
@@ -2798,7 +2824,7 @@ function renderCustomProgPanel(header,body,cp){
     var rlbl=document.createElement('div');rlbl.className='ctrl-label';rlbl.style.marginBottom='4px';rlbl.textContent='Nouvelle tonique';ts.appendChild(rlbl);
     var rr=document.createElement('div');rr.className='transp-roots';
     ROOTS.forEach(function(r){
-      var b=document.createElement('button');b.className='tbtn'+(cp.sequence.length>0&&cp.sequence[0].semi===r.v?' active':'');b.textContent=r.l;
+      var b=document.createElement('button');b.className='tbtn'+(cp.sequence.length>0&&cp.sequence[0].semi===r.v?' active':'');b.textContent=NL(r.l);
       b.onclick=(function(newRoot){return function(){transposeCustomRoot(cp,newRoot);};})(r.v);rr.appendChild(b);
     });
     ts.appendChild(rr);
@@ -3974,15 +4000,17 @@ function renderSongDetail(data){
   window._songOrigSemi=origSemi;
   window._songCurrentSemi=origSemi;
   roots.forEach(function(r){
+    var semi=noteToSemiMap[r];
     var btn=document.createElement('button');
-    btn.className='song-transp-btn'+(r===origRoot?' active':'');
-    btn.textContent=r;
-    btn.onclick=(function(root,semi){return function(){
-      window._songCurrentSemi=semi;
-      var interval=semi-window._songOrigSemi;
-      document.querySelectorAll('.song-transp-btn').forEach(function(b){b.classList.toggle('active',b.textContent===root);});
+    btn.className='song-transp-btn'+(origSemi===semi?' active':'');
+    btn.dataset.semi=semi;
+    btn.textContent=NL(r);
+    btn.onclick=(function(s2){return function(){
+      window._songCurrentSemi=s2;
+      var interval=s2-window._songOrigSemi;
+      document.querySelectorAll('.song-transp-btn').forEach(function(b){b.classList.toggle('active',+b.dataset.semi===s2);});
       transposeSongDetail(interval);
-    };})(r, noteToSemiMap[r]);
+    };})(semi);
     transpBar.appendChild(btn);
   });
   panel.appendChild(transpBar);
@@ -5377,7 +5405,7 @@ function _ytRenderFavPicker(){
     lbl.title=fav.title||fav.videoId;
     var key=document.createElement('span');
     key.className='yt-fav-item-key';
-    key.textContent=(_EN2YT[fav.root]||'?')+(fav.scale?'/'+fav.scale.substring(0,3):'');
+    key.textContent=(NL(_EN2YT[fav.root])||'?')+(fav.scale?'/'+fav.scale.substring(0,3):'');
     var del=document.createElement('button');
     del.className='yt-fav-item-del';
     del.textContent='×';
