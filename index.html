@@ -2532,15 +2532,16 @@ function _openProgDropdown(anchor,evt){
     dd.appendChild(item);
   });
   document.body.appendChild(dd);
-  /* Position: use #main-panel rect for left/width, anchor bottom for top */
-  var panel=document.getElementById('main-panel');
-  var pr=panel?panel.getBoundingClientRect():{left:0,width:window.innerWidth,top:0,bottom:0};
-  var ar=anchor.getBoundingClientRect();
-  var topY=(ar.height>4?ar.bottom:(evt?evt.clientY:pr.top+60))+8;
+  /* Positionner centré sur le bouton cliqué (btn a un getBoundingClientRect fiable) */
+  var br=anchor.getBoundingClientRect();
+  var topY=(br.height>0?br.bottom:(evt?evt.clientY+4:60))+8;
+  var dropW=Math.min(280,window.innerWidth-16);
+  var cx=br.left+br.width/2;
+  var dropLeft=Math.max(8,Math.min(window.innerWidth-dropW-8,cx-dropW/2));
   dd.style.position='fixed';
   dd.style.top=topY+'px';
-  dd.style.left=(pr.left+4)+'px';
-  dd.style.width=(pr.width-8)+'px';
+  dd.style.left=dropLeft+'px';
+  dd.style.width=dropW+'px';
   dd.style.right='auto';
   setTimeout(function(){
     document.addEventListener('click',function _close(){
@@ -2869,7 +2870,7 @@ function renderStdProgPanel(header,body,prog){
   nm.innerHTML=prog.name+'<span class="prog-picker-chevron">▾</span>';
   var ct=document.createElement('span');ct.className='prog-picker-cat';ct.textContent=prog.cat;
   btn.appendChild(nm);btn.appendChild(ct);
-  btn.onclick=function(e){e.stopPropagation();_openProgDropdown(picker,e);};
+  btn.onclick=function(e){e.stopPropagation();_openProgDropdown(btn,e);};
   picker.appendChild(btn);
   header.appendChild(picker);
   document.getElementById('piano-title').textContent=prog.name;
