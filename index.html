@@ -550,6 +550,9 @@ body.peda-hidden .harmony-note{display:none!important}
 .yt-alt-btn{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.03em;transition:all .15s;flex-shrink:0}
 .yt-alt-btn:hover{border-color:var(--accent);color:var(--accent)}
 .yt-alt-btn:disabled{opacity:.4;cursor:default;pointer-events:none}
+.yt-search-inp{flex:1;min-width:0;font-size:10px;font-family:'DM Mono',monospace;padding:3px 7px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text);outline:none;transition:border-color .15s}
+.yt-search-inp:focus{border-color:var(--accent)}
+.yt-search-inp::placeholder{color:var(--text3)}
 #cof{touch-action:none}
 #cof-drag-ghost{position:fixed;z-index:9999;pointer-events:none;padding:4px 12px;border-radius:10px;background:var(--accent);color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;box-shadow:0 3px 16px rgba(0,0,0,.35);transform:translate(-50%,-60%);white-space:nowrap;transition:opacity .08s}
 .cof-drop-target{outline:2px dashed var(--accent);outline-offset:3px;border-radius:6px;transition:background .1s}
@@ -1315,6 +1318,10 @@ body:has(.sidebar:not(.expanded)) #roadmap-panel{left:52px}
         <button id="practice-yt-alt-btn" class="prac-ctrl-btn act" onclick="loadYtAlternatives()">⟳ Autres</button>
         <button id="yt-lib-btn" class="prac-ctrl-btn" onclick="_ytToggleFavPicker()">📚 Biblio</button>
         <span id="practice-yt-alt-status" style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace"></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;margin-top:5px">
+        <input id="practice-yt-search-inp" class="yt-search-inp" type="text" placeholder="Recherche manuelle…" onkeydown="if(event.key==='Enter')ytManualSearch()">
+        <button class="prac-ctrl-btn act" onclick="ytManualSearch()" title="Rechercher">⌕</button>
       </div>
       <div id="practice-yt-picker" style="display:none;margin-top:4px"></div>
       <div id="practice-yt-fav-picker" style="display:none;margin-top:4px"></div>
@@ -5678,6 +5685,47 @@ function loadYtAlternatives(skipToggle){
         picker.style.display='none';picker.innerHTML='';
         _ytUpdateFavBtn();
       };
+      picker.appendChild(btn);
+    });
+    picker.style.display='block';
+  });
+}
+
+function ytManualSearch(){
+  var inp=document.getElementById('practice-yt-search-inp');
+  if(!inp)return;
+  var q=(inp.value||'').trim();
+  if(!q)return;
+  var picker=document.getElementById('practice-yt-picker');
+  var status=document.getElementById('practice-yt-alt-status');
+  var favPicker=document.getElementById('practice-yt-fav-picker');
+  if(favPicker){favPicker.style.display='none';favPicker.innerHTML='';}
+  if(status)status.textContent='Recherche…';
+  if(picker){picker.innerHTML='';picker.style.display='block';}
+  Promise.all([
+    fetch('/api/youtube?q='+encodeURIComponent(q)+'&order=relevance').then(function(r){return r.json();}).catch(function(){return null;}),
+    fetch('/api/youtube?q='+encodeURIComponent(q+' backing track')+'&order=relevance').then(function(r){return r.json();}).catch(function(){return null;}),
+    fetch('/api/youtube?q='+encodeURIComponent(q)+'&order=date').then(function(r){return r.json();}).catch(function(){return null;})
+  ]).then(function(results){
+    if(status)status.textContent='';
+    var seen={};
+    var valid=results.filter(function(d){
+      if(!d||!d.videoId||seen[d.videoId])return false;
+      seen[d.videoId]=true;return true;
+    });
+    if(!picker)return;
+    if(!valid.length){if(status)status.textContent='Aucun résultat';return;}
+    picker.innerHTML='';
+    valid.forEach(function(d){
+      var btn=document.createElement('button');
+      btn.className='yt-alt-item';
+      btn.title=d.title||d.videoId;
+      var hasCfg=!!localStorage.getItem('yt_cfg_'+d.videoId);
+      var lbl=document.createElement('span');lbl.className='yt-alt-item-label';
+      lbl.textContent=(d.title||d.videoId).substring(0,60);
+      btn.appendChild(lbl);
+      if(hasCfg){var badge=document.createElement('span');badge.className='yt-cfg-badge';badge.textContent='cfg ✓';btn.appendChild(badge);}
+      btn.onclick=function(){_ytLoadVideo(d.videoId,d.title);picker.style.display='none';picker.innerHTML='';};
       picker.appendChild(btn);
     });
     picker.style.display='block';
