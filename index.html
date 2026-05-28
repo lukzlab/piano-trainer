@@ -775,7 +775,7 @@ body.graphite .deg-row:hover{background:rgba(255,255,255,0.04)}
 .prog-picker-name{font-size:17px;font-weight:600;color:var(--text);font-family:var(--ui-font);letter-spacing:-.01em;display:flex;align-items:center;gap:6px}
 .prog-picker-chevron{font-size:9px;color:var(--text3)}
 .prog-picker-cat{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase}
-.prog-dropdown{position:absolute;top:calc(100% + 8px);left:-20px;right:-20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.1);z-index:300;overflow:hidden;padding:4px 0}
+.prog-dropdown{position:absolute;top:calc(100% + 8px);left:-20px;right:-20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.1);z-index:300;overflow-y:auto;max-height:min(70vh,420px);padding:4px 0}
 .prog-dropdown-cat{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);font-family:'DM Mono',monospace;padding:.5rem 16px .2rem}
 .prog-dropdown-item{display:block;width:100%;text-align:left;background:transparent;border:none;font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);padding:.4rem 16px;cursor:pointer;transition:background .1s}
 .prog-dropdown-item:hover{background:var(--bg2);color:var(--text)}
@@ -1790,12 +1790,21 @@ function _drawCOFCore(svg){
         else progMajSemis.push(s.semi);
       });
     } else if(stdProg.idx>=0&&PROGS[stdProg.idx]){
-      PROGS[stdProg.idx].degs.forEach(function(d){
-        if(!sc.ch||d>=sc.iv.length)return;
-        var sm=mod(tonic+sc.iv[d]),tp=sc.ch[d];
-        if(tp==='min'||tp==='dim')progMinSemis.push(sm);
-        else progMajSemis.push(sm);
-      });
+      var _cp=PROGS[stdProg.idx];
+      if(_cp.modal){
+        _cp.steps.forEach(function(step){
+          var sm=mod(tonic+step.iv);
+          if(step.type==='min'||step.type==='dim')progMinSemis.push(sm);
+          else progMajSemis.push(sm);
+        });
+      } else {
+        _cp.degs.forEach(function(d){
+          if(!sc.ch||d>=sc.iv.length)return;
+          var sm=mod(tonic+sc.iv[d]),tp=sc.ch[d];
+          if(tp==='min'||tp==='dim')progMinSemis.push(sm);
+          else progMajSemis.push(sm);
+        });
+      }
     }
   }
 
