@@ -1448,6 +1448,7 @@ function setNotationFr(fr){
 /* NL : convertit un label de note fixe (ex: 'Eb','C#') vers la notation courante */
 var _enFrMap={'C':'Do','D':'Ré','E':'Mi','F':'Fa','G':'Sol','A':'La','B':'Si','C#':'Do#','Db':'Réb','D#':'Ré#','Eb':'Mib','F#':'Fa#','Gb':'Solb','G#':'Sol#','Ab':'Lab','A#':'La#','Bb':'Sib'};
 function NL(s){return _notationFr?(_enFrMap[s]||s):s;}
+function _nlMin(s){if(!_notationFr)return s;var r=s.replace(/m$/,'');return(_enFrMap[r]||r)+'m';}
 (function(){if(localStorage.getItem('notation_fr')==='1')setNotationFr(true);})();
 var ROOTS=[{v:0,l:'C'},{v:2,l:'D'},{v:4,l:'E'},{v:5,l:'F'},{v:7,l:'G'},{v:9,l:'A'},{v:11,l:'B'},{v:1,l:'C#'},{v:3,l:'Eb'},{v:6,l:'F#'},{v:8,l:'Ab'},{v:10,l:'Bb'}];
 var SCALES=[
@@ -1843,7 +1844,7 @@ function _drawCOFCore(svg){
       var rom=dIdx>=0?_roman[dIdx]:'';
       if(rom){var _tr=txt(mp[0],mp[1]-14,rom,'wheel-roman '+labelCls);_tr.style.pointerEvents='none';svg.appendChild(_tr);}
     }
-    var _tn=txt(mp[0],mp[1]+6,COF_MAJ[i],'wheel-major '+(isHlOuter?'wheel-label-sel':role==='tonic'?'wheel-label-active':role==='degree'?'wheel-label-dim':'wheel-label-ghost'));
+    var _tn=txt(mp[0],mp[1]+6,NL(COF_MAJ[i]),'wheel-major '+(isHlOuter?'wheel-label-sel':role==='tonic'?'wheel-label-active':role==='degree'?'wheel-label-dim':'wheel-label-ghost'));
     _tn.style.pointerEvents='none';
     svg.appendChild(_tn);
     var _enrichShow=isHlOuter?hl.enrichId:(dIdx>=0?scaleState.enrichPerDeg[dIdx]:'');
@@ -1903,7 +1904,7 @@ function _drawCOFCore(svg){
       var mRom=mDIdx>=0?_roman[mDIdx]:'';
       if(mRom){var _mr=txt(mp[0],mp[1]-8,mRom,'wheel-roman '+minLblCls);_mr.style.pointerEvents='none';svg.appendChild(_mr);}
     }
-    var minLbl=txt(mp[0],mp[1]+6,COF_MIN[i],minLblCls);
+    var minLbl=txt(mp[0],mp[1]+6,_nlMin(COF_MIN[i]),minLblCls);
     minLbl.style.cursor='pointer';
     minLbl.onclick=(function(s,idx){return function(){
       if(_pianoMode==='accord'&&st.viewMode==='scale'){
