@@ -334,7 +334,7 @@ body.ivoire .modal-title{font-family:'DM Mono',monospace;}
 
 /* ── FICHES HARMONIQUES ── */
 .harmony-card{font-size:13px;color:var(--text2);line-height:1.6;padding:.5rem .75rem;border-left:3px solid var(--tonic);margin-bottom:.75rem;font-family:'DM Sans',sans-serif;font-style:normal}
-.staff-wrap{padding:10px 14px 6px;overflow-x:auto;border-bottom:1px solid var(--border)}
+.staff-wrap{padding:10px 14px 6px;overflow-x:auto;border-bottom:1px solid var(--border);display:flex;justify-content:center}
 .staff-svg{display:block}
 .harmony-card strong{color:var(--accent);font-weight:600}
 
@@ -2508,7 +2508,7 @@ function _syncRpTabs(){
   if(tpr)tpr.classList.toggle('active',isPrac);
 }
 
-function _openProgDropdown(anchor){
+function _openProgDropdown(anchor,evt){
   var existing=document.getElementById('prog-dropdown');
   if(existing){existing.remove();return;}
   var dd=document.createElement('div');dd.id='prog-dropdown';dd.className='prog-dropdown';
@@ -2532,11 +2532,15 @@ function _openProgDropdown(anchor){
     dd.appendChild(item);
   });
   document.body.appendChild(dd);
-  var r=anchor.getBoundingClientRect();
+  /* Position: use #main-panel rect for left/width, anchor bottom for top */
+  var panel=document.getElementById('main-panel');
+  var pr=panel?panel.getBoundingClientRect():{left:0,width:window.innerWidth,top:0,bottom:0};
+  var ar=anchor.getBoundingClientRect();
+  var topY=(ar.height>4?ar.bottom:(evt?evt.clientY:pr.top+60))+8;
   dd.style.position='fixed';
-  dd.style.top=(r.bottom+8)+'px';
-  dd.style.left=Math.max(8,r.left-20)+'px';
-  dd.style.width=Math.min(r.width+40,window.innerWidth-16)+'px';
+  dd.style.top=topY+'px';
+  dd.style.left=(pr.left+4)+'px';
+  dd.style.width=(pr.width-8)+'px';
   dd.style.right='auto';
   setTimeout(function(){
     document.addEventListener('click',function _close(){
@@ -2865,7 +2869,7 @@ function renderStdProgPanel(header,body,prog){
   nm.innerHTML=prog.name+'<span class="prog-picker-chevron">▾</span>';
   var ct=document.createElement('span');ct.className='prog-picker-cat';ct.textContent=prog.cat;
   btn.appendChild(nm);btn.appendChild(ct);
-  btn.onclick=function(e){e.stopPropagation();_openProgDropdown(picker);};
+  btn.onclick=function(e){e.stopPropagation();_openProgDropdown(picker,e);};
   picker.appendChild(btn);
   header.appendChild(picker);
   document.getElementById('piano-title').textContent=prog.name;
