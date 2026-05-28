@@ -5568,19 +5568,28 @@ function openYouTubeBacking(){
   var EN2=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
   var root=EN2[st.root]||'C';
   var genre=_ytGenres[st.scale]||'major';
-  var style=_ytBackingStyles[_bt.style]||'piano';
+  var styleKw=_ytBackingStyles[_bt.style]||'piano';
+  /* strip "backing track" from style to avoid duplicating it in queries */
+  var instr=styleKw.replace(/backing\s*track/gi,'').trim()||'piano';
   var bpm=_audioBpm;
   var bpmRange=Math.round(bpm/10)*10;
   var sig=_practiceState.sig||4;
   var sigLabel=sig===3?'3/4 ':sig===6?'6/8 ':sig===2?'2/4 ':'';
   var variants=[
-    root+' '+genre+' '+sigLabel+'backing track '+style+' '+bpmRange+' bpm',
-    root+' '+genre+' jam track '+style,
-    style+' '+sigLabel+'backing track '+root+' '+genre+' '+bpmRange+'bpm',
-    root+' '+genre+' play along '+style+' piano',
-    genre+' '+sigLabel+'backing track '+root+' '+style+' live'
+    /* 1. Spécifique : tonalité + gamme + style + signature + bpm */
+    root+' '+genre+' '+sigLabel+'backing track '+instr+' '+bpmRange+' bpm',
+    /* 2. Sans BPM : plus large, meilleur recall */
+    root+' '+genre+' backing track '+instr,
+    /* 3. "jam track" : terme populaire sur YT */
+    root+' '+genre+' jam track '+instr,
+    /* 4. Play along côté instrument */
+    instr+' play along '+root+' '+genre,
+    /* 5. Fallback avec signature ou instrumental */
+    sigLabel
+      ? genre+' '+sigLabel+'backing track '+root+' '+instr
+      : root+' '+genre+' backing track instrumental'
   ];
-  _ytSearchCtx={root:root,genre:genre,style:style,bpm:bpmRange,variants:variants};
+  _ytSearchCtx={root:root,genre:genre,style:instr,bpm:bpmRange,variants:variants};
   /* Open practice overlay */
   document.documentElement.style.setProperty('--rp-width',(document.getElementById('main-panel').offsetWidth||280)+'px');
   document.getElementById('practice-overlay').classList.add('open');
@@ -5617,7 +5626,7 @@ function loadYtAlternatives(skipToggle){
   if(altBtn)altBtn.disabled=true;
   if(status)status.textContent='Recherche…';
   picker.innerHTML='';picker.style.display='block';
-  var orders=['&order=relevance','&order=date','&order=relevance','&order=date','&order=relevance'];
+  var orders=['&order=relevance','&order=relevance','&order=relevance','&order=date','&order=date'];
   var promises=ctx.variants.map(function(q,i){
     return fetch('/api/youtube?q='+encodeURIComponent(q)+orders[i])
       .then(function(r){return r.json();})
