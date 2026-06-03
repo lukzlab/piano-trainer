@@ -760,6 +760,24 @@ body.graphite .deg-row:hover{background:rgba(255,255,255,0.04)}
 .qchip{display:inline-flex;align-items:center;justify-content:center;min-width:20px;padding:2px 6px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:var(--text2);flex-shrink:0;border:1px solid var(--border2);border-radius:99px;align-self:start;margin-top:3px}
 /* ── RP MODE TABS ── (voir #rp-side-strip dans le CSS principal) ──*/
 
+/* ── EAR TRAINING ── */
+.ear-mode-bar{display:flex;gap:6px;justify-content:center;padding:14px 20px 0}
+.ear-mode-btn{padding:6px 18px;border-radius:99px;font-size:12px;font-family:var(--ui-font);font-weight:500;letter-spacing:.05em;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--text2);transition:all .12s}
+.ear-mode-btn.active{background:var(--tonic);color:#fff;border-color:var(--tonic)}
+.ear-play-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:20px auto 0;padding:14px 36px;background:var(--tonic-bg);border:1.5px solid var(--tonic);border-radius:12px;font-size:15px;font-family:var(--ui-font);font-weight:600;color:var(--tonic);cursor:pointer;transition:all .12s}
+.ear-play-btn:hover{background:var(--tonic);color:#fff}
+.ear-question{text-align:center;font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;margin:16px 0 10px;text-transform:uppercase}
+.ear-answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 20px}
+.ear-answer-btn{padding:10px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text);font-size:13px;font-family:var(--ui-font);font-weight:500;cursor:pointer;transition:all .12s;text-align:center}
+.ear-answer-btn:hover:not(:disabled){border-color:var(--tonic);background:var(--tonic-bg);color:var(--tonic)}
+.ear-answer-btn.correct{background:var(--tonic);border-color:var(--tonic);color:#fff;font-weight:600}
+.ear-answer-btn.wrong{opacity:.5;text-decoration:line-through}
+.ear-answer-btn:disabled{cursor:default}
+.ear-feedback{text-align:center;font-size:13px;margin:14px 20px 0;padding:10px 14px;border-radius:8px;line-height:1.5;font-family:var(--ui-font)}
+.ear-score{text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);margin-top:4px;letter-spacing:.1em}
+.ear-next-btn{display:block;margin:14px auto 4px;padding:8px 28px;border-radius:99px;background:var(--tonic);border:none;color:#fff;font-size:13px;font-family:var(--ui-font);font-weight:500;cursor:pointer;transition:opacity .12s}
+.ear-next-btn:hover{opacity:.82}
+
 /* ── RP COMPACT MODE ── */
 .rp-compact-list{display:flex;flex-direction:column;gap:2px;padding:10px 8px}
 .rp-compact-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;transition:background .1s;border:1px solid transparent}
@@ -821,7 +839,7 @@ body.ivoire .wheel-eyebrow{fill:var(--text3)}
 .scale-popover{display:none;position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:500;overflow:hidden;max-height:80vh}
 .scale-popover.open{display:flex;align-items:stretch}
 .scale-pop-left{width:260px;overflow-y:auto;border-right:1px solid var(--border);flex-shrink:0}
-.scale-pop-right{width:420px;overflow-y:auto;display:flex;flex-direction:column}
+.scale-pop-right{width:570px;overflow-y:auto;display:flex;flex-direction:column}
 .scale-pop-prog-none{padding:10px 14px;cursor:pointer;font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;transition:background .1s;letter-spacing:.05em}
 .scale-pop-prog-none:hover{background:var(--bg2)}
 .scale-pop-prog-none.active{color:var(--tonic);background:var(--tonic-bg)}
@@ -1494,7 +1512,14 @@ var PROGS=[
   {name:'I – ♭III – IV',         cat:'Modal', modal:true, steps:[{iv:0,type:'maj',l:'I'},{iv:3,type:'maj',l:'♭III'},{iv:5,type:'maj',l:'IV'}]},
   {name:'♭VII – IV – I',         cat:'Modal', modal:true, steps:[{iv:10,type:'maj',l:'♭VII'},{iv:5,type:'maj',l:'IV'},{iv:0,type:'maj',l:'I'}]},
   {name:'I – ♭VII – ♭VI – V',    cat:'Modal', modal:true, steps:[{iv:0,type:'maj',l:'I'},{iv:10,type:'maj',l:'♭VII'},{iv:8,type:'maj',l:'♭VI'},{iv:7,type:'maj',l:'V'}]},
-  {name:'I – ♭III – ♭VII – IV',  cat:'Modal', modal:true, steps:[{iv:0,type:'maj',l:'I'},{iv:3,type:'maj',l:'♭III'},{iv:10,type:'maj',l:'♭VII'},{iv:5,type:'maj',l:'IV'}]}
+  {name:'I – ♭III – ♭VII – IV',  cat:'Modal',   modal:true, steps:[{iv:0,type:'maj',l:'I'},{iv:3,type:'maj',l:'♭III'},{iv:10,type:'maj',l:'♭VII'},{iv:5,type:'maj',l:'IV'}]},
+  {name:'i – IV',                 cat:'Dorian',  modal:true, steps:[{iv:0,type:'min',l:'i'},{iv:5,type:'maj',l:'IV'}]},
+  {name:'i – ♭VII – IV',         cat:'Dorian',  modal:true, steps:[{iv:0,type:'min',l:'i'},{iv:10,type:'maj',l:'♭VII'},{iv:5,type:'maj',l:'IV'}]},
+  {name:'i – ♭III – IV',         cat:'Dorian',  modal:true, steps:[{iv:0,type:'min',l:'i'},{iv:3,type:'maj',l:'♭III'},{iv:5,type:'maj',l:'IV'}]},
+  {name:'♭VII – IV – i',         cat:'Dorian',  modal:true, steps:[{iv:10,type:'maj',l:'♭VII'},{iv:5,type:'maj',l:'IV'},{iv:0,type:'min',l:'i'}]},
+  {name:'i – ♭II',               cat:'Phrygian',modal:true, steps:[{iv:0,type:'min',l:'i'},{iv:1,type:'maj',l:'♭II'}]},
+  {name:'♭II – ♭VII – i',        cat:'Phrygian',modal:true, steps:[{iv:1,type:'maj',l:'♭II'},{iv:10,type:'maj',l:'♭VII'},{iv:0,type:'min',l:'i'}]},
+  {name:'i – ♭VII – ♭VI – ♭II', cat:'Phrygian',modal:true, steps:[{iv:0,type:'min',l:'i'},{iv:10,type:'maj',l:'♭VII'},{iv:8,type:'maj',l:'♭VI'},{iv:1,type:'maj',l:'♭II'}]}
 ];
 var ENRICHMENTS={
   maj:[{id:'maj7',l:'M7'},{id:'add9',l:'add9'},{id:'6',l:'6'},{id:'sus2',l:'sus2'},{id:'sus4',l:'sus4'}],
@@ -1522,6 +1547,43 @@ var BLK=[1,3,6,8,10];var MIDI_START=36,MIDI_END=71,_pianoOctaves=3,_pianoShowSca
 var OCTAVE_LABELS={};
 function mod(s){return((s%12)+12)%12;}
 function isB(s){return BLK.indexOf(mod(s))>=0;}
+
+/* ── DONNÉES EAR TRAINING ── */
+var EAR_CHORDS=[
+  {id:'maj', label:'Maj',   ivs:[0,4,7]},
+  {id:'min', label:'min',   ivs:[0,3,7]},
+  {id:'dim', label:'dim',   ivs:[0,3,6]},
+  {id:'aug', label:'aug',   ivs:[0,4,8]},
+  {id:'maj7',label:'Maj 7', ivs:[0,4,7,11]},
+  {id:'min7',label:'min 7', ivs:[0,3,7,10]},
+  {id:'dom7',label:'Dom 7', ivs:[0,4,7,10]},
+  {id:'hdim',label:'ø7',    ivs:[0,3,6,10]}
+];
+var EAR_INTERVALS=[
+  {id:'m2',label:'2m — demi-ton', semi:1},
+  {id:'M2',label:'2M — ton',      semi:2},
+  {id:'m3',label:'3m',            semi:3},
+  {id:'M3',label:'3M',            semi:4},
+  {id:'P4',label:'4 juste',       semi:5},
+  {id:'tri',label:'Triton',       semi:6},
+  {id:'P5',label:'5 juste',       semi:7},
+  {id:'m6',label:'6m',            semi:8},
+  {id:'M6',label:'6M',            semi:9},
+  {id:'m7',label:'7m',            semi:10},
+  {id:'M7',label:'7M',            semi:11},
+  {id:'P8',label:'Octave',        semi:12}
+];
+var EAR_SCALE_IDS=['major','natural_minor','dorian','phrygian','lydian','mixolydian','harmonic_minor','melodic_minor','penta_maj','penta_min'];
+var EAR_CADENCES=[
+  {id:'I-IV-V',    name:'I – IV – V',      degs:[0,3,4]},
+  {id:'I-V-vi-IV', name:'I – V – vi – IV', degs:[0,4,5,3]},
+  {id:'I-vi-IV-V', name:'I – vi – IV – V', degs:[0,5,3,4]},
+  {id:'ii-V-I',    name:'ii – V – I',      degs:[1,4,0]},
+  {id:'I-vi-ii-V', name:'I – vi – ii – V', degs:[0,5,1,4]},
+  {id:'ii-IV-I',   name:'ii – IV – I',     degs:[1,3,0]},
+  {id:'I-IV-vi-V', name:'I – IV – vi – V', degs:[0,3,5,4]}
+];
+var _earState={mode:'chord',level:'easy',current:null,answered:false,chosen:null,score:0,total:0};
 
 /* ── ÉTAT ── */
 var st={root:0,scale:'major',viewMode:'scale'};
@@ -2486,12 +2548,15 @@ function rpSetTab(mode){
   }
   var po2=document.getElementById('practice-overlay');
   if(po2&&po2.classList.contains('open'))closePracticeMode();
-  var wasSameTab=(st.viewMode===mode||(mode==='scale'&&st.viewMode!=='prog'));
+  var wasSameTab=(st.viewMode===mode||(mode==='scale'&&st.viewMode!=='prog'&&st.viewMode!=='ear'));
   if(mode==='prog'){
     st.viewMode='prog';
     if(customProg.idx<0&&stdProg.idx<0)stdProg.idx=0;
     stdProg.activeStep=-1;
     scaleState.activeDeg=-1;scaleState.activeEnrich='';scaleState.activeInv=0;
+  } else if(mode==='ear'){
+    st.viewMode='ear';
+    stdProg.activeStep=-1;customProg.idx=-1;customProg.activeStep=-1;
   } else {
     st.viewMode='scale';
     stdProg.activeStep=-1;
@@ -2508,12 +2573,15 @@ function _syncRpTabs(){
   var ts=document.getElementById('rp-tab-scale');
   var tp=document.getElementById('rp-tab-prog');
   var tpr=document.getElementById('rp-tab-prac');
+  var te=document.getElementById('rp-tab-ear');
   if(!ts||!tp)return;
   var isProg=st.viewMode==='prog';
+  var isEar=st.viewMode==='ear';
   var isPrac=!!(document.getElementById('practice-overlay')&&document.getElementById('practice-overlay').classList.contains('open'));
-  ts.classList.toggle('active',!isProg&&!isPrac);
+  ts.classList.toggle('active',!isProg&&!isPrac&&!isEar);
   tp.classList.toggle('active',isProg&&!isPrac);
   if(tpr)tpr.classList.toggle('active',isPrac);
+  if(te)te.classList.toggle('active',isEar&&!isPrac);
 }
 
 function _openProgDropdown(anchor,evt){
@@ -2651,7 +2719,9 @@ function renderMainPanel(){
     renderCompactPanel(body);
     return;
   }
-  if(st.viewMode==='scale'){
+  if(st.viewMode==='ear'){
+    renderEarPanel(header,body);
+  } else if(st.viewMode==='scale'){
     renderScalePanel(header,body);
   } else {
     if(customProg.idx>=0){
@@ -2661,6 +2731,147 @@ function renderMainPanel(){
     }
   }
   _updatePianoEnrichBtns();
+}
+
+/* ── EAR TRAINING ── */
+function _earGetChoices(){
+  var easy=_earState.level==='easy';
+  if(_earState.mode==='chord')return easy?EAR_CHORDS.slice(0,4):EAR_CHORDS;
+  if(_earState.mode==='interval')return easy?EAR_INTERVALS.slice(0,6):EAR_INTERVALS;
+  if(_earState.mode==='scale'){
+    var ids=easy?['major','natural_minor','dorian','phrygian']:EAR_SCALE_IDS;
+    return ids.map(function(id){var sc=null;for(var i=0;i<SCALES.length;i++){if(SCALES[i].id===id){sc=SCALES[i];break;}}return{id:id,label:sc?sc.label:id};});
+  }
+  return easy?EAR_CADENCES.slice(0,3):EAR_CADENCES;
+}
+
+function _earNewQuestion(){
+  _earState.answered=false;_earState.chosen=null;
+  var root=Math.floor(Math.random()*12);
+  var choices=_earGetChoices();
+  var base=48+root;
+  if(_earState.mode==='chord'){
+    var ch=choices[Math.floor(Math.random()*choices.length)];
+    _earState.current={root:root,idx:EAR_CHORDS.indexOf(ch),midis:ch.ivs.map(function(x){return base+x;})};
+  } else if(_earState.mode==='interval'){
+    var intv=choices[Math.floor(Math.random()*choices.length)];
+    _earState.current={root:root,idx:EAR_INTERVALS.indexOf(intv),midis:[base,base+intv.semi]};
+  } else if(_earState.mode==='scale'){
+    var ch2=choices[Math.floor(Math.random()*choices.length)];
+    var sc=null;for(var _si=0;_si<SCALES.length;_si++){if(SCALES[_si].id===ch2.id){sc=SCALES[_si];break;}}
+    if(!sc){_earNewQuestion();return;}
+    _earState.current={root:root,scId:sc.id,sc:sc,midis:sc.iv.map(function(x){return base+x;}).concat([base+12])};
+  } else { // cadence
+    var cad=choices[Math.floor(Math.random()*choices.length)];
+    var majSc=null;for(var _mi=0;_mi<SCALES.length;_mi++){if(SCALES[_mi].id==='major'){majSc=SCALES[_mi];break;}}
+    if(!majSc){_earNewQuestion();return;}
+    var pool=choices.filter(function(c){return c.id!==cad.id;});
+    for(var _pi=pool.length-1;_pi>0;_pi--){var _j=Math.floor(Math.random()*(_pi+1));var _t=pool[_pi];pool[_pi]=pool[_j];pool[_j]=_t;}
+    var sh=[cad].concat(pool.slice(0,3));
+    for(var _si2=sh.length-1;_si2>0;_si2--){var _j2=Math.floor(Math.random()*(_si2+1));var _t2=sh[_si2];sh[_si2]=sh[_j2];sh[_j2]=_t2;}
+    _earState.current={root:root,cadId:cad.id,cad:cad,choices:sh,
+      chords:cad.degs.map(function(d){
+        var cr=mod(root+majSc.iv[d]);var ct=majSc.ch[d];
+        return{midis:(ENRICH_IV[ct]||[0,4,7]).map(function(x){return 48+cr+x;})};
+      })
+    };
+  }
+  renderMainPanel();
+  setTimeout(function(){_earPlayCurrent();},150);
+}
+
+function _earPlayCurrent(){
+  if(!_earState.current)return;
+  var ctx=_getCtx();var when=ctx.currentTime+0.1;var bd=60/_audioBpm;
+  if(_earState.mode==='chord'){
+    var m=_earState.current.midis;
+    m.forEach(function(n,i){_playNote(n,when+i*0.07,bd*2);});
+    var d=when+m.length*0.07+0.25;m.forEach(function(n){_playNote(n,d,bd*2.5);});
+  } else if(_earState.mode==='cadence'){
+    _earState.current.chords.forEach(function(ch,i){
+      var t=when+i*bd*1.8;ch.midis.forEach(function(n){_playNote(n,t,bd*1.6);});
+    });
+  } else {
+    var m2=_earState.current.midis;
+    m2.forEach(function(n,i){_playNote(n,when+i*bd*0.45,bd*0.55);});
+  }
+}
+
+function _earAnswer(id){
+  if(_earState.answered||!_earState.current)return;
+  _earState.answered=true;_earState.chosen=id;_earState.total++;
+  var correctId=_earState.mode==='chord'?EAR_CHORDS[_earState.current.idx].id:
+                _earState.mode==='interval'?EAR_INTERVALS[_earState.current.idx].id:
+                _earState.mode==='scale'?_earState.current.scId:_earState.current.cadId;
+  if(id===correctId)_earState.score++;
+  else setTimeout(function(){_earPlayCurrent();},800);
+  renderMainPanel();
+}
+
+function renderEarPanel(header,body){
+  header.style.cssText='display:flex;flex-direction:column;align-items:center;padding:12px 20px 8px;gap:6px';
+  var mbar=document.createElement('div');mbar.className='ear-mode-bar';
+  [['chord','Accord'],['interval','Intervalle'],['scale','Gamme'],['cadence','Cadence']].forEach(function(m){
+    var b=document.createElement('button');b.className='ear-mode-btn'+(m[0]===_earState.mode?' active':'');
+    b.textContent=m[1];b.onclick=(function(mode){return function(){_earState.mode=mode;_earState.current=null;_earState.answered=false;_earState.chosen=null;renderMainPanel();};})(m[0]);
+    mbar.appendChild(b);
+  });
+  header.appendChild(mbar);
+  var dbar=document.createElement('div');dbar.style.cssText='display:flex;gap:6px';
+  [['easy','Débutant'],['hard','Avancé']].forEach(function(d){
+    var b=document.createElement('button');
+    b.style.cssText='padding:3px 14px;border-radius:99px;font-size:11px;font-family:var(--ui-font);cursor:pointer;border:1px solid var(--border);background:'+(d[0]===_earState.level?'var(--bg3)':'transparent')+';color:'+(d[0]===_earState.level?'var(--text)':'var(--text3)')+';font-weight:'+(d[0]===_earState.level?'600':'400');
+    b.textContent=d[1];b.onclick=(function(lv){return function(){_earState.level=lv;_earState.current=null;_earState.answered=false;_earState.chosen=null;renderMainPanel();};})(d[0]);
+    dbar.appendChild(b);
+  });
+  header.appendChild(dbar);
+  var scoreEl=document.createElement('div');scoreEl.className='ear-score';
+  scoreEl.textContent=_earState.total>0?'Score : '+_earState.score+' / '+_earState.total:'';
+  header.appendChild(scoreEl);
+  var playBtn=document.createElement('button');playBtn.className='ear-play-btn';
+  playBtn.textContent=_earState.current?'↺ Rejouer':'▶ Jouer';
+  playBtn.onclick=function(){if(!_earState.current)_earNewQuestion();else _earPlayCurrent();};
+  body.appendChild(playBtn);
+  if(!_earState.current){
+    var hint=document.createElement('div');hint.className='ear-question';hint.textContent='Appuie sur Jouer pour démarrer';body.appendChild(hint);return;
+  }
+  var qLabel=document.createElement('div');qLabel.className='ear-question';
+  var qTexts={chord:'Quel accord ?',interval:'Quel intervalle ?',scale:'Quelle gamme / mode ?',cadence:'Quelle progression ?'};
+  qLabel.textContent=qTexts[_earState.mode]||'';body.appendChild(qLabel);
+  var grid=document.createElement('div');grid.className='ear-answer-grid';
+  var choices=_earGetChoices();var correctId;
+  if(_earState.mode==='chord'){correctId=EAR_CHORDS[_earState.current.idx].id;}
+  else if(_earState.mode==='interval'){correctId=EAR_INTERVALS[_earState.current.idx].id;grid.style.gridTemplateColumns='1fr 1fr 1fr';}
+  else if(_earState.mode==='scale'){correctId=_earState.current.scId;}
+  else{choices=_earState.current.choices;correctId=_earState.current.cadId;}
+  choices.forEach(function(ch){
+    var id=ch.id;var label=ch.label||ch.name;
+    var btn=document.createElement('button');btn.className='ear-answer-btn';btn.textContent=label;
+    if(_earState.answered){
+      btn.disabled=true;
+      if(id===correctId)btn.className+=' correct';
+      else if(id===_earState.chosen)btn.className+=' wrong';
+    }
+    btn.onclick=(function(cid){return function(){_earAnswer(cid);};})(id);
+    grid.appendChild(btn);
+  });
+  body.appendChild(grid);
+  if(_earState.answered){
+    var fb=document.createElement('div');fb.className='ear-feedback';
+    var ok=_earState.chosen===correctId;
+    var correctLabel='';
+    if(_earState.mode==='chord')correctLabel=EAR_CHORDS[_earState.current.idx].label;
+    else if(_earState.mode==='interval')correctLabel=EAR_INTERVALS[_earState.current.idx].label;
+    else if(_earState.mode==='scale')correctLabel=_earState.current.sc?_earState.current.sc.label:'';
+    else correctLabel=_earState.current.cad.name;
+    fb.style.color=ok?'var(--tonic)':'var(--text2)';
+    var prefix=(_earState.mode==='cadence')?'':EN[_earState.current.root]+' ';
+    fb.textContent=ok?'✓ Correct !':'✗ C\'était : '+prefix+correctLabel;
+    body.appendChild(fb);
+    var nextBtn=document.createElement('button');nextBtn.className='ear-next-btn';nextBtn.textContent='Question suivante →';
+    nextBtn.onclick=function(){_earNewQuestion();};
+    body.appendChild(nextBtn);
+  }
 }
 
 /* ── PORTÉE MUSICALE (SVG) ── */
@@ -6279,13 +6490,15 @@ function _buildScalePopProgList(){
   var noProgEl=document.getElementById('scale-pop-no-prog');
   if(noProgEl)noProgEl.className='scale-pop-prog-none'+(isProgMode?'':' active');
   var col1Cats=['Pop','Jazz','Blues','Rock','Soul'];
+  var col2Cats=['Gospel','Modal'];
   var col1=document.createElement('div');col1.className='scale-pop-prog-col';
   var col2=document.createElement('div');col2.className='scale-pop-prog-col';
+  var col3=document.createElement('div');col3.className='scale-pop-prog-col';
   var cat='';var currentCol=col1;
   PROGS.forEach(function(p,i){
     if(p.cat!==cat){
       cat=p.cat;
-      currentCol=col1Cats.indexOf(cat)>=0?col1:col2;
+      currentCol=col1Cats.indexOf(cat)>=0?col1:col2Cats.indexOf(cat)>=0?col2:col3;
       var cl=document.createElement('div');cl.className='scale-pop-prog-cat';cl.textContent=cat;currentCol.appendChild(cl);
     }
     var isActive=isProgMode&&stdProg.idx===i;
@@ -6297,6 +6510,7 @@ function _buildScalePopProgList(){
   });
   list.appendChild(col1);
   list.appendChild(col2);
+  list.appendChild(col3);
 }
 
 function setProgFromScalePop(idx){
@@ -7146,6 +7360,7 @@ function _rmRenderFeedbacksList(fbs){
 <div id="rp-side-strip">
   <button class="rp-vtab active" id="rp-tab-scale" onclick="rpSetTab('scale')">Gammes</button>
   <button class="rp-vtab" id="rp-tab-prog" onclick="rpSetTab('prog')">Progressions</button>
+  <button class="rp-vtab" id="rp-tab-ear" onclick="rpSetTab('ear')">Oreille</button>
   <button class="rp-vtab" id="rp-tab-prac" onclick="rpSetTab('prac')">Practice</button>
   <div id="prac-width-handle" title="Glisser pour redimensionner">⠿</div>
 </div>
