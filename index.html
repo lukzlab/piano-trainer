@@ -6489,6 +6489,8 @@ function _buildScalePopProgList(){
   var isProgMode=st.viewMode==='prog'&&customProg.idx<0;
   var noProgEl=document.getElementById('scale-pop-no-prog');
   if(noProgEl)noProgEl.className='scale-pop-prog-none'+(isProgMode?'':' active');
+  var hdr=document.getElementById('scale-pop-prog-header');
+  if(hdr)hdr.textContent='Progressions · '+getSC().label;
   var col1Cats=['Pop','Jazz','Blues','Rock','Soul'];
   var col2Cats=['Gospel','Modal'];
   var col1=document.createElement('div');col1.className='scale-pop-prog-col';
@@ -6531,6 +6533,16 @@ function clearProgFromScalePop(){
   updateAll();_updateScalePopBtn();
 }
 
+function _positionScalePop(pop){
+  var cofEl=document.getElementById('cof');
+  var rect=cofEl?cofEl.getBoundingClientRect():{left:window.innerWidth/2,top:window.innerHeight/2};
+  var cx=rect.left+rect.width/2;
+  var cy=rect.top+rect.height/2;
+  var pw=pop.offsetWidth||830;
+  pop.style.left=Math.max(8,Math.min(cx-pw/2,window.innerWidth-pw-8))+'px';
+  pop.style.top=Math.max(10,Math.min(cy-pop.offsetHeight/2,window.innerHeight-pop.offsetHeight-10))+'px';
+}
+
 function toggleScalePop(e){
   e.stopPropagation();
   _scalePopOpen=!_scalePopOpen;
@@ -6539,24 +6551,16 @@ function toggleScalePop(e){
     pop.classList.toggle('open',_scalePopOpen);
     if(_scalePopOpen){
       _buildScalePopProgList();
-      var cofEl=document.getElementById('cof');
-      var rect=cofEl?cofEl.getBoundingClientRect():{left:window.innerWidth/2,top:window.innerHeight/2};
-      var cx=rect.left+rect.width/2;
-      var cy=rect.top+rect.height/2;
-      var pw=460;
-      pop.style.left=Math.min(cx-pw/2,window.innerWidth-pw-8)+'px';
-      pop.style.top=Math.max(10,cy-pop.offsetHeight/2)+'px';
+      _positionScalePop(pop);
     }
   }
 }
 
 function setScaleFromPop(scaleId){
   st.scale=scaleId;
-  st.viewMode='scale';
-  _scalePopOpen=false;
-  var pop=document.getElementById('scale-popover');
-  if(pop)pop.classList.remove('open');
+  /* Reste dans le popup : l'utilisateur peut enchaîner avec un choix de progression */
   updateAll();_updateScalePopBtn();
+  _buildScalePopProgList();
 }
 
 /* Handler capture : le premier clic hors d'un menu flottant ferme juste ce menu,
@@ -7454,6 +7458,7 @@ function _rmRenderFeedbacksList(fbs){
   </div><!-- /.scale-pop-left -->
   <div class="scale-pop-right">
     <div class="scale-pop-prog-none" id="scale-pop-no-prog" onclick="clearProgFromScalePop()">— Gamme seule</div>
+    <div class="scale-pop-prog-cat" id="scale-pop-prog-header">Progressions</div>
     <div id="scale-pop-prog-list"></div>
   </div>
 </div>
